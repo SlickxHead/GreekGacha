@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 160" width="120" height="160">
+  <defs>
+    <linearGradient id="cbg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4a3560"/>
+      <stop offset="100%" stop-color="#2a1a38"/>
+    </linearGradient>
+    <linearGradient id="cwing" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fce7f3"/>
+      <stop offset="100%" stop-color="#f9a8d4"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="160" rx="4" fill="url(#cbg)"/>
+  <ellipse cx="38" cy="72" rx="14" ry="22" fill="url(#cwing)" opacity="0.9" transform="rotate(-25 38 72)"/>
+  <ellipse cx="82" cy="72" rx="14" ry="22" fill="url(#cwing)" opacity="0.9" transform="rotate(25 82 72)"/>
+  <ellipse cx="60" cy="52" rx="20" ry="24" fill="#e8c4a8"/>
+  <ellipse cx="60" cy="48" rx="16" ry="18" fill="#fcd34d" opacity="0.35"/>
+  <path fill="none" stroke="#be185d" stroke-width="2.5" stroke-linecap="round" d="M72 58 L95 42 M95 42 L88 38 M95 42 L92 50"/>
+  <path fill="none" stroke="#d4af37" stroke-width="2" d="M48 85 Q60 95 72 85"/>
+  <path fill="#fecdd3" d="M52 78 L60 88 L68 78 Z"/>
+  <path fill="none" stroke="#f472b6" stroke-width="1.5" d="M55 100 L60 118 L65 100 M52 128 L68 128"/>
+</svg>

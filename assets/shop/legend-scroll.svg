@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+  <defs>
+    <linearGradient id="lp" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#faf5ff"/>
+      <stop offset="50%" stop-color="#e9d5ff"/>
+      <stop offset="100%" stop-color="#c4b5fd"/>
+    </linearGradient>
+    <linearGradient id="lgem" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fcd34d"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#lp)" stroke="#7c3aed" stroke-width="2" d="M24 14h44c5 0 10 4 10 9v50c0 5-5 9-10 9H24c-5 0-10-4-10-9V23c0-5 5-9 10-9z"/>
+  <path fill="none" stroke="#6d28d9" stroke-width="1" opacity="0.45" d="M30 28h32M30 40h24M30 52h30"/>
+  <polygon points="48,58 52,68 44,68" fill="url(#lgem)"/>
+  <circle cx="48" cy="64" r="6" fill="url(#lgem)" stroke="#b45309" stroke-width="0.8"/>
+  <ellipse cx="76" cy="42" rx="11" ry="15" fill="url(#lp)" stroke="#7c3aed" stroke-width="2" transform="rotate(-10 76 42)"/>
+  <path fill="#fbbf24" opacity="0.9" d="M46 20h4v3h-4z"/>
+</svg>

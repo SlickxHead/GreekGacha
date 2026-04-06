@@ -1,0 +1,8 @@
+{
+  "name": "greek-gacha",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "play": "npx --yes serve . -l 5173"
+  }
+}

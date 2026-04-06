@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Greek Gacha</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="hero hero-global">
+        <h1 id="game-title">Greek Gacha</h1>
+        <p id="game-subtitle" class="muted"></p>
+        <div class="hub-resource-panel">
+          <p id="topbar-gold" class="topbar-gold" aria-live="polite"></p>
+          <p id="topbar-scrolls" class="topbar-scrolls" aria-live="polite"></p>
+        </div>
+      </header>
+
+      <!-- Hub -->
+      <section id="screen-hub" class="screen screen-active">
+        <nav class="hub-nav" aria-label="Main menu">
+          <button type="button" id="nav-campaign" class="hub-btn hub-btn-primary">
+            Campaign
+          </button>
+          <button type="button" id="nav-shop" class="hub-btn">Shop</button>
+          <button type="button" id="nav-summon" class="hub-btn">Summon</button>
+          <button type="button" id="nav-box" class="hub-btn">Character Box</button>
+          <button type="button" id="nav-quests" class="hub-btn">Quests</button>
+          <button type="button" id="nav-settings" class="hub-btn hub-btn-ghost">
+            Settings
+          </button>
+        </nav>
+        <p class="hub-tagline">Begin with Perseus and Aethra — earn more through the gacha.</p>
+      </section>
+
+      <!-- Settings -->
+      <section id="screen-settings" class="screen">
+        <button type="button" class="btn ghost back-btn" id="btn-back-hub-settings">← Hub</button>
+        <h2 class="screen-title">Settings</h2>
+        <p class="screen-desc">
+          Game data is stored in this browser (local storage). Nothing is sent to a server.
+        </p>
+        <div class="settings-panel card">
+          <h3 class="settings-section-title">Data</h3>
+          <p class="settings-section-desc">
+            Reset removes your collection (back to starters), campaign progress, battle party, summon
+            pity counters, gold, summon and legend scrolls, hero XP and levels, and NEW markers. This cannot be undone.
+          </p>
+          <button type="button" id="btn-reset-game-data" class="btn settings-danger-btn">
+            Reset all game data
+          </button>
+          <p id="settings-reset-feedback" class="settings-feedback" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <!-- Campaign -->
+      <section id="screen-campaign" class="screen">
+        <button type="button" class="btn ghost back-btn" id="btn-back-hub">← Hub</button>
+        <h2 class="screen-title">Campaign</h2>
+        <p class="screen-desc">
+          Ten stages. Push through soldiers and the dead, defeat Heracles at stage 5,
+          then challenge Hades at stage 10.
+          Each clear awards gold, XP for your battle party, and a chance at a summon scroll drop.
+          Your active party (max four) is chosen in the Character Box.
+        </p>
+        <div id="campaign-levels" class="campaign-levels"></div>
+      </section>
+
+      <!-- Shop -->
+      <section id="screen-shop" class="screen">
+        <div class="shop-screen-top">
+          <button type="button" class="btn back-btn shop-back-btn" id="btn-back-hub-shop">← Hub</button>
+          <div class="shop-screen-intro">
+            <h2 class="screen-title">Shop</h2>
+            <p class="screen-desc shop-screen-desc">
+              Summon scrolls, legend scrolls, and exclusive heroes. Normal gacha uses summon scrolls. Max hero level
+              50.
+            </p>
+          </div>
+        </div>
+        <div class="shop-panels-row">
+          <div class="shop-panel card shop-panel--scroll">
+            <div class="shop-item-visual">
+              <img
+                class="shop-item-img"
+                src="assets/shop/summon-scroll.png"
+                width="72"
+                height="72"
+                alt=""
+                decoding="async"
+              />
+            </div>
+            <h3 class="shop-section-title">Summon scroll</h3>
+            <p class="shop-section-desc">Gacha pulls &amp; campaign drops.</p>
+            <p class="shop-price-tag">500 gold</p>
+            <button type="button" id="btn-shop-scroll" class="btn primary shop-buy-btn">
+              Buy (500 gold)
+            </button>
+            <p id="shop-scroll-feedback" class="shop-inline-feedback" role="status" aria-live="polite"></p>
+          </div>
+          <div class="shop-panel card shop-panel--legend-scroll">
+            <div class="shop-item-visual">
+              <img
+                class="shop-item-img"
+                src="assets/shop/legend-scroll.png"
+                width="72"
+                height="72"
+                alt=""
+                decoding="async"
+              />
+            </div>
+            <h3 class="shop-section-title">Legend scroll</h3>
+            <p class="shop-section-desc">Epic or Legend — Legend still rare.</p>
+            <p class="shop-price-tag">10,000 gold</p>
+            <button type="button" id="btn-shop-legend-scroll" class="btn primary shop-buy-btn">
+              Buy (10,000 gold)
+            </button>
+            <p id="shop-legend-scroll-feedback" class="shop-inline-feedback" role="status" aria-live="polite"></p>
+          </div>
+          <div class="shop-panel card shop-panel--xp-scroll">
+            <div class="shop-item-visual">
+              <img
+                class="shop-item-img"
+                src="assets/shop/summon-scroll.png"
+                width="72"
+                height="72"
+                alt=""
+                decoding="async"
+              />
+            </div>
+            <h3 class="shop-section-title">XP scroll</h3>
+            <p class="shop-section-desc">Use on a party hero for +100 XP.</p>
+            <p class="shop-price-tag">200 gold</p>
+            <button type="button" id="btn-shop-xp-scroll" class="btn primary shop-buy-btn">
+              Buy (200 gold)
+            </button>
+            <p id="shop-xp-scroll-feedback" class="shop-inline-feedback" role="status" aria-live="polite"></p>
+          </div>
+          <div class="shop-panel card shop-panel--cupid">
+            <div class="shop-item-visual shop-item-visual--portrait">
+              <img
+                class="shop-item-img shop-item-img--hero"
+                src="assets/portraits/cupid.svg"
+                width="64"
+                height="85"
+                alt=""
+                decoding="async"
+              />
+            </div>
+            <h3 class="shop-section-title">Cupid</h3>
+            <p class="shop-section-desc">Epic archer — shop exclusive.</p>
+            <div id="shop-cupid-stats" class="shop-cupid-stats-wrap" aria-label="Cupid base stats"></div>
+            <p class="shop-price-tag">1,000 gold</p>
+            <button type="button" id="btn-shop-cupid" class="btn primary shop-buy-btn">
+              Buy (1,000 gold)
+            </button>
+            <div id="shop-cupid-result" class="summon-result shop-cupid-result" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Summon -->
+      <section id="screen-summon" class="screen">
+        <button type="button" class="btn ghost back-btn" id="btn-back-hub-summon">
+          ← Hub
+        </button>
+        <h2 class="screen-title">Summon</h2>
+        <p class="screen-desc">
+          Normal pulls use <strong>1 summon scroll</strong> (campaign drops or Shop). Pity carries over for those pulls.
+          <strong>Legend scrolls</strong> (Shop) always yield Epic or Legendary — Legendary is still uncommon. Max hero
+          level is 50; XP comes from campaign clears.
+        </p>
+        <div class="summon-pull-row">
+          <button type="button" id="btn-summon-pull" class="btn primary">Summon (1 scroll)</button>
+          <button type="button" id="btn-summon-legend-pull" class="btn primary summon-legend-pull-btn">
+            Legend summon (1 legend scroll)
+          </button>
+          <button type="button" id="btn-summon-skip" class="btn ghost summon-skip-btn" disabled>
+            Skip animation
+          </button>
+        </div>
+        <div class="summon-rates-wrap">
+          <button
+            type="button"
+            id="btn-summon-rates-toggle"
+            class="btn ghost summon-rates-tab"
+            aria-expanded="false"
+            aria-controls="summon-rates-panel"
+          >
+            Summon rates ▾
+          </button>
+          <section
+            id="summon-rates-panel"
+            class="summon-rates-panel summon-rates-panel--hidden"
+            aria-label="Summon rates"
+          >
+            <p class="summon-rates-heading">Normal summon (1 summon scroll)</p>
+            <p class="summon-rates-line">Rare: <strong>83%</strong> · Epic: <strong>15%</strong> · Legendary: <strong>2%</strong></p>
+            <p class="summon-rates-note">Pity: guaranteed Legendary after 50 pulls without one.</p>
+            <p class="summon-rates-heading">Legend summon (1 legend scroll)</p>
+            <p class="summon-rates-line">Epic: <strong>97%</strong> · Legendary: <strong>3%</strong></p>
+          </section>
+        </div>
+        <div id="summon-result" class="summon-result" aria-live="polite"></div>
+
+        <section
+          id="summon-pool-widget"
+          class="summon-pool-widget card"
+          aria-labelledby="summon-pool-heading"
+        >
+          <h3 id="summon-pool-heading" class="summon-pool-title">Summon pool</h3>
+          <p class="summon-pool-desc">
+            Heroes you can roll with summon scrolls (Rare, Epic, Legendary). Each pull consumes one scroll. Cupid is
+            shop-only — not listed here.
+          </p>
+          <div class="summon-pool-filters" id="summon-pool-filters">
+            <div class="summon-filter-group" role="group" aria-label="Filter by rarity">
+              <span class="summon-filter-label">Rarity</span>
+              <label class="summon-filter-chip">
+                <input
+                  type="checkbox"
+                  class="summon-rarity-cb"
+                  name="summon-rarity"
+                  value="Rare"
+                  checked
+                />
+                Rare
+              </label>
+              <label class="summon-filter-chip">
+                <input
+                  type="checkbox"
+                  class="summon-rarity-cb"
+                  name="summon-rarity"
+                  value="Epic"
+                  checked
+                />
+                Epic
+              </label>
+              <label class="summon-filter-chip">
+                <input
+                  type="checkbox"
+                  class="summon-rarity-cb"
+                  name="summon-rarity"
+                  value="Legendary"
+                  checked
+                />
+                Legendary
+              </label>
+            </div>
+            <div class="summon-filter-group summon-filter-group--status">
+              <label class="summon-filter-status-label" for="summon-f-status">Status</label>
+              <select id="summon-f-status" class="summon-f-status" name="summon-status">
+                <option value="all">All</option>
+                <option value="unlocked">Unlocked only</option>
+                <option value="locked">Locked only</option>
+              </select>
+            </div>
+          </div>
+          <div
+            id="summon-roster-grid"
+            class="summon-roster-grid"
+            role="list"
+            aria-live="polite"
+          ></div>
+        </section>
+      </section>
+
+      <!-- Character box -->
+      <section id="screen-box" class="screen">
+        <button type="button" class="btn ghost back-btn" id="btn-back-hub-box">← Hub</button>
+        <h2 class="screen-title">Character Box</h2>
+        <p class="screen-desc">
+          Heroes you own. Check up to four for campaign battles (blue = Rare, purple
+          = Epic, gold = Legendary).
+        </p>
+        <div id="party-toolbar" class="party-toolbar" aria-live="polite"></div>
+        <div id="xp-scroll-panel" class="xp-scroll-panel card" aria-live="polite"></div>
+        <div
+          id="character-box-list"
+          class="character-box-grid"
+          role="list"
+        ></div>
+      </section>
+
+      <!-- Quests -->
+      <section id="screen-quests" class="screen">
+        <button type="button" class="btn ghost back-btn" id="btn-back-hub-quests">← Hub</button>
+        <h2 class="screen-title">Quests</h2>
+        <p class="screen-desc">One-time first clear quests. Complete objectives, then claim rewards.</p>
+        <div id="quest-list" class="quest-list" role="list"></div>
+      </section>
+
+      <!-- Battle: fits one viewport — no page scroll -->
+      <section id="screen-battle" class="screen battle-screen">
+        <div class="battle-layout">
+          <button
+            type="button"
+            class="battle-fab-back"
+            id="btn-back-campaign"
+            title="Back to campaign"
+          >
+            ←
+          </button>
+          <p id="banner" class="banner battle-banner battle-banner--offscreen" role="status" aria-live="polite"></p>
+
+          <div class="arena battle-arena battle-arena--sw">
+            <div class="battle-strip battle-strip--enemy">
+              <div id="team-b-roster" class="roster roster--battle roster--sw-enemy"></div>
+            </div>
+
+            <div class="battle-strip battle-strip--ally">
+              <div id="team-a-roster" class="roster roster--battle roster--sw-ally"></div>
+            </div>
+
+            <div id="battle-fx-layer" class="battle-fx-layer" aria-hidden="true"></div>
+
+            <div class="battle-bll-dock" aria-label="Battle HUD">
+              <div
+                id="battle-turn-order"
+                class="battle-turn-order is-hidden"
+                aria-live="polite"
+              ></div>
+              <div class="battle-hud-rail" aria-hidden="true">
+                <button
+                  type="button"
+                  class="battle-hud-icon"
+                  title="Settings (placeholder)"
+                  tabindex="-1"
+                >
+                  ⚙
+                </button>
+                <button
+                  type="button"
+                  class="battle-hud-icon"
+                  id="btn-battle-speed"
+                  title="Battle speed (placeholder)"
+                >
+                  ×1
+                </button>
+                <button
+                  type="button"
+                  class="battle-hud-icon battle-hud-icon--auto"
+                  id="btn-battle-auto"
+                  title="Auto battle — AI plays your turns"
+                  aria-pressed="false"
+                >
+                  ▶
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            id="turn-panel"
+            class="turn-panel turn-panel--dock turn-panel--br-fixed is-hidden"
+            aria-live="polite"
+          >
+            <p id="turn-actor-label" class="turn-actor-label"></p>
+            <p class="turn-hint">
+              Tap an enemy (red ring), then pick a skill here. Order = SPD each round.
+            </p>
+            <div id="turn-skill-buttons" class="turn-skill-buttons"></div>
+          </div>
+
+          <div id="battle-log" class="battle-log battle-log--hidden" aria-hidden="true"></div>
+
+          <div class="battle-hidden-opts" aria-hidden="true">
+            <select id="targeting" name="targeting" tabindex="-1">
+              <option value="first">First alive</option>
+              <option value="lowestHp">Lowest HP</option>
+              <option value="random">Random</option>
+            </select>
+            <input type="checkbox" id="use-skills" checked tabindex="-1" />
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div
+      id="battle-win-overlay"
+      class="modal-overlay is-hidden"
+      aria-hidden="true"
+    >
+      <div
+        class="modal-card battle-win-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="battle-win-title"
+      >
+        <p class="battle-win-badge" aria-hidden="true">✦</p>
+        <h2 id="battle-win-title" class="battle-win-heading">Victory</h2>
+        <p id="battle-win-stage" class="battle-win-stage"></p>
+        <div id="battle-win-rewards" class="battle-win-rewards"></div>
+        <div id="battle-win-xp-list" class="battle-win-xp-list"></div>
+        <p id="battle-win-body" class="battle-win-body"></p>
+        <div class="modal-actions">
+          <button type="button" id="btn-win-replay" class="btn primary">
+            Replay stage
+          </button>
+          <button type="button" id="btn-win-continue" class="btn primary">
+            Continue to campaign
+          </button>
+          <button type="button" id="btn-win-hub" class="btn ghost">Hub</button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="battle-defeat-overlay"
+      class="modal-overlay is-hidden"
+      aria-hidden="true"
+    >
+      <div
+        class="modal-card battle-defeat-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="battle-defeat-title"
+      >
+        <p class="battle-defeat-badge" aria-hidden="true">†</p>
+        <h2 id="battle-defeat-title" class="battle-defeat-heading">Defeat</h2>
+        <p id="battle-defeat-stage" class="battle-defeat-stage"></p>
+        <p id="battle-defeat-body" class="battle-defeat-body"></p>
+        <div class="modal-actions">
+          <button type="button" id="btn-defeat-replay" class="btn primary">
+            Replay stage
+          </button>
+          <button type="button" id="btn-defeat-campaign" class="btn primary">
+            Back to campaign
+          </button>
+          <button type="button" id="btn-defeat-hub" class="btn ghost">Hub</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="campaign-lineup-overlay" class="modal-overlay is-hidden" aria-hidden="true">
+      <div
+        class="modal-card campaign-lineup-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="campaign-lineup-title"
+      >
+        <h2 id="campaign-lineup-title" class="campaign-lineup-title">Battle Setup</h2>
+        <p id="campaign-lineup-stage" class="campaign-lineup-stage"></p>
+        <div class="campaign-lineup-grid">
+          <section class="campaign-lineup-panel" aria-labelledby="campaign-lineup-party-title">
+            <h3 id="campaign-lineup-party-title" class="campaign-lineup-panel-title">
+              Your lineup
+            </h3>
+            <p class="campaign-lineup-panel-hint">Pick 1–4 heroes.</p>
+            <div id="campaign-lineup-party-list" class="campaign-lineup-list"></div>
+          </section>
+          <section class="campaign-lineup-panel" aria-labelledby="campaign-lineup-enemy-title">
+            <h3 id="campaign-lineup-enemy-title" class="campaign-lineup-panel-title">
+              Enemy lineup
+            </h3>
+            <div id="campaign-lineup-enemy-list" class="campaign-lineup-list"></div>
+          </section>
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="btn-lineup-cancel" class="btn ghost">Cancel</button>
+          <button type="button" id="btn-lineup-start" class="btn primary">Start battle</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="game.js"></script>
+  </body>
+</html>
