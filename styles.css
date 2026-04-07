@@ -64,6 +64,10 @@ body {
     linear-gradient(180deg, var(--marble) 0%, var(--marble-shadow) 100%);
 }
 
+body.mobile-mode {
+  background: #000;
+}
+
 h1,
 h2,
 h3,
@@ -724,6 +728,7 @@ select#targeting {
   align-items: flex-end;
   justify-content: center;
   background: rgba(2, 6, 23, 0.5);
+  pointer-events: none;
 }
 
 .mobile-rotate-text {
@@ -2054,6 +2059,8 @@ select#targeting {
 
 .modal-overlay.is-hidden {
   display: none;
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .battle-win-modal {
@@ -4061,7 +4068,7 @@ body.battle-active .app {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     max-height: -webkit-fill-available;
     max-height: 100dvh;
@@ -4073,8 +4080,26 @@ body.battle-active .app {
   #screen-hub.screen-active::before,
   #screen-battle.screen-active::before,
   #screen-battle.screen-active[class*="battle-stage-"]::before {
-    background-size: 100% 100% !important;
+    background-size: cover !important;
     background-position: center center !important;
+  }
+
+  #screen-hub.screen-active {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  #screen-campaign.screen-active {
+    position: relative;
+    z-index: 3;
+  }
+
+  .campaign-levels,
+  .campaign-levels .level-card,
+  .campaign-levels .level-start {
+    position: relative;
+    z-index: 4;
+    pointer-events: auto;
   }
 
   /* Main hub buttons container scaled down for small screens. */

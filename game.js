@@ -2782,10 +2782,20 @@ function renderCampaignLevels() {
   }).join("");
 
   container.querySelectorAll(".level-start").forEach((btn) => {
-    btn.addEventListener("click", () => {
+    const startFromBtn = () => {
       const idx = parseInt(btn.getAttribute("data-level"), 10);
       if (!btn.disabled) openCampaignLineupOverlay(idx);
-    });
+    };
+    btn.addEventListener("click", startFromBtn);
+    // iOS Safari can occasionally miss click on dense mobile layouts.
+    btn.addEventListener(
+      "touchend",
+      (e) => {
+        e.preventDefault();
+        startFromBtn();
+      },
+      { passive: false }
+    );
   });
 }
 
