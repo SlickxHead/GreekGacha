@@ -1073,21 +1073,23 @@ select#targeting {
 .hub-layout {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   flex: 1;
   min-height: 0;
+  width: 100%;
   position: relative;
   z-index: 1;
-}
-
-.hub-left {
-  display: none;
 }
 
 .hub-main {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  align-items: center;
+  flex: 0 1 auto;
   min-height: 0;
+  width: 100%;
+  max-width: min(22rem, 100%);
 }
 
 /* Reference layout: stacked rows — circular Pray, two split rows, minor row (matches AI mock). */
@@ -1097,9 +1099,8 @@ select#targeting {
   align-items: stretch;
   gap: 0.45rem;
   justify-content: flex-start;
-  max-width: 22rem;
-  margin: 0.2rem auto 0.65rem;
   width: 100%;
+  margin: 0.2rem 0 0.65rem;
 }
 
 .hub-nav-row {
@@ -1113,12 +1114,6 @@ select#targeting {
   gap: 0.35rem;
   margin-top: 0.1rem;
   opacity: 0.98;
-}
-
-@media (min-width: 951px) {
-  .hub-nav--reference {
-    max-width: min(34rem, 94vw);
-  }
 }
 
 .hub-pray-wrap {
@@ -1175,38 +1170,24 @@ select#targeting {
 }
 
 .hub-footer {
-  margin-top: auto;
+  margin-top: 0.35rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
-  padding-top: 0.45rem;
-}
-
-.hub-daily-wheel-btn {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 0.92rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: #3b2d1b;
+  justify-content: center;
   width: 100%;
-  max-width: 22rem;
-  padding: 0.42rem 1rem;
-  border-radius: 999px;
-  border: 0.125rem solid rgba(150, 117, 40, 0.75);
-  background: linear-gradient(180deg, rgba(255, 252, 242, 0.96) 0%, rgba(240, 230, 210, 0.96) 100%);
-  box-shadow:
-    0 4px 14px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.74);
-  cursor: pointer;
-  transition: transform 0.12s ease;
-}
-
-.hub-daily-wheel-btn:active {
-  transform: scale(0.99);
+  padding-top: 0.35rem;
 }
 
 @media (min-width: 951px) {
+  .hub-main {
+    max-width: min(34rem, 94vw);
+  }
+
+  .hub-nav--reference {
+    max-width: min(34rem, 94vw);
+  }
+
   .hub-pray-sub {
     display: none;
   }
@@ -1394,14 +1375,6 @@ select#targeting {
     0 0 0 1px rgba(80, 60, 30, 0.12);
 }
 
-#screen-hub.screen-active .hub-daily-wheel-btn {
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: clamp(0.65rem, 2vw, 0.88rem);
-  background: linear-gradient(180deg, rgba(255, 252, 242, 0.96) 0%, rgba(240, 230, 210, 0.96) 100%);
-  border-color: rgba(150, 117, 40, 0.78);
-}
-
 .hero-global #game-title {
   color: #f6e8bf;
   font-size: clamp(2.25rem, 5vw, 3rem);
@@ -1431,7 +1404,7 @@ select#targeting {
     inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
-/* Touch phones: landscape-style hub — hero art left, menu right, HUD top-right. */
+/* Touch phones: hub centered, HUD top-right. */
 @media (max-width: 950px) and (pointer: coarse) {
   body.hub-screen-active .hero-global {
     position: absolute;
@@ -1474,34 +1447,13 @@ select#targeting {
   }
 
   .hub-layout {
-    flex-direction: row;
-    align-items: stretch;
-    gap: 0.28rem;
-  }
-
-  .hub-left {
-    display: flex;
-    flex: 0 0 36%;
-    min-width: 0;
-    align-items: flex-end;
     justify-content: center;
-  }
-
-  .hub-hero-img {
-    width: auto;
-    max-width: 100%;
-    max-height: min(78vh, 100%);
-    height: auto;
-    object-fit: contain;
-    object-position: bottom center;
-    pointer-events: none;
-    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+    align-items: center;
   }
 
   .hub-main {
-    flex: 1;
-    min-width: 0;
-    justify-content: space-between;
+    max-width: min(22rem, 92vw);
+    justify-content: center;
   }
 
   .hub-nav--reference {
@@ -1548,12 +1500,6 @@ select#targeting {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-  }
-
-  .hub-daily-wheel-btn {
-    font-size: 0.68rem;
-    padding: 0.32rem 0.65rem;
-    max-width: none;
   }
 
   .hub-btn--minor {

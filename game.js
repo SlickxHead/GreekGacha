@@ -665,7 +665,6 @@ function showScreen(screenElId) {
   document.body.classList.toggle("hub-screen-active", screenElId === "screen-hub");
   renderGoldBar();
   renderSummonScrollBar();
-  renderHubDailyWheel();
   updateShopCupidButton();
   updateShopScrollButton();
   updateShopLegendScrollButton();
@@ -1305,17 +1304,6 @@ function renderGoldBar() {
   }
 }
 
-function renderHubDailyWheel() {
-  const btn = el("btn-hub-daily-wheel");
-  if (!btn) return;
-  const left = dailyPrayMsRemaining();
-  const ready = left <= 0;
-  btn.textContent = ready ? "Daily wheel: 1" : "Daily wheel: 0";
-  btn.title = ready
-    ? "Open the daily prayer wheel — spin is ready."
-    : `Next spin in ${formatMsClock(left)}.`;
-}
-
 function renderSummonScrollBar() {
   const node = el("topbar-scrolls");
   if (node) {
@@ -1433,7 +1421,6 @@ function renderPrayPanel() {
   cd.textContent = ready
     ? "Daily blessing ready."
     : `Next prayer in ${formatMsClock(left)}.`;
-  renderHubDailyWheel();
 }
 
 async function doDailyPraySpin() {
@@ -3219,13 +3206,6 @@ function init() {
   el("nav-pray").addEventListener("click", () => {
     showScreen("screen-pray");
   });
-
-  const hubDailyWheel = el("btn-hub-daily-wheel");
-  if (hubDailyWheel) {
-    hubDailyWheel.addEventListener("click", () => {
-      showScreen("screen-pray");
-    });
-  }
   el("nav-box").addEventListener("click", () => {
     renderCharacterBox();
     showScreen("screen-box");
