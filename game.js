@@ -2614,7 +2614,13 @@ function showPlayerTurnUI(actor) {
     preview.className = "turn-skill-preview turn-skill-preview--muted";
     panel.appendChild(preview);
   }
-  const defaultDesc = "Hover a skill to read its full effect and cooldown.";
+  const coarsePointer =
+    typeof window !== "undefined" &&
+    window.matchMedia &&
+    window.matchMedia("(pointer: coarse)").matches;
+  const defaultDesc = coarsePointer
+    ? "Hold a skill to read its full effect."
+    : "Hover a skill to read its full effect and cooldown.";
   preview.textContent = defaultDesc;
   preview.classList.add("turn-skill-preview--muted");
 
@@ -2663,20 +2669,52 @@ function showPlayerTurnUI(actor) {
     preview.textContent = text || defaultDesc;
     preview.classList.toggle("turn-skill-preview--muted", !text);
   };
-  box.onmouseover = (e) => {
-    const btn = e.target.closest(".skill-pick");
-    if (!btn) {
-      setSkillPreview("");
-      return;
+  let skillHoldTimer = null;
+  const clearSkillHold = () => {
+    if (skillHoldTimer != null) {
+      clearTimeout(skillHoldTimer);
+      skillHoldTimer = null;
     }
-    setSkillPreview(btn.getAttribute("data-skill-desc"));
   };
+  if (coarsePointer) {
+    box.onmouseover = null;
+    box.onmouseleave = null;
+    box.onpointerdown = (e) => {
+      const btn = e.target.closest(".skill-pick");
+      if (!btn || btn.disabled) return;
+      clearSkillHold();
+      skillHoldTimer = window.setTimeout(() => {
+        skillHoldTimer = null;
+        setSkillPreview(btn.getAttribute("data-skill-desc"));
+      }, 300);
+    };
+    box.onpointerup = () => {
+      clearSkillHold();
+      setSkillPreview("");
+    };
+    box.onpointercancel = () => {
+      clearSkillHold();
+      setSkillPreview("");
+    };
+  } else {
+    box.onpointerdown = null;
+    box.onpointerup = null;
+    box.onpointercancel = null;
+    box.onmouseover = (e) => {
+      const btn = e.target.closest(".skill-pick");
+      if (!btn) {
+        setSkillPreview("");
+        return;
+      }
+      setSkillPreview(btn.getAttribute("data-skill-desc"));
+    };
+    box.onmouseleave = () => setSkillPreview("");
+  }
   box.onfocusin = (e) => {
     const btn = e.target.closest(".skill-pick");
     if (!btn) return;
     setSkillPreview(btn.getAttribute("data-skill-desc"));
   };
-  box.onmouseleave = () => setSkillPreview("");
   box.onfocusout = () => {
     if (!box.contains(document.activeElement)) setSkillPreview("");
   };

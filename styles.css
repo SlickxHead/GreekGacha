@@ -4775,7 +4775,7 @@ body.battle-active .app {
   }
 
   #screen-battle.screen-active .battle-layout {
-    padding-bottom: 7.4rem;
+    padding-bottom: 4.5rem;
   }
 
   .turn-panel--br-fixed {
@@ -4913,5 +4913,169 @@ body.battle-active .app {
 
   body.campaign-screen-active #screen-campaign .level-lock {
     font-size: 0.5rem;
+  }
+}
+
+/* Battle (touch phones / tablets): fit arena + dock; allies pinned bottom; compact skill dock. */
+@media (max-width: 950px) and (pointer: coarse) {
+  body.battle-active #screen-battle.screen-active .battle-layout {
+    padding-bottom: 4.35rem;
+    padding-left: calc(0.28rem + var(--safe-left));
+    padding-right: calc(0.28rem + var(--safe-right));
+  }
+
+  body.battle-active .battle-arena--sw {
+    justify-content: flex-start;
+    gap: 0.3rem;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    min-height: 0;
+  }
+
+  body.battle-active .battle-strip--enemy {
+    flex-shrink: 0;
+    max-height: min(34vh, 200px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body.battle-active .battle-strip--ally {
+    margin-top: auto;
+    flex-shrink: 0;
+    min-height: 4.75rem;
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  body.battle-active .battle-bll-dock {
+    left: calc(0.28rem + var(--safe-left));
+    bottom: calc(0.32rem + var(--safe-bottom));
+    gap: 0.22rem;
+    max-width: min(46vw, 11rem);
+  }
+
+  body.battle-active .battle-hud-rail .battle-hud-icon:first-child {
+    display: none;
+  }
+
+  body.battle-active .battle-hud-icon {
+    width: 1.85rem;
+    height: 1.85rem;
+    font-size: 0.82rem;
+  }
+
+  body.battle-active #btn-battle-speed {
+    font-size: 0.66rem;
+  }
+
+  body.battle-active .sw-turn-order-bar {
+    padding: 0.18rem 0.32rem;
+    gap: 0.28rem;
+  }
+
+  body.battle-active .sw-turn-order-title {
+    display: none;
+  }
+
+  body.battle-active .sw-turn-chip-inner {
+    font-size: 0.62rem;
+    min-width: 1.15rem;
+    min-height: 1.15rem;
+  }
+
+  body.battle-active .turn-panel--br-fixed {
+    right: calc(0.28rem + var(--safe-right));
+    bottom: calc(0.28rem + var(--safe-bottom));
+    max-width: min(42vw, 9.75rem);
+    padding: 0.32rem 0.38rem;
+  }
+
+  body.battle-active .turn-panel--br-fixed .turn-actor-label,
+  body.battle-active .turn-panel--br-fixed .turn-hint {
+    display: none !important;
+  }
+
+  body.battle-active .turn-passive-row {
+    display: none;
+  }
+
+  body.battle-active .skill-slot-row {
+    justify-content: center;
+    gap: 0.28rem;
+  }
+
+  body.battle-active .turn-skill-buttons .btn.skill-pick.skill-slot {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  body.battle-active .skill-slot-caption {
+    display: none !important;
+  }
+
+  body.battle-active .skill-slot {
+    flex: 0 0 auto;
+    min-width: 2.45rem;
+    max-width: 2.75rem;
+    min-height: 2.55rem !important;
+    padding: 0.22rem 0.24rem !important;
+    gap: 0;
+  }
+
+  body.battle-active .skill-slot-icon {
+    font-size: 1.05rem;
+  }
+
+  body.battle-active .skill-slot-icon-img {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  body.battle-active .turn-skill-preview {
+    left: auto;
+    right: 0;
+    max-width: min(72vw, 14rem);
+    max-height: min(32vh, 9.5rem);
+    overflow-y: auto;
+    padding: 0.34rem 0.42rem;
+    font-size: 0.62rem;
+    line-height: 1.32;
+    bottom: calc(100% + 0.32rem);
+  }
+
+  body.battle-active .battle-fab-back {
+    width: 2.35rem;
+    height: 2.35rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 950px) and (pointer: coarse) and (orientation: landscape) {
+  body.battle-active #screen-battle.screen-active .battle-layout {
+    padding-bottom: 3.65rem;
+    padding-top: 0.12rem;
+  }
+
+  body.battle-active .battle-strip--enemy {
+    max-height: min(30vh, 170px);
+  }
+
+  body.battle-active .battle-strip--ally {
+    min-height: 4.25rem;
+  }
+
+  body.battle-active .turn-panel--br-fixed {
+    max-width: min(38vw, 8.85rem);
+    padding: 0.28rem 0.32rem;
+  }
+
+  body.battle-active .skill-slot {
+    min-width: 2.28rem;
+    max-width: 2.55rem;
+    min-height: 2.4rem !important;
   }
 }
