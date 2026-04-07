@@ -4056,6 +4056,34 @@ body.battle-active .app {
 
 /* Mobile fit pass: use horizontal rails to save vertical space. */
 @media (max-width: 900px) {
+  .app {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    max-height: -webkit-fill-available;
+    max-height: 100dvh;
+    padding: 0.65rem;
+    border: 5px solid red;
+  }
+
+  /* Stretch backdrop fully to phone edges for debugging fit. */
+  #screen-hub.screen-active::before,
+  #screen-battle.screen-active::before,
+  #screen-battle.screen-active[class*="battle-stage-"]::before {
+    background-size: 100% 100% !important;
+    background-position: center center !important;
+  }
+
+  /* Main hub buttons container scaled down for small screens. */
+  .hub-nav {
+    transform: scale(0.8);
+    transform-origin: top center;
+    zoom: 0.8;
+  }
+
   .campaign-levels,
   .quest-list,
   .character-box-grid,
