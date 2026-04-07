@@ -4066,7 +4066,7 @@ body.battle-active .app {
     max-height: -webkit-fill-available;
     max-height: 100dvh;
     padding: 0.65rem;
-    border: 5px solid red;
+    border: 0;
   }
 
   /* Stretch backdrop fully to phone edges for debugging fit. */
@@ -4079,9 +4079,12 @@ body.battle-active .app {
 
   /* Main hub buttons container scaled down for small screens. */
   .hub-nav {
-    transform: scale(0.8);
-    transform-origin: top center;
-    zoom: 0.8;
+    transform: none;
+    zoom: 1;
+    width: min(100%, 42rem);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem;
+    margin: 0.08rem auto 0.35rem;
   }
 
   .campaign-levels,
@@ -4120,32 +4123,62 @@ body.battle-active .app {
 
 /* Mobile landscape: compact UI so sideways play fits cleanly. */
 @media (max-width: 950px) and (orientation: landscape) {
+  .app {
+    justify-content: flex-start;
+    gap: 0.2rem;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+  }
+
   .hero-global {
-    gap: 0.1rem;
-    margin-bottom: 0.45rem;
+    gap: 0.05rem;
+    margin-bottom: 0.22rem;
   }
 
   .hero-global #game-title {
-    font-size: clamp(1.35rem, 3.6vw, 2rem);
+    font-size: clamp(1.1rem, 3.2vw, 1.55rem);
   }
 
   .hero-global #game-subtitle {
-    font-size: 0.9rem;
+    font-size: 0.72rem;
+    line-height: 1.12;
   }
 
   .hub-resource-panel {
-    padding: 0.18rem 0.65rem 0.24rem;
+    min-width: min(96vw, 23rem);
+    padding: 0.1rem 0.52rem 0.16rem;
+  }
+
+  .topbar-gold {
+    font-size: 0.86rem;
+    margin: 0;
+  }
+
+  .topbar-scrolls {
+    font-size: 0.73rem;
+    line-height: 1.12;
   }
 
   .hub-nav {
-    gap: 0.4rem;
-    margin: 0.12rem auto 0.45rem;
+    gap: 0.28rem;
+    margin: 0.06rem auto 0.2rem;
   }
 
   .hub-btn {
-    min-height: 2.3rem;
-    padding: 0.38rem 0.55rem;
-    font-size: 0.86rem;
+    min-height: 2rem;
+    padding: 0.28rem 0.42rem;
+    font-size: 0.74rem;
+  }
+
+  .hub-tagline {
+    margin-top: 0.08rem;
+    font-size: 0.69rem;
+    line-height: 1.2;
+    padding: 0.2rem 0.4rem;
+    max-width: min(96vw, 35rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   #screen-settings.screen-active,
@@ -4164,19 +4197,107 @@ body.battle-active .app {
   }
 
   .screen-desc {
-    font-size: 0.74rem;
-    margin-bottom: 0.3rem;
+    font-size: 0.66rem;
+    margin-bottom: 0.2rem;
+    line-height: 1.2;
+  }
+
+  #screen-campaign.screen-active .screen-desc {
+    max-height: 2.35em;
+    overflow: hidden;
   }
 
   .pray-panel {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(128px, 170px) minmax(165px, 1fr);
+    gap: 0.45rem;
+    align-items: center;
     justify-items: center;
-    text-align: center;
+    text-align: left;
+    padding: 0.45rem;
+  }
+
+  .pray-wheel {
+    width: min(30vw, 160px);
+    height: min(30vw, 160px);
+  }
+
+  .pray-wheel-item-label {
+    top: -69px;
+    left: -31px;
+    width: 62px;
+    font-size: 0.54rem;
+  }
+
+  .pray-wheel-core {
+    width: 37px;
+    height: 37px;
+    font-size: 0.88rem;
   }
 
   .pray-actions {
-    width: min(100%, 420px);
-    align-items: center;
+    width: 100%;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+
+  #btn-pray-spin {
+    padding: 0.28rem 0.48rem;
+    font-size: 0.72rem;
+  }
+
+  .pray-cooldown,
+  .pray-result {
+    font-size: 0.66rem;
+    line-height: 1.2;
+  }
+
+  .campaign-levels {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.28rem;
+    overflow: hidden;
+    padding-right: 0;
+    margin-top: 0.12rem;
+  }
+
+  .campaign-levels > .level-card {
+    flex: initial;
+    width: auto;
+  }
+
+  .level-card {
+    min-height: 0;
+    padding: 0.3rem;
+    border-radius: 0.45rem;
+  }
+
+  .level-card-head {
+    margin-bottom: 0.16rem;
+  }
+
+  .level-num {
+    font-size: 0.52rem;
+  }
+
+  .level-title {
+    font-size: 0.64rem;
+    margin-bottom: 0.08rem;
+  }
+
+  .level-blurb {
+    font-size: 0.54rem;
+    line-height: 1.16;
+    margin-bottom: 0.2rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .level-start {
+    min-height: 1.38rem;
+    font-size: 0.6rem;
+    padding: 0.18rem 0.28rem;
   }
 
   #screen-battle.screen-active .battle-layout {
@@ -4208,5 +4329,15 @@ body.battle-active .app {
   .battle-fab-back {
     width: 2.8rem;
     height: 2.8rem;
+  }
+}
+
+@media (pointer: coarse) and (max-width: 950px) and (orientation: landscape) {
+  .btn,
+  .hub-btn,
+  .shop-buy-btn,
+  .battle-hud-icon,
+  .skill-slot {
+    min-height: 34px;
   }
 }
