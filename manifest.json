@@ -1,0 +1,9 @@
+{
+  "name": "Greek Gacha",
+  "short_name": "Greek Gacha",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "landscape",
+  "theme_color": "#000000",
+  "background_color": "#000000"
+}
