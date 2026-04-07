@@ -64,8 +64,13 @@ body {
     linear-gradient(180deg, var(--marble) 0%, var(--marble-shadow) 100%);
 }
 
+/* Keep marble/light background on mobile — dark tabs were caused by forcing black here. */
 body.mobile-mode {
-  background: #000;
+  background-color: var(--marble);
+  background-image:
+    radial-gradient(ellipse 120% 80% at 20% 10%, rgba(255, 255, 255, 0.9) 0%, transparent 50%),
+    radial-gradient(ellipse 100% 60% at 80% 90%, rgba(235, 230, 220, 0.7) 0%, transparent 45%),
+    linear-gradient(180deg, var(--marble) 0%, var(--marble-shadow) 100%);
 }
 
 h1,
@@ -89,6 +94,16 @@ h3,
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.app > header.hero-global {
+  flex-shrink: 0;
+}
+
+/* One active screen fills space below header; inner content can scroll without clipping. */
+.app > .screen.screen-active {
+  flex: 1 1 0%;
+  min-height: 0;
 }
 
 .hero {
@@ -678,7 +693,9 @@ select#targeting {
 }
 
 .screen.screen-active {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .mobile-launch-overlay,
@@ -742,19 +759,19 @@ select#targeting {
   text-align: center;
 }
 
-/* Non-battle screens should fit one viewport without page scrolling. */
+/* Non-battle tabs: fill space under header; scroll inside the tab so nothing is clipped. */
 #screen-settings.screen-active,
 #screen-campaign.screen-active,
 #screen-summon.screen-active,
 #screen-pray.screen-active,
 #screen-box.screen-active,
 #screen-quests.screen-active {
-  max-height: calc(100vh - 8.8rem);
-  max-height: calc(100dvh - 8.8rem);
-  overflow: hidden;
+  flex: 1 1 0%;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding-bottom: 0.6rem;
-  display: flex;
-  flex-direction: column;
 }
 
 #screen-settings.screen-active .screen-title,
@@ -1137,15 +1154,16 @@ select#targeting {
 #screen-hub.screen-active {
   position: relative;
   isolation: isolate;
-  min-height: 100vh;
-  min-height: 100dvh;
+  flex: 1 1 0%;
+  min-height: 0;
   padding: 1.15rem 1rem 2rem;
   margin-left: -1rem;
   margin-right: -1rem;
   padding-left: 1rem;
   padding-right: 1rem;
   border-radius: 0;
-  overflow: visible;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 #screen-hub.screen-active::before {
@@ -1240,18 +1258,17 @@ select#targeting {
   isolation: isolate;
   display: flex;
   flex-direction: column;
+  flex: 1 1 0%;
   min-height: 0;
-  max-height: calc(100vh - 9.5rem);
-  max-height: calc(100dvh - 9.5rem);
-  height: calc(100vh - 9.5rem);
-  height: calc(100dvh - 9.5rem);
   padding: 0.45rem 0.5rem 0.55rem;
   margin-left: -1rem;
   margin-right: -1rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   border-radius: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
 }
 
@@ -1298,21 +1315,7 @@ select#targeting {
   margin-bottom: 0.35rem;
 }
 
-#screen-shop.screen-active .shop-back-btn {
-  flex-shrink: 0;
-  margin-bottom: 0;
-  background: #ffffff !important;
-  color: #0f172a !important;
-  border: 2px solid rgba(255, 255, 255, 0.98) !important;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
-  font-weight: 700;
-}
-
-#screen-shop.screen-active .shop-back-btn:hover:not(:disabled) {
-  background: #f1f5f9 !important;
-  color: #0f172a !important;
-  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.4);
-}
+/* Shared compact ← Hub (Shop uses stronger shadow on dark BG) — see .shop-back-btn below */
 
 #screen-shop.screen-active .shop-screen-intro {
   flex: 1;
@@ -1686,6 +1689,37 @@ select#targeting {
 
 .back-btn {
   margin-bottom: 0.75rem;
+}
+
+/* Compact white ← Hub — same footprint as Shop (all sub-screens). */
+.btn.shop-back-btn {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-bottom: 0.35rem;
+  padding: 0.22rem 0.55rem;
+  font-size: 0.78rem;
+  line-height: 1.25;
+  min-height: 0;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 2px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  font-weight: 700;
+}
+
+.btn.shop-back-btn:hover:not(:disabled) {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+#screen-shop.screen-active .shop-back-btn {
+  border: 2px solid rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+#screen-shop.screen-active .shop-back-btn:hover:not(:disabled) {
+  background: #f1f5f9 !important;
+  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.4);
 }
 
 .campaign-levels {
@@ -4066,14 +4100,15 @@ body.battle-active .app {
   .app {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: stretch;
     width: 100%;
     height: 100vh;
     max-height: -webkit-fill-available;
     max-height: 100dvh;
-    padding: 0.65rem;
+    padding: 0.5rem 0.55rem 0.6rem;
     border: 0;
+    gap: 0.15rem;
   }
 
   /* Stretch backdrop fully to phone edges for debugging fit. */
@@ -4113,7 +4148,19 @@ body.battle-active .app {
     margin: 0.08rem auto 0.35rem;
   }
 
-  .campaign-levels,
+  .campaign-levels {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+    overflow: visible;
+    touch-action: manipulation;
+  }
+
+  .campaign-levels > .level-card {
+    width: 100%;
+    max-width: 100%;
+  }
+
   .quest-list,
   .character-box-grid,
   .summon-roster-grid {
@@ -4124,9 +4171,9 @@ body.battle-active .app {
     gap: 0.62rem;
     padding-bottom: 0.24rem;
     scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .campaign-levels > .level-card,
   .quest-list > .quest-card,
   .character-box-grid > .box-collection-card,
   .summon-roster-grid > .summon-roster-card {
@@ -4144,11 +4191,6 @@ body.battle-active .app {
 
   #screen-shop.screen-active .shop-panels-row .shop-panel {
     flex: 0 0 min(68vw, 220px);
-  }
-
-  .campaign-levels {
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
   }
 
   .level-start {
@@ -4226,9 +4268,9 @@ body.battle-active .app {
   #screen-summon.screen-active,
   #screen-pray.screen-active,
   #screen-box.screen-active,
-  #screen-quests.screen-active {
-    max-height: calc(100vh - 5.9rem);
-    max-height: calc(100dvh - 5.9rem);
+  #screen-quests.screen-active,
+  #screen-shop.screen-active {
+    max-height: none;
   }
 
   .screen-title {
@@ -4240,11 +4282,6 @@ body.battle-active .app {
     font-size: 0.66rem;
     margin-bottom: 0.2rem;
     line-height: 1.2;
-  }
-
-  #screen-campaign.screen-active .screen-desc {
-    max-height: 2.35em;
-    overflow: hidden;
   }
 
   .pray-panel {
@@ -4366,12 +4403,17 @@ body.battle-active .app {
 
 /* Coarse pointer comfort: larger tap targets on phones/tablets. */
 @media (pointer: coarse) {
-  .btn,
+  .btn:not(.shop-back-btn),
   .hub-btn,
   .shop-buy-btn,
   .battle-hud-icon,
   .skill-slot {
     min-height: 44px;
+  }
+
+  .btn.shop-back-btn {
+    min-height: 36px;
+    padding: 0.28rem 0.55rem;
   }
 
   .battle-fab-back {
@@ -4381,11 +4423,15 @@ body.battle-active .app {
 }
 
 @media (pointer: coarse) and (max-width: 950px) and (orientation: landscape) {
-  .btn,
+  .btn:not(.shop-back-btn),
   .hub-btn,
   .shop-buy-btn,
   .battle-hud-icon,
   .skill-slot {
     min-height: 34px;
+  }
+
+  .btn.shop-back-btn {
+    min-height: 32px;
   }
 }
