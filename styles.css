@@ -4741,3 +4741,95 @@ body.battle-active .app {
     min-height: 32px;
   }
 }
+
+/* Campaign (touch phones): hide global header; use vertical space for stage list. */
+@media (max-width: 950px) and (pointer: coarse) {
+  body.campaign-screen-active .hero-global {
+    display: none;
+  }
+
+  body.campaign-screen-active .app {
+    padding-top: calc(0.3rem + var(--safe-top));
+    gap: 0;
+  }
+
+  body.campaign-screen-active #screen-campaign.screen-active .screen-desc {
+    display: none;
+  }
+
+  body.campaign-screen-active #screen-campaign.screen-active .screen-title {
+    font-size: 1.05rem;
+    margin: 0.1rem 0 0.2rem;
+  }
+
+  body.campaign-screen-active #screen-campaign.screen-active .shop-back-btn {
+    margin-bottom: 0.22rem;
+    padding: 0.22rem 0.52rem;
+    font-size: 0.76rem;
+    min-height: 0;
+  }
+}
+
+/* Campaign landscape: denser grid + smaller copy and Fight buttons so all 10 stages fit. */
+@media (max-width: 950px) and (orientation: landscape) and (pointer: coarse) {
+  body.campaign-screen-active .app {
+    padding-top: calc(0.22rem + var(--safe-top));
+    padding-bottom: calc(0.3rem + var(--safe-bottom));
+  }
+
+  body.campaign-screen-active #screen-campaign.screen-active {
+    padding: 0.28rem 0.42rem 0.4rem;
+  }
+
+  body.campaign-screen-active #screen-campaign.screen-active .screen-title {
+    font-size: 0.92rem;
+    margin: 0.04rem 0 0.1rem;
+  }
+
+  body.campaign-screen-active #screen-campaign.screen-active .shop-back-btn {
+    padding: 0.14rem 0.42rem;
+    font-size: 0.66rem;
+    margin-bottom: 0.12rem;
+    min-height: 0;
+  }
+
+  body.campaign-screen-active #screen-campaign .campaign-levels {
+    gap: 0.2rem;
+    margin-top: 0.05rem;
+  }
+
+  body.campaign-screen-active #screen-campaign .level-card {
+    padding: 0.18rem 0.22rem;
+    border-radius: 0.38rem;
+  }
+
+  body.campaign-screen-active #screen-campaign .level-card-head {
+    margin-bottom: 0.08rem;
+  }
+
+  body.campaign-screen-active #screen-campaign .level-num {
+    font-size: 0.46rem;
+  }
+
+  body.campaign-screen-active #screen-campaign .level-title {
+    font-size: 0.54rem;
+    margin-bottom: 0.04rem;
+  }
+
+  body.campaign-screen-active #screen-campaign .level-blurb {
+    font-size: 0.46rem;
+    line-height: 1.1;
+    margin-bottom: 0.1rem;
+  }
+
+  body.campaign-screen-active #screen-campaign .level-start.btn.primary {
+    min-height: 0;
+    padding: 0.1rem 0.22rem;
+    font-size: 0.52rem;
+    line-height: 1.2;
+  }
+
+  body.campaign-screen-active #screen-campaign .level-lock {
+    font-size: 0.5rem;
+  }
+}

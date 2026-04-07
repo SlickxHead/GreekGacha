@@ -663,6 +663,7 @@ function showScreen(screenElId) {
   if (node) node.classList.add("screen-active");
   document.body.classList.toggle("battle-active", screenElId === "screen-battle");
   document.body.classList.toggle("hub-screen-active", screenElId === "screen-hub");
+  document.body.classList.toggle("campaign-screen-active", screenElId === "screen-campaign");
   renderGoldBar();
   renderSummonScrollBar();
   updateShopCupidButton();
