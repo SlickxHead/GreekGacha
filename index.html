@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body class="hub-screen-active">
+    <div class="landscape-root">
     <div class="app">
       <header class="hero hero-global">
         <h1 id="game-title">Greek Gacha</h1>
@@ -37,29 +38,35 @@
             />
           </div>
           <div class="hub-main">
-            <nav class="hub-nav" aria-label="Main menu">
+            <nav class="hub-nav hub-nav--reference" aria-label="Main menu">
               <div class="hub-pray-wrap">
                 <button type="button" id="nav-pray" class="hub-btn hub-btn-primary hub-btn-pray">
                   Pray
                 </button>
                 <span class="hub-pray-sub">Daily free</span>
               </div>
-              <button type="button" id="nav-shop" class="hub-btn hub-btn-deco hub-btn-deco--tl">
-                Shop
-              </button>
-              <button type="button" id="nav-box" class="hub-btn hub-btn-deco hub-btn-deco--tr">
-                Inventory
-              </button>
-              <button type="button" id="nav-summon" class="hub-btn">Summon</button>
-              <button type="button" id="nav-campaign" class="hub-btn hub-btn-primary">
-                Campaign
-              </button>
-              <button type="button" id="nav-quests" class="hub-btn hub-btn-ghost hub-btn--minor">
-                Quests
-              </button>
-              <button type="button" id="nav-settings" class="hub-btn hub-btn-ghost hub-btn--minor">
-                Settings
-              </button>
+              <div class="hub-nav-row">
+                <button type="button" id="nav-shop" class="hub-btn hub-tab hub-btn-deco hub-btn-deco--tl">
+                  Shop
+                </button>
+                <button type="button" id="nav-box" class="hub-btn hub-tab hub-btn-deco hub-btn-deco--tr">
+                  Inventory
+                </button>
+              </div>
+              <div class="hub-nav-row">
+                <button type="button" id="nav-summon" class="hub-btn hub-tab">Summon</button>
+                <button type="button" id="nav-campaign" class="hub-btn hub-tab hub-btn-primary">
+                  Campaign
+                </button>
+              </div>
+              <div class="hub-nav-row hub-nav-row--minor">
+                <button type="button" id="nav-quests" class="hub-btn hub-btn-ghost hub-btn--minor hub-tab-minor">
+                  Quests
+                </button>
+                <button type="button" id="nav-settings" class="hub-btn hub-btn-ghost hub-btn--minor hub-tab-minor">
+                  Settings
+                </button>
+              </div>
             </nav>
             <div class="hub-footer">
               <p class="hub-tagline">Begin with Perseus…</p>
@@ -522,6 +529,7 @@
           <button type="button" id="btn-lineup-start" class="btn primary">Start battle</button>
         </div>
       </div>
+    </div>
     </div>
 
     <script type="module" src="game.js"></script>

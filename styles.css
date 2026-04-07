@@ -49,6 +49,30 @@ body {
   inset: 0;
 }
 
+/* Wraps all game UI; rotated in portrait on touch phones so layout stays landscape. */
+.landscape-root {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+@media (pointer: coarse) and (max-width: 900px) and (orientation: portrait) {
+  .landscape-root {
+    position: fixed;
+    z-index: 1;
+    width: 100vh;
+    height: 100vw;
+    top: 0;
+    left: 100%;
+    transform: rotate(-90deg);
+    transform-origin: top left;
+    overflow: hidden;
+  }
+}
+
 body {
   margin: 0;
   width: 100%;
@@ -1066,23 +1090,44 @@ select#targeting {
   min-height: 0;
 }
 
-.hub-nav {
+/* Reference layout: stacked rows — circular Pray, two split rows, minor row (matches AI mock). */
+.hub-nav--reference {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.45rem;
+  justify-content: flex-start;
+  max-width: 22rem;
+  margin: 0.2rem auto 0.65rem;
+  width: 100%;
+}
+
+.hub-nav-row {
   display: grid;
-  grid-template-columns: repeat(3, minmax(140px, 1fr));
-  gap: 0.6rem;
-  justify-content: center;
-  max-width: 640px;
-  margin: 0.25rem auto 1rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
   align-items: stretch;
 }
 
+.hub-nav-row--minor {
+  gap: 0.35rem;
+  margin-top: 0.1rem;
+  opacity: 0.98;
+}
+
+@media (min-width: 951px) {
+  .hub-nav--reference {
+    max-width: min(34rem, 94vw);
+  }
+}
+
 .hub-pray-wrap {
-  grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.12rem;
+  gap: 0.18rem;
+  margin-bottom: 0.1rem;
 }
 
 .hub-pray-sub {
@@ -1278,10 +1323,13 @@ select#targeting {
   min-height: 100dvh;
   z-index: 0;
   pointer-events: none;
+  /* Sunset + depth (reference art: violet sky, warm horizon, marble UI legibility) */
   background: linear-gradient(
-    180deg,
-    rgba(15, 23, 42, 0.18) 0%,
-    rgba(15, 23, 42, 0.42) 100%
+    125deg,
+    rgba(55, 30, 75, 0.28) 0%,
+    rgba(255, 120, 55, 0.14) 38%,
+    rgba(15, 23, 42, 0.22) 62%,
+    rgba(12, 18, 32, 0.48) 100%
   );
 }
 
@@ -1311,7 +1359,45 @@ select#targeting {
   background: linear-gradient(180deg, #fffef5 0%, #f2e4bf 100%);
 }
 
+/* Marble slab tabs — thin gold frame, light top edge (reference UI). */
+#screen-hub.screen-active .hub-tab {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: clamp(0.68rem, 2.1vw, 0.88rem);
+  border-width: 1px;
+  border-color: rgba(165, 128, 48, 0.92);
+  background:
+    linear-gradient(158deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.08) 38%, transparent 52%),
+    linear-gradient(180deg, #faf7f0 0%, #e6dcc8 100%);
+  color: #2a2118;
+  box-shadow:
+    0 3px 12px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    inset 0 -1px 0 rgba(60, 45, 25, 0.08);
+}
+
+#screen-hub.screen-active .hub-tab-minor {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: clamp(0.62rem, 1.9vw, 0.78rem);
+  opacity: 0.96;
+}
+
+#screen-hub.screen-active .hub-btn-pray {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: clamp(0.72rem, 2.2vw, 0.9rem);
+  border: 2px solid rgba(155, 118, 42, 0.95);
+  box-shadow:
+    0 4px 18px rgba(0, 0, 0, 0.28),
+    inset 0 2px 0 rgba(255, 255, 255, 0.85),
+    0 0 0 1px rgba(80, 60, 30, 0.12);
+}
+
 #screen-hub.screen-active .hub-daily-wheel-btn {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: clamp(0.65rem, 2vw, 0.88rem);
   background: linear-gradient(180deg, rgba(255, 252, 242, 0.96) 0%, rgba(240, 230, 210, 0.96) 100%);
   border-color: rgba(150, 117, 40, 0.78);
 }
@@ -1418,12 +1504,14 @@ select#targeting {
     justify-content: space-between;
   }
 
-  .hub-nav {
-    grid-template-columns: 1fr 1fr;
+  .hub-nav--reference {
     gap: 0.28rem;
     margin: 0;
-    width: 100%;
     max-width: none;
+  }
+
+  .hub-nav-row {
+    gap: 0.28rem;
   }
 
   .hub-pray-wrap {
@@ -1475,13 +1563,12 @@ select#targeting {
 }
 
 @media (max-width: 760px) {
-  .hub-nav {
-    grid-template-columns: repeat(2, minmax(130px, 1fr));
-    max-width: 430px;
+  .hub-nav--reference {
+    max-width: min(100%, 26rem);
   }
 
   @media (pointer: coarse) {
-    .hub-nav {
+    .hub-nav--reference {
       max-width: none;
     }
   }
@@ -4399,14 +4486,13 @@ body.battle-active .app {
     pointer-events: auto;
   }
 
-  /* Main hub: keep 3-column grid on fine pointers; touch phones use the coarse hub layout above. */
+  /* Main hub: slightly wider column on fine pointers. */
   @media not (pointer: coarse) {
-    .hub-nav {
+    .hub-nav--reference {
       transform: none;
       zoom: 1;
-      width: min(100%, 42rem);
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 0.35rem;
+      max-width: min(100%, 28rem);
+      gap: 0.4rem;
       margin: 0.08rem auto 0.35rem;
     }
   }
@@ -4511,7 +4597,7 @@ body.battle-active .app {
     line-height: 1.12;
   }
 
-  .hub-nav {
+  .hub-nav--reference {
     gap: 0.28rem;
     margin: 0.06rem auto 0.2rem;
     position: relative;

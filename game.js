@@ -590,21 +590,40 @@ function isLikelyMobileDevice() {
   return window.matchMedia("(pointer: coarse)").matches || window.innerWidth <= 900;
 }
 
-async function requestLandscapeFullscreen() {
-  const root = document.documentElement;
-  if (!document.fullscreenElement && root?.requestFullscreen) {
+/** Prefer landscape-only play; fullscreen helps orientation lock on some Android browsers. */
+async function ensureLandscapeOrientation() {
+  const tryLock = async () => {
     try {
-      await root.requestFullscreen();
+      if (screen.orientation?.lock) {
+        await screen.orientation.lock("landscape");
+        return true;
+      }
     } catch (_) {
-      // Browser may block without user gesture.
+      /* Locked already, unsupported, or not permitted. */
     }
-  }
+    return false;
+  };
+
+  if (await tryLock()) return;
+
   try {
-    if (screen.orientation?.lock) {
-      await screen.orientation.lock("landscape");
+    const root = document.documentElement;
+    if (!document.fullscreenElement && root?.requestFullscreen) {
+      await root.requestFullscreen();
     }
   } catch (_) {
-    // iOS Safari and some browsers do not support orientation lock.
+    /* Fullscreen requires a user gesture on many browsers. */
+  }
+
+  await tryLock();
+}
+
+function maybeReassertLandscapeLock() {
+  if (!isLikelyMobileDevice()) return;
+  const o = screen.orientation;
+  const type = o?.type ?? "";
+  if (type.startsWith("portrait")) {
+    void ensureLandscapeOrientation();
   }
 }
 
@@ -3471,16 +3490,20 @@ function init() {
 
   if (isLikelyMobileDevice()) {
     const tryLockOnFirstTouch = () => {
-      void requestLandscapeFullscreen();
+      void ensureLandscapeOrientation();
     };
     document.addEventListener("pointerdown", tryLockOnFirstTouch, {
       capture: true,
       once: true,
     });
+    screen.orientation?.addEventListener?.("change", maybeReassertLandscapeLock);
   }
 
   window.addEventListener("resize", updateMobileOrientationUI);
-  window.addEventListener("orientationchange", updateMobileOrientationUI);
+  window.addEventListener("orientationchange", () => {
+    updateMobileOrientationUI();
+    maybeReassertLandscapeLock();
+  });
 
   showScreen("screen-hub");
   renderShopCupidStats();
