@@ -3,6 +3,10 @@
 :root {
   --marble: #fdfbf7;
   --marble-shadow: #ebe6dc;
+  /* Sub-tabs: frosted white panels (Pray-style) — game BG stays visible through blur */
+  --tab-frost-bg: rgba(255, 255, 255, 0.78);
+  --tab-frost-border: rgba(212, 175, 55, 0.28);
+  --tab-frost-shadow: 0 4px 28px rgba(44, 36, 22, 0.12);
   --gold: #d4af37;
   --gold-dark: #a68520;
   --gold-muted: rgba(212, 175, 55, 0.35);
@@ -28,12 +32,19 @@
   box-sizing: border-box;
 }
 
+html {
+  height: 100%;
+  /* Prevents bright “letterbox” strips beside the game on mobile */
+  background-color: var(--marble);
+}
+
 html,
 body {
   height: 100%;
   overflow: hidden;
   position: fixed;
   width: 100%;
+  max-width: 100%;
   inset: 0;
 }
 
@@ -47,7 +58,16 @@ body {
   justify-content: center;
   align-items: stretch;
   padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
-  /* Light marble: layered noise + warm grain */
+  background-color: transparent;
+}
+
+/* Full-viewport marble art: cover + center so edges always fill (no side bars). */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background-color: var(--marble);
   background-image:
     radial-gradient(ellipse 120% 80% at 20% 10%, rgba(255, 255, 255, 0.9) 0%, transparent 50%),
@@ -62,15 +82,24 @@ body {
       rgba(212, 175, 55, 0.025) 3px
     ),
     linear-gradient(180deg, var(--marble) 0%, var(--marble-shadow) 100%);
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
 }
 
-/* Keep marble/light background on mobile — dark tabs were caused by forcing black here. */
-body.mobile-mode {
-  background-color: var(--marble);
+/* Mobile: same marble layer — no alternate palette that shows as stripes */
+body.mobile-mode::before {
   background-image:
     radial-gradient(ellipse 120% 80% at 20% 10%, rgba(255, 255, 255, 0.9) 0%, transparent 50%),
     radial-gradient(ellipse 100% 60% at 80% 90%, rgba(235, 230, 220, 0.7) 0%, transparent 45%),
+    radial-gradient(circle at 30% 40%, rgba(212, 175, 55, 0.04) 0%, transparent 28%),
     linear-gradient(180deg, var(--marble) 0%, var(--marble-shadow) 100%);
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
 h1,
@@ -83,8 +112,9 @@ h3,
 }
 
 .app {
-  width: min(68.75rem, 100vw);
-  max-width: 100vw;
+  /* 100% avoids vw scrollbar gutter showing as side strips on mobile */
+  width: min(68.75rem, 100%);
+  max-width: 100%;
   max-height: 100vh;
   max-height: 100dvh;
   min-height: 100%;
@@ -771,7 +801,15 @@ select#targeting {
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 0.6rem;
+  padding: 0.5rem 0.65rem 0.65rem;
+  position: relative;
+  isolation: isolate;
+  background: var(--tab-frost-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 0.5rem;
+  border: 1px solid var(--tab-frost-border);
+  box-shadow: var(--tab-frost-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
 #screen-settings.screen-active .screen-title,
@@ -1252,7 +1290,7 @@ select#targeting {
   }
 }
 
-/* Shop: full-viewport background, single viewport — no page scroll */
+/* Shop: art + frosted veil — same shell treatment as other tabs (no edge bleed). */
 #screen-shop.screen-active {
   position: relative;
   isolation: isolate;
@@ -1260,12 +1298,12 @@ select#targeting {
   flex-direction: column;
   flex: 1 1 0%;
   min-height: 0;
-  padding: 0.45rem 0.5rem 0.55rem;
-  margin-left: -1rem;
-  margin-right: -1rem;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  border-radius: 0;
+  padding: 0.5rem 0.65rem 0.65rem;
+  margin-left: 0;
+  margin-right: 0;
+  border-radius: 0.5rem;
+  border: 1px solid var(--tab-frost-border);
+  box-shadow: var(--tab-frost-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.65);
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -1293,11 +1331,14 @@ select#targeting {
   min-height: 100dvh;
   z-index: 0;
   pointer-events: none;
+  /* Light frosted veil — shop art stays visible, matches other tabs */
   background: linear-gradient(
     180deg,
-    rgba(15, 23, 42, 0.22) 0%,
-    rgba(15, 23, 42, 0.5) 100%
+    rgba(255, 253, 248, 0.62) 0%,
+    rgba(253, 248, 240, 0.78) 100%
   );
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 #screen-shop.screen-active .shop-screen-top,
@@ -1328,13 +1369,14 @@ select#targeting {
 }
 
 #screen-shop.screen-active .screen-title {
-  color: #fffef8;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+  color: var(--laurel-dim);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-bottom-color: var(--gold-muted);
 }
 
 #screen-shop.screen-active .shop-screen-desc {
-  color: rgba(226, 232, 240, 0.94);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
+  color: var(--text-muted);
+  text-shadow: none;
   margin: 0 !important;
   font-size: 0.78rem;
   line-height: 1.35;
@@ -1558,6 +1600,24 @@ select#targeting {
   gap: 1rem;
   align-items: center;
   padding: 0.85rem;
+}
+
+/* Inner card: same frosted family as tab shell (not solid white). */
+#screen-pray.screen-active .pray-panel.card {
+  background: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-color: var(--tab-frost-border);
+  box-shadow: 0 2px 16px rgba(44, 36, 22, 0.1);
+}
+
+#screen-settings.screen-active .settings-panel.card,
+#screen-summon.screen-active .summon-pool-widget.card,
+#screen-box.screen-active .xp-scroll-panel.card {
+  background: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-color: var(--tab-frost-border);
 }
 
 .pray-wheel-wrap {
