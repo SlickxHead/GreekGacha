@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#fdfbf7" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -25,20 +25,50 @@
 
       <!-- Hub -->
       <section id="screen-hub" class="screen screen-active">
-        <nav class="hub-nav" aria-label="Main menu">
-          <button type="button" id="nav-campaign" class="hub-btn hub-btn-primary">
-            Campaign
-          </button>
-          <button type="button" id="nav-shop" class="hub-btn">Shop</button>
-          <button type="button" id="nav-summon" class="hub-btn">Summon</button>
-          <button type="button" id="nav-pray" class="hub-btn">Pray</button>
-          <button type="button" id="nav-box" class="hub-btn">Character Box</button>
-          <button type="button" id="nav-quests" class="hub-btn">Quests</button>
-          <button type="button" id="nav-settings" class="hub-btn hub-btn-ghost">
-            Settings
-          </button>
-        </nav>
-        <p class="hub-tagline">Begin with Perseus and Aethra — earn more through the gacha.</p>
+        <div class="hub-layout">
+          <div class="hub-left" aria-hidden="true">
+            <img
+              class="hub-hero-img"
+              src="assets/hub-hero.png"
+              width="560"
+              height="720"
+              alt=""
+              decoding="async"
+            />
+          </div>
+          <div class="hub-main">
+            <nav class="hub-nav" aria-label="Main menu">
+              <div class="hub-pray-wrap">
+                <button type="button" id="nav-pray" class="hub-btn hub-btn-primary hub-btn-pray">
+                  Pray
+                </button>
+                <span class="hub-pray-sub">Daily free</span>
+              </div>
+              <button type="button" id="nav-shop" class="hub-btn hub-btn-deco hub-btn-deco--tl">
+                Shop
+              </button>
+              <button type="button" id="nav-box" class="hub-btn hub-btn-deco hub-btn-deco--tr">
+                Inventory
+              </button>
+              <button type="button" id="nav-summon" class="hub-btn">Summon</button>
+              <button type="button" id="nav-campaign" class="hub-btn hub-btn-primary">
+                Campaign
+              </button>
+              <button type="button" id="nav-quests" class="hub-btn hub-btn-ghost hub-btn--minor">
+                Quests
+              </button>
+              <button type="button" id="nav-settings" class="hub-btn hub-btn-ghost hub-btn--minor">
+                Settings
+              </button>
+            </nav>
+            <div class="hub-footer">
+              <p class="hub-tagline">Begin with Perseus…</p>
+              <button type="button" id="btn-hub-daily-wheel" class="hub-daily-wheel-btn">
+                Daily wheel
+              </button>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- Pray (daily wheel) -->
@@ -492,22 +522,6 @@
           <button type="button" id="btn-lineup-start" class="btn primary">Start battle</button>
         </div>
       </div>
-    </div>
-
-    <div id="mobile-launch-overlay" class="mobile-launch-overlay is-hidden" aria-hidden="true">
-      <div class="mobile-launch-card">
-        <h2 class="mobile-launch-title">Greek Gacha</h2>
-        <p class="mobile-launch-text">
-          For best mobile play, launch in fullscreen landscape.
-        </p>
-        <button type="button" id="btn-mobile-launch" class="btn primary mobile-launch-btn">
-          Start in landscape
-        </button>
-      </div>
-    </div>
-
-    <div id="mobile-rotate-overlay" class="mobile-rotate-overlay is-hidden" aria-hidden="true">
-      <p class="mobile-rotate-text">Rotate device to landscape for the best gameplay view.</p>
     </div>
 
     <script type="module" src="game.js"></script>

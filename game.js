@@ -590,10 +590,6 @@ function isLikelyMobileDevice() {
   return window.matchMedia("(pointer: coarse)").matches || window.innerWidth <= 900;
 }
 
-function isLandscapeViewport() {
-  return window.matchMedia("(orientation: landscape)").matches;
-}
-
 async function requestLandscapeFullscreen() {
   const root = document.documentElement;
   if (!document.fullscreenElement && root?.requestFullscreen) {
@@ -615,19 +611,6 @@ async function requestLandscapeFullscreen() {
 function updateMobileOrientationUI() {
   const mobile = isLikelyMobileDevice();
   document.body.classList.toggle("mobile-mode", mobile);
-  const launch = el("mobile-launch-overlay");
-  const rotate = el("mobile-rotate-overlay");
-  if (!mobile) {
-    launch?.classList.add("is-hidden");
-    launch?.setAttribute("aria-hidden", "true");
-    rotate?.classList.add("is-hidden");
-    rotate?.setAttribute("aria-hidden", "true");
-    return;
-  }
-  const landscape = isLandscapeViewport();
-  const shouldShowRotate = !landscape;
-  rotate?.classList.toggle("is-hidden", !shouldShowRotate);
-  rotate?.setAttribute("aria-hidden", shouldShowRotate ? "false" : "true");
 }
 
 function syncBattleAutoToggleUI() {
@@ -662,6 +645,7 @@ function showScreen(screenElId) {
   document.body.classList.toggle("battle-active", screenElId === "screen-battle");
   renderGoldBar();
   renderSummonScrollBar();
+  renderHubDailyWheel();
   updateShopCupidButton();
   updateShopScrollButton();
   updateShopLegendScrollButton();
@@ -1297,8 +1281,19 @@ function renderGoldBar() {
   const node = el("topbar-gold");
   if (node) {
     const g = getGold();
-    node.textContent = `Gold: ${g.toLocaleString()}`;
+    node.textContent = `GOLD: ${g.toLocaleString()}`;
   }
+}
+
+function renderHubDailyWheel() {
+  const btn = el("btn-hub-daily-wheel");
+  if (!btn) return;
+  const left = dailyPrayMsRemaining();
+  const ready = left <= 0;
+  btn.textContent = ready ? "Daily wheel: 1" : "Daily wheel: 0";
+  btn.title = ready
+    ? "Open the daily prayer wheel — spin is ready."
+    : `Next spin in ${formatMsClock(left)}.`;
 }
 
 function renderSummonScrollBar() {
@@ -1368,8 +1363,8 @@ function updateBoxNavIndicator() {
   btn.setAttribute(
     "title",
     active
-      ? "XP scroll available — open Character Box to use it."
-      : "Open Character Box."
+      ? "XP scroll available — open Inventory to use it."
+      : "Open Inventory (heroes and party)."
   );
 }
 
@@ -1418,6 +1413,7 @@ function renderPrayPanel() {
   cd.textContent = ready
     ? "Daily blessing ready."
     : `Next prayer in ${formatMsClock(left)}.`;
+  renderHubDailyWheel();
 }
 
 async function doDailyPraySpin() {
@@ -3203,6 +3199,13 @@ function init() {
   el("nav-pray").addEventListener("click", () => {
     showScreen("screen-pray");
   });
+
+  const hubDailyWheel = el("btn-hub-daily-wheel");
+  if (hubDailyWheel) {
+    hubDailyWheel.addEventListener("click", () => {
+      showScreen("screen-pray");
+    });
+  }
   el("nav-box").addEventListener("click", () => {
     renderCharacterBox();
     showScreen("screen-box");
@@ -3465,23 +3468,15 @@ function init() {
     });
   }
 
-  const mobileLaunchBtn = el("btn-mobile-launch");
-  if (mobileLaunchBtn) {
-    mobileLaunchBtn.addEventListener("click", async () => {
-      await requestLandscapeFullscreen();
-      const launch = el("mobile-launch-overlay");
-      launch?.classList.add("is-hidden");
-      launch?.setAttribute("aria-hidden", "true");
-      updateMobileOrientationUI();
-    });
-  }
-
   if (isLikelyMobileDevice()) {
-    const launch = el("mobile-launch-overlay");
-    launch?.classList.remove("is-hidden");
-    launch?.setAttribute("aria-hidden", "false");
-    // Best-effort attempt on launch; user gesture button remains as fallback.
     void requestLandscapeFullscreen();
+    const tryLockOnFirstTouch = () => {
+      void requestLandscapeFullscreen();
+    };
+    document.addEventListener("pointerdown", tryLockOnFirstTouch, {
+      capture: true,
+      once: true,
+    });
   }
 
   window.addEventListener("resize", updateMobileOrientationUI);
