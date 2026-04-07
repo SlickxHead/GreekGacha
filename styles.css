@@ -4092,6 +4092,7 @@ body.battle-active .app {
   #screen-campaign.screen-active {
     position: relative;
     z-index: 3;
+    overflow: visible;
   }
 
   .campaign-levels,
@@ -4144,6 +4145,15 @@ body.battle-active .app {
   #screen-shop.screen-active .shop-panels-row .shop-panel {
     flex: 0 0 min(68vw, 220px);
   }
+
+  .campaign-levels {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+  }
+
+  .level-start {
+    touch-action: manipulation;
+  }
 }
 
 /* Mobile landscape: compact UI so sideways play fits cleanly. */
@@ -4172,6 +4182,7 @@ body.battle-active .app {
   .hub-resource-panel {
     min-width: min(96vw, 23rem);
     padding: 0.1rem 0.52rem 0.16rem;
+    margin-top: 0.02rem;
   }
 
   .topbar-gold {
@@ -4187,6 +4198,8 @@ body.battle-active .app {
   .hub-nav {
     gap: 0.28rem;
     margin: 0.06rem auto 0.2rem;
+    position: relative;
+    z-index: 4;
   }
 
   .hub-btn {
@@ -4204,6 +4217,8 @@ body.battle-active .app {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    position: relative;
+    z-index: 3;
   }
 
   #screen-settings.screen-active,
@@ -4233,17 +4248,19 @@ body.battle-active .app {
   }
 
   .pray-panel {
-    grid-template-columns: minmax(128px, 170px) minmax(165px, 1fr);
+    grid-template-columns: 1fr;
     gap: 0.45rem;
     align-items: center;
     justify-items: center;
-    text-align: left;
+    text-align: center;
     padding: 0.45rem;
+    width: min(100%, 26rem);
+    margin: 0 auto;
   }
 
   .pray-wheel {
-    width: min(30vw, 160px);
-    height: min(30vw, 160px);
+    width: min(32vw, 150px);
+    height: min(32vw, 150px);
   }
 
   .pray-wheel-item-label {
@@ -4261,7 +4278,7 @@ body.battle-active .app {
 
   .pray-actions {
     width: 100%;
-    align-items: flex-start;
+    align-items: center;
     gap: 0.35rem;
   }
 
@@ -4278,11 +4295,13 @@ body.battle-active .app {
 
   .campaign-levels {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.28rem;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     padding-right: 0;
     margin-top: 0.12rem;
+    align-content: start;
   }
 
   .campaign-levels > .level-card {
@@ -4294,6 +4313,7 @@ body.battle-active .app {
     min-height: 0;
     padding: 0.3rem;
     border-radius: 0.45rem;
+    pointer-events: auto;
   }
 
   .level-card-head {
@@ -4323,6 +4343,9 @@ body.battle-active .app {
     min-height: 1.38rem;
     font-size: 0.6rem;
     padding: 0.18rem 0.28rem;
+    pointer-events: auto;
+    position: relative;
+    z-index: 6;
   }
 
   #screen-battle.screen-active .battle-layout {

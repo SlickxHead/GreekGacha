@@ -2765,7 +2765,7 @@ function renderCampaignLevels() {
       ? `<p class="level-rewards">Clear: <strong>${rw.gold}</strong> gold · <strong>${rw.partyXpEach}</strong> total party XP (split) · <strong>${Math.round(rw.scrollDropChance * 100)}%</strong> summon scroll drop</p>`
       : "";
     return `
-      <div class="level-card${bossClass}">
+      <div class="level-card${bossClass}" data-level-card="${i}" data-level-unlocked="${unlocked ? "1" : "0"}">
         <div class="level-card-head">
           <span class="level-num">Stage ${lvl.level}</span>
           ${!unlocked ? '<span class="level-lock">Locked</span>' : ""}
@@ -2781,10 +2781,17 @@ function renderCampaignLevels() {
       </div>`;
   }).join("");
 
+  const startByIndex = (idx) => {
+    if (!Number.isFinite(idx)) return;
+    const lvl = CAMPAIGN_LEVELS[idx];
+    if (!lvl || !isStageUnlocked(lvl.level)) return;
+    openCampaignLineupOverlay(idx);
+  };
+
   container.querySelectorAll(".level-start").forEach((btn) => {
     const startFromBtn = () => {
       const idx = parseInt(btn.getAttribute("data-level"), 10);
-      if (!btn.disabled) openCampaignLineupOverlay(idx);
+      if (!btn.disabled) startByIndex(idx);
     };
     btn.addEventListener("click", startFromBtn);
     // iOS Safari can occasionally miss click on dense mobile layouts.
@@ -2793,6 +2800,27 @@ function renderCampaignLevels() {
       (e) => {
         e.preventDefault();
         startFromBtn();
+      },
+      { passive: false }
+    );
+  });
+
+  container.querySelectorAll(".level-card").forEach((card) => {
+    const unlocked = card.getAttribute("data-level-unlocked") === "1";
+    if (!unlocked) return;
+    const idx = parseInt(card.getAttribute("data-level-card") || "", 10);
+    if (!Number.isFinite(idx)) return;
+    const activate = () => startByIndex(idx);
+    card.addEventListener("click", (e) => {
+      if (e.target.closest(".level-start")) return;
+      activate();
+    });
+    card.addEventListener(
+      "touchend",
+      (e) => {
+        if (e.target.closest(".level-start")) return;
+        e.preventDefault();
+        activate();
       },
       { passive: false }
     );
