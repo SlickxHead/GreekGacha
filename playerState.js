@@ -12,6 +12,7 @@ const LS_LEGEND_SCROLLS = "greekGacha_legendScrolls";
 const LS_XP_SCROLLS = "greekGacha_xpScrolls";
 const LS_CAMPAIGN_WINS = "greekGacha_campaignWins";
 const LS_QUESTS = "greekGacha_quests";
+const LS_DAILY_PRAY = "greekGacha_dailyPray";
 
 /** Max heroes that can enter a campaign battle together. */
 export const MAX_PARTY_SIZE = 4;
@@ -101,9 +102,41 @@ export function resetPersistedProgress() {
     localStorage.removeItem(LS_XP_SCROLLS);
     localStorage.removeItem(LS_CAMPAIGN_WINS);
     localStorage.removeItem(LS_QUESTS);
+    localStorage.removeItem(LS_DAILY_PRAY);
   } catch {
     /* ignore */
   }
+}
+
+function loadDailyPrayState() {
+  try {
+    const raw = localStorage.getItem(LS_DAILY_PRAY);
+    if (!raw) return { lastClaimAt: 0 };
+    const parsed = JSON.parse(raw);
+    const lastClaimAt = Number(parsed?.lastClaimAt || 0);
+    return { lastClaimAt: Number.isFinite(lastClaimAt) && lastClaimAt > 0 ? lastClaimAt : 0 };
+  } catch {
+    return { lastClaimAt: 0 };
+  }
+}
+
+function saveDailyPrayState(state) {
+  try {
+    localStorage.setItem(LS_DAILY_PRAY, JSON.stringify(state));
+  } catch {
+    /* ignore */
+  }
+}
+
+export function getDailyPrayLastClaimAt() {
+  return loadDailyPrayState().lastClaimAt;
+}
+
+export function setDailyPrayLastClaimAt(ts) {
+  const n = Number(ts || 0);
+  saveDailyPrayState({
+    lastClaimAt: Number.isFinite(n) && n > 0 ? Math.floor(n) : 0,
+  });
 }
 
 function loadQuestMap() {

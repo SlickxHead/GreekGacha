@@ -25,6 +25,7 @@
           </button>
           <button type="button" id="nav-shop" class="hub-btn">Shop</button>
           <button type="button" id="nav-summon" class="hub-btn">Summon</button>
+          <button type="button" id="nav-pray" class="hub-btn">Pray</button>
           <button type="button" id="nav-box" class="hub-btn">Character Box</button>
           <button type="button" id="nav-quests" class="hub-btn">Quests</button>
           <button type="button" id="nav-settings" class="hub-btn hub-btn-ghost">
@@ -32,6 +33,29 @@
           </button>
         </nav>
         <p class="hub-tagline">Begin with Perseus and Aethra — earn more through the gacha.</p>
+      </section>
+
+      <!-- Pray (daily wheel) -->
+      <section id="screen-pray" class="screen">
+        <button type="button" class="btn ghost back-btn" id="btn-back-hub-pray">← Hub</button>
+        <h2 class="screen-title">Pray to the Gods</h2>
+        <p class="screen-desc">
+          Once per day, spin the divine wheel for a random blessing.
+        </p>
+        <div class="pray-panel card">
+          <div class="pray-wheel-wrap">
+            <div id="pray-wheel" class="pray-wheel" aria-hidden="true">
+              <div id="pray-wheel-items" class="pray-wheel-items"></div>
+              <div class="pray-wheel-pointer" aria-hidden="true"></div>
+              <div class="pray-wheel-core">✦</div>
+            </div>
+          </div>
+          <div class="pray-actions">
+            <button type="button" id="btn-pray-spin" class="btn primary">Spin daily wheel</button>
+            <p id="pray-cooldown" class="pray-cooldown" aria-live="polite"></p>
+            <p id="pray-result" class="pray-result" aria-live="polite"></p>
+          </div>
+        </div>
       </section>
 
       <!-- Settings -->
@@ -462,6 +486,22 @@
           <button type="button" id="btn-lineup-start" class="btn primary">Start battle</button>
         </div>
       </div>
+    </div>
+
+    <div id="mobile-launch-overlay" class="mobile-launch-overlay is-hidden" aria-hidden="true">
+      <div class="mobile-launch-card">
+        <h2 class="mobile-launch-title">Greek Gacha</h2>
+        <p class="mobile-launch-text">
+          For best mobile play, launch in fullscreen landscape.
+        </p>
+        <button type="button" id="btn-mobile-launch" class="btn primary mobile-launch-btn">
+          Start in landscape
+        </button>
+      </div>
+    </div>
+
+    <div id="mobile-rotate-overlay" class="mobile-rotate-overlay is-hidden" aria-hidden="true">
+      <p class="mobile-rotate-text">Rotate device to landscape for the best gameplay view.</p>
     </div>
 
     <script type="module" src="game.js"></script>

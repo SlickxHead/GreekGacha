@@ -40,6 +40,8 @@ import {
   getQuestState,
   setQuestCompleted,
   tryClaimQuest,
+  getDailyPrayLastClaimAt,
+  setDailyPrayLastClaimAt,
 } from "./playerState.js";
 import {
   applyLevelScaling,
@@ -195,6 +197,44 @@ const QUEST_SUMMON_EPIC = "first_summon_epic";
 const QUEST_CLEAR_STAGE_10 = "first_clear_stage10";
 const QUEST_WIN_3_BATTLES = "win_3_battles";
 const XP_SCROLL_XP_GRANT = 100;
+const DAILY_PRAY_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+const DAILY_PRAY_REWARDS = [
+  {
+    id: "gold_500",
+    label: "+500 gold",
+    wheelLabel: "500 Gold",
+    weight: 40,
+    apply: () => addGold(500),
+  },
+  {
+    id: "gold_1200",
+    label: "+1,200 gold",
+    wheelLabel: "1.2k Gold",
+    weight: 24,
+    apply: () => addGold(1200),
+  },
+  {
+    id: "summon_1",
+    label: "+1 summon scroll",
+    wheelLabel: "+1 Summon",
+    weight: 18,
+    apply: () => addSummonScrolls(1),
+  },
+  {
+    id: "xp_2",
+    label: "+2 XP scrolls",
+    wheelLabel: "+2 XP",
+    weight: 12,
+    apply: () => addXpScrolls(2),
+  },
+  {
+    id: "legend_1",
+    label: "+1 legend scroll",
+    wheelLabel: "+1 Legend",
+    weight: 6,
+    apply: () => addLegendScrolls(1),
+  },
+];
 const QUESTS = [
   {
     id: QUEST_DEFEAT_HERACLES,
@@ -539,10 +579,55 @@ let state = {
   /** Summon reel animation can be skipped by user. */
   summonAnimSkipRequested: false,
   summonAnimRunning: false,
+  praySpinRunning: false,
 };
 
 function el(id) {
   return document.getElementById(id);
+}
+
+function isLikelyMobileDevice() {
+  return window.matchMedia("(pointer: coarse)").matches || window.innerWidth <= 900;
+}
+
+function isLandscapeViewport() {
+  return window.matchMedia("(orientation: landscape)").matches;
+}
+
+async function requestLandscapeFullscreen() {
+  const root = document.documentElement;
+  if (!document.fullscreenElement && root?.requestFullscreen) {
+    try {
+      await root.requestFullscreen();
+    } catch (_) {
+      // Browser may block without user gesture.
+    }
+  }
+  try {
+    if (screen.orientation?.lock) {
+      await screen.orientation.lock("landscape");
+    }
+  } catch (_) {
+    // iOS Safari and some browsers do not support orientation lock.
+  }
+}
+
+function updateMobileOrientationUI() {
+  const mobile = isLikelyMobileDevice();
+  document.body.classList.toggle("mobile-mode", mobile);
+  const launch = el("mobile-launch-overlay");
+  const rotate = el("mobile-rotate-overlay");
+  if (!mobile) {
+    launch?.classList.add("is-hidden");
+    launch?.setAttribute("aria-hidden", "true");
+    rotate?.classList.add("is-hidden");
+    rotate?.setAttribute("aria-hidden", "true");
+    return;
+  }
+  const landscape = isLandscapeViewport();
+  const shouldShowRotate = !landscape;
+  rotate?.classList.toggle("is-hidden", !shouldShowRotate);
+  rotate?.setAttribute("aria-hidden", shouldShowRotate ? "false" : "true");
 }
 
 function syncBattleAutoToggleUI() {
@@ -592,6 +677,10 @@ function showScreen(screenElId) {
     hideCampaignLineupOverlay();
     state.pendingCampaignLevelIndex = null;
   }
+  if (screenElId === "screen-pray") {
+    renderPrayPanel();
+  }
+  updateMobileOrientationUI();
 }
 
 function applyBattleStageBackdrop(level) {
@@ -1197,6 +1286,7 @@ function refreshAllUIFromSave() {
   renderShopCupidStats();
   renderQuests();
   renderXpScrollPanel();
+  renderPrayPanel();
   const summonBox = el("summon-result");
   if (summonBox) summonBox.innerHTML = "";
   const shopBox = el("shop-cupid-result");
@@ -1281,6 +1371,97 @@ function updateBoxNavIndicator() {
       ? "XP scroll available — open Character Box to use it."
       : "Open Character Box."
   );
+}
+
+function dailyPrayMsRemaining(now = Date.now()) {
+  const last = getDailyPrayLastClaimAt();
+  if (!last) return 0;
+  return Math.max(0, DAILY_PRAY_COOLDOWN_MS - (now - last));
+}
+
+function formatMsClock(ms) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function rollDailyPrayReward() {
+  const total = DAILY_PRAY_REWARDS.reduce((sum, r) => sum + r.weight, 0);
+  let pick = Math.random() * total;
+  for (const reward of DAILY_PRAY_REWARDS) {
+    pick -= reward.weight;
+    if (pick <= 0) return reward;
+  }
+  return DAILY_PRAY_REWARDS[DAILY_PRAY_REWARDS.length - 1];
+}
+
+function renderPrayWheelItems() {
+  const box = el("pray-wheel-items");
+  if (!box) return;
+  const step = 360 / DAILY_PRAY_REWARDS.length;
+  box.innerHTML = DAILY_PRAY_REWARDS.map((reward, idx) => {
+    const angle = idx * step;
+    return `<div class="pray-wheel-item" style="--item-angle:${angle}deg"><span class="pray-wheel-item-label">${escapeHtml(reward.wheelLabel || reward.label)}</span></div>`;
+  }).join("");
+}
+
+function renderPrayPanel() {
+  const btn = el("btn-pray-spin");
+  const cd = el("pray-cooldown");
+  if (!btn || !cd) return;
+  renderPrayWheelItems();
+  const left = dailyPrayMsRemaining();
+  const ready = left <= 0;
+  btn.disabled = !ready || state.praySpinRunning;
+  cd.textContent = ready
+    ? "Daily blessing ready."
+    : `Next prayer in ${formatMsClock(left)}.`;
+}
+
+async function doDailyPraySpin() {
+  if (state.praySpinRunning) return;
+  const left = dailyPrayMsRemaining();
+  if (left > 0) {
+    renderPrayPanel();
+    return;
+  }
+  const wheel = el("pray-wheel");
+  const result = el("pray-result");
+  if (!wheel || !result) return;
+  state.praySpinRunning = true;
+  renderPrayPanel();
+  result.textContent = "";
+
+  const reward = rollDailyPrayReward();
+  const rewardIdx = DAILY_PRAY_REWARDS.findIndex((r) => r.id === reward.id);
+  const sliceCount = Math.max(1, DAILY_PRAY_REWARDS.length);
+  const step = 360 / sliceCount;
+  const extraTurns = 4 + Math.floor(Math.random() * 3);
+  const targetAngle = ((360 - rewardIdx * step) % 360 + 360) % 360;
+  const jitter = (Math.random() - 0.5) * step * 0.64;
+  const stopDeg = 360 * extraTurns + targetAngle + jitter;
+  wheel.style.setProperty("--pray-spin-deg", `${stopDeg}deg`);
+  wheel.classList.remove("pray-wheel--spinning");
+  // Restart wheel animation cleanly.
+  void wheel.offsetWidth;
+  wheel.classList.add("pray-wheel--spinning");
+  await new Promise((resolve) => setTimeout(resolve, 2800));
+  wheel.classList.remove("pray-wheel--spinning");
+
+  reward.apply();
+  setDailyPrayLastClaimAt(Date.now());
+  result.textContent = `Blessing received: ${reward.label}`;
+  renderGoldBar();
+  renderSummonScrollBar();
+  updateSummonPullButton();
+  updateShopScrollButton();
+  updateShopLegendScrollButton();
+  updateShopXpScrollButton();
+  renderXpScrollPanel();
+  state.praySpinRunning = false;
+  renderPrayPanel();
 }
 
 function updateShopScrollButton() {
@@ -2981,6 +3162,9 @@ function init() {
     showScreen("screen-summon");
     renderSummonRoster();
   });
+  el("nav-pray").addEventListener("click", () => {
+    showScreen("screen-pray");
+  });
   el("nav-box").addEventListener("click", () => {
     renderCharacterBox();
     showScreen("screen-box");
@@ -3000,6 +3184,9 @@ function init() {
 
   el("btn-back-hub").addEventListener("click", () => showScreen("screen-hub"));
   el("btn-back-hub-summon").addEventListener("click", () =>
+    showScreen("screen-hub")
+  );
+  el("btn-back-hub-pray").addEventListener("click", () =>
     showScreen("screen-hub")
   );
   el("btn-back-hub-box").addEventListener("click", () =>
@@ -3071,6 +3258,13 @@ function init() {
     btnSkipSummon.addEventListener("click", () => {
       if (!state.summonAnimRunning) return;
       state.summonAnimSkipRequested = true;
+    });
+  }
+
+  const praySpinBtn = el("btn-pray-spin");
+  if (praySpinBtn) {
+    praySpinBtn.addEventListener("click", () => {
+      void doDailyPraySpin();
     });
   }
 
@@ -3233,9 +3427,33 @@ function init() {
     });
   }
 
+  const mobileLaunchBtn = el("btn-mobile-launch");
+  if (mobileLaunchBtn) {
+    mobileLaunchBtn.addEventListener("click", async () => {
+      await requestLandscapeFullscreen();
+      const launch = el("mobile-launch-overlay");
+      launch?.classList.add("is-hidden");
+      launch?.setAttribute("aria-hidden", "true");
+      updateMobileOrientationUI();
+    });
+  }
+
+  if (isLikelyMobileDevice()) {
+    const launch = el("mobile-launch-overlay");
+    launch?.classList.remove("is-hidden");
+    launch?.setAttribute("aria-hidden", "false");
+    // Best-effort attempt on launch; user gesture button remains as fallback.
+    void requestLandscapeFullscreen();
+  }
+
+  window.addEventListener("resize", updateMobileOrientationUI);
+  window.addEventListener("orientationchange", updateMobileOrientationUI);
+
   showScreen("screen-hub");
   renderShopCupidStats();
   renderQuests();
+  renderPrayPanel();
+  updateMobileOrientationUI();
 }
 
 init();
