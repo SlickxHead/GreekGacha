@@ -41,20 +41,6 @@ html {
   background-color: var(--marble);
 }
 
-/* Touch phones in portrait: present the UI in landscape layout without a rotate prompt. */
-@media (pointer: coarse) and (max-width: 900px) and (orientation: portrait) {
-  html {
-    transform: rotate(-90deg);
-    transform-origin: top left;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100vh;
-    height: 100vw;
-    overflow: hidden;
-  }
-}
-
 html,
 body {
   height: 100%;
@@ -1361,7 +1347,7 @@ select#targeting {
 
 /* Touch phones: landscape-style hub — hero art left, menu right, HUD top-right. */
 @media (max-width: 950px) and (pointer: coarse) {
-  body:has(#screen-hub.screen-active) .hero-global {
+  body.hub-screen-active .hero-global {
     position: absolute;
     top: calc(0.28rem + var(--safe-top));
     right: calc(0.35rem + var(--safe-right));
@@ -1374,23 +1360,23 @@ select#targeting {
     text-align: right;
   }
 
-  body:has(#screen-hub.screen-active) .hero-global h1,
-  body:has(#screen-hub.screen-active) .hero-global #game-subtitle {
+  body.hub-screen-active .hero-global h1,
+  body.hub-screen-active .hero-global #game-subtitle {
     display: none;
   }
 
-  body:has(#screen-hub.screen-active) .topbar-gold::before {
+  body.hub-screen-active .topbar-gold::before {
     content: "📖 ";
     margin-right: 0.12em;
   }
 
-  body:has(#screen-hub.screen-active) .hub-resource-panel {
+  body.hub-screen-active .hub-resource-panel {
     min-width: 0;
     margin-top: 0;
     padding: 0.18rem 0.48rem 0.24rem;
   }
 
-  body:has(#screen-hub.screen-active) .topbar-scrolls {
+  body.hub-screen-active .topbar-scrolls {
     font-size: 0.62rem;
     line-height: 1.15;
     opacity: 0.92;
@@ -4426,7 +4412,7 @@ body.battle-active .app {
   }
 
   @media (pointer: coarse) {
-    body:has(#screen-hub.screen-active) .app {
+    body.hub-screen-active .app {
       padding-top: calc(2.75rem + var(--safe-top));
     }
   }

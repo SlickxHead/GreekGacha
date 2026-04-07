@@ -643,6 +643,7 @@ function showScreen(screenElId) {
   const node = el(screenElId);
   if (node) node.classList.add("screen-active");
   document.body.classList.toggle("battle-active", screenElId === "screen-battle");
+  document.body.classList.toggle("hub-screen-active", screenElId === "screen-hub");
   renderGoldBar();
   renderSummonScrollBar();
   renderHubDailyWheel();
@@ -3469,7 +3470,6 @@ function init() {
   }
 
   if (isLikelyMobileDevice()) {
-    void requestLandscapeFullscreen();
     const tryLockOnFirstTouch = () => {
       void requestLandscapeFullscreen();
     };
