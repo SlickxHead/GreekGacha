@@ -679,6 +679,7 @@ function showScreen(screenElId) {
   updateShopXpScrollButton();
   if (screenElId !== "screen-campaign") {
     hideCampaignLineupOverlay();
+    hideCampaignRewardsModal();
     state.pendingCampaignLevelIndex = null;
   }
   if (screenElId === "screen-pray") {
@@ -1712,6 +1713,42 @@ function hideCampaignLineupOverlay() {
   overlay.setAttribute("aria-hidden", "true");
 }
 
+function hideCampaignRewardsModal() {
+  const overlay = el("campaign-rewards-overlay");
+  if (!overlay) return;
+  overlay.classList.add("is-hidden");
+  overlay.setAttribute("aria-hidden", "true");
+}
+
+function campaignRewardsModalInnerHtml(lvl) {
+  const rw = lvl.rewards;
+  const blurbP = `<p class="campaign-rewards-flavor">${escapeHtml(lvl.blurb)}</p>`;
+  if (!rw) {
+    return `${blurbP}<p class="campaign-rewards-missing">No reward data.</p>`;
+  }
+  const pct = Math.round(rw.scrollDropChance * 100);
+  return `${blurbP}
+    <p class="campaign-rewards-heading">First clear</p>
+    <ul class="campaign-rewards-list">
+      <li><strong>${rw.gold.toLocaleString()}</strong> gold</li>
+      <li><strong>${rw.partyXpEach}</strong> XP to each hero in your battle party</li>
+      <li><strong>${pct}%</strong> chance of a summon scroll drop</li>
+    </ul>`;
+}
+
+function showCampaignRewardsModal(levelIndex) {
+  const lvl = CAMPAIGN_LEVELS[levelIndex];
+  if (!lvl) return;
+  const overlay = el("campaign-rewards-overlay");
+  const title = el("campaign-rewards-title");
+  const body = el("campaign-rewards-body");
+  if (!overlay || !title || !body) return;
+  title.textContent = `Stage ${lvl.level} — ${lvl.title}`;
+  body.innerHTML = campaignRewardsModalInnerHtml(lvl);
+  overlay.classList.remove("is-hidden");
+  overlay.setAttribute("aria-hidden", "false");
+}
+
 function enemyLineupHtml(lvl) {
   if (!lvl?.enemies?.length) {
     return `<p class="lineup-item-empty">No enemy data.</p>`;
@@ -1769,6 +1806,7 @@ function renderCampaignLineupPartyList() {
 function openCampaignLineupOverlay(levelIndex) {
   const lvl = CAMPAIGN_LEVELS[levelIndex];
   if (!lvl || !isStageUnlocked(lvl.level)) return;
+  hideCampaignRewardsModal();
   state.pendingCampaignLevelIndex = levelIndex;
   const overlay = el("campaign-lineup-overlay");
   const stage = el("campaign-lineup-stage");
@@ -2764,24 +2802,25 @@ function renderCampaignLevels() {
   container.innerHTML = CAMPAIGN_LEVELS.map((lvl, i) => {
     const unlocked = isStageUnlocked(lvl.level);
     const bossClass = lvl.level === 5 ? " level-boss" : "";
-    const rw = lvl.rewards;
-    const rewardLine = rw
-      ? `<p class="level-rewards">Clear: <strong>${rw.gold}</strong> gold · <strong>${rw.partyXpEach}</strong> total party XP (split) · <strong>${Math.round(rw.scrollDropChance * 100)}%</strong> summon scroll drop</p>`
-      : "";
     return `
-      <div class="level-card${bossClass}" data-level-card="${i}" data-level-unlocked="${unlocked ? "1" : "0"}">
-        <div class="level-card-head">
-          <span class="level-num">Stage ${lvl.level}</span>
-          ${!unlocked ? '<span class="level-lock">Locked</span>' : ""}
+      <div class="level-card level-card--compact${bossClass}" data-level-card="${i}" data-level-unlocked="${unlocked ? "1" : "0"}">
+        <div class="level-card-main">
+          <div class="level-card-headline">
+            <span class="level-num">Stage ${lvl.level}</span>
+            ${!unlocked ? '<span class="level-lock">Locked</span>' : ""}
+          </div>
+          <h3 class="level-title">${escapeHtml(lvl.title)}</h3>
         </div>
-        <h3 class="level-title">${escapeHtml(lvl.title)}</h3>
-        <p class="level-blurb">${escapeHtml(lvl.blurb)}</p>
-        ${rewardLine}
-        <button type="button" class="btn primary level-start" data-level="${i}" ${
-          unlocked ? "" : "disabled"
-        }>
-          ${unlocked ? "Fight" : "Clear prior stages"}
-        </button>
+        <div class="level-card-actions">
+          <button type="button" class="btn primary level-start" data-level="${i}" ${
+            unlocked ? "" : "disabled"
+          }>
+            ${unlocked ? "Fight" : "Clear prior stages"}
+          </button>
+          <button type="button" class="btn ghost level-rewards-btn" data-level-rewards="${i}">
+            Rewards
+          </button>
+        </div>
       </div>`;
   }).join("");
 
@@ -2809,22 +2848,18 @@ function renderCampaignLevels() {
     );
   });
 
-  container.querySelectorAll(".level-card").forEach((card) => {
-    const unlocked = card.getAttribute("data-level-unlocked") === "1";
-    if (!unlocked) return;
-    const idx = parseInt(card.getAttribute("data-level-card") || "", 10);
-    if (!Number.isFinite(idx)) return;
-    const activate = () => startByIndex(idx);
-    card.addEventListener("click", (e) => {
-      if (e.target.closest(".level-start")) return;
-      activate();
-    });
-    card.addEventListener(
+  container.querySelectorAll(".level-rewards-btn").forEach((btn) => {
+    const openRewards = (e) => {
+      e.stopPropagation();
+      const idx = parseInt(btn.getAttribute("data-level-rewards"), 10);
+      if (Number.isFinite(idx)) showCampaignRewardsModal(idx);
+    };
+    btn.addEventListener("click", openRewards);
+    btn.addEventListener(
       "touchend",
       (e) => {
-        if (e.target.closest(".level-start")) return;
         e.preventDefault();
-        activate();
+        openRewards(e);
       },
       { passive: false }
     );
@@ -3447,6 +3482,17 @@ function init() {
       }
       hideCampaignLineupOverlay();
       startCampaignBattle(idx);
+    });
+  }
+
+  const rewardsClose = el("btn-campaign-rewards-close");
+  if (rewardsClose) {
+    rewardsClose.addEventListener("click", () => hideCampaignRewardsModal());
+  }
+  const rewardsOverlay = el("campaign-rewards-overlay");
+  if (rewardsOverlay) {
+    rewardsOverlay.addEventListener("click", (e) => {
+      if (e.target === rewardsOverlay) hideCampaignRewardsModal();
     });
   }
 

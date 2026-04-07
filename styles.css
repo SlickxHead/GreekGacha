@@ -2032,6 +2032,10 @@ select#targeting {
   flex-direction: column;
 }
 
+.level-card--compact {
+  gap: 0.45rem;
+}
+
 .level-card.level-boss {
   border-color: var(--laurel);
   box-shadow: 0 0 0 2px var(--gold-muted);
@@ -2042,6 +2046,31 @@ select#targeting {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.35rem;
+}
+
+.level-card-headline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.22rem;
+  gap: 0.35rem;
+}
+
+.level-card-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.level-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+  align-items: stretch;
+}
+
+.level-rewards-btn {
+  font-weight: 700;
+  letter-spacing: 0.03em;
 }
 
 .level-num {
@@ -2058,10 +2087,15 @@ select#targeting {
 }
 
 .level-title {
-  margin: 0 0 0.22rem;
+  margin: 0;
   font-family: Georgia, serif;
   font-size: 0.98rem;
   color: var(--text);
+  line-height: 1.25;
+}
+
+.level-card--compact .level-title {
+  margin: 0;
 }
 
 .level-blurb {
@@ -2618,6 +2652,60 @@ select#targeting {
   border-radius: var(--radius);
   border: 2px solid var(--gold);
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+}
+
+.campaign-rewards-modal {
+  max-width: min(94vw, 420px);
+  width: 100%;
+  padding: 1.1rem 1.1rem 0.95rem;
+  background: linear-gradient(165deg, #fefbf2 0%, rgba(255, 247, 225, 0.98) 100%);
+  border-radius: var(--radius);
+  border: 2px solid var(--gold);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+}
+
+.campaign-rewards-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  color: var(--laurel-dim);
+}
+
+.campaign-rewards-body {
+  text-align: left;
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.campaign-rewards-flavor {
+  margin: 0 0 0.75rem;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.campaign-rewards-heading {
+  margin: 0 0 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gold-dark);
+}
+
+.campaign-rewards-list {
+  margin: 0 0 0.35rem;
+  padding-left: 1.15rem;
+}
+
+.campaign-rewards-list li {
+  margin-bottom: 0.28rem;
+}
+
+.campaign-rewards-missing {
+  margin: 0;
+  color: var(--text-muted);
 }
 
 .campaign-lineup-title {
@@ -4659,8 +4747,8 @@ body.battle-active .app {
     pointer-events: auto;
   }
 
-  .level-card-head {
-    margin-bottom: 0.16rem;
+  .level-card-headline {
+    margin-bottom: 0.1rem;
   }
 
   .level-num {
@@ -4669,20 +4757,15 @@ body.battle-active .app {
 
   .level-title {
     font-size: 0.64rem;
-    margin-bottom: 0.08rem;
+    margin-bottom: 0;
   }
 
-  .level-blurb {
-    font-size: 0.54rem;
-    line-height: 1.16;
-    margin-bottom: 0.2rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  .level-card-actions {
+    gap: 0.22rem;
   }
 
-  .level-start {
+  .level-start,
+  .level-rewards-btn {
     min-height: 1.38rem;
     font-size: 0.6rem;
     padding: 0.18rem 0.28rem;
@@ -4803,8 +4886,8 @@ body.battle-active .app {
     border-radius: 0.38rem;
   }
 
-  body.campaign-screen-active #screen-campaign .level-card-head {
-    margin-bottom: 0.08rem;
+  body.campaign-screen-active #screen-campaign .level-card-headline {
+    margin-bottom: 0.06rem;
   }
 
   body.campaign-screen-active #screen-campaign .level-num {
@@ -4813,16 +4896,15 @@ body.battle-active .app {
 
   body.campaign-screen-active #screen-campaign .level-title {
     font-size: 0.54rem;
-    margin-bottom: 0.04rem;
+    margin-bottom: 0;
   }
 
-  body.campaign-screen-active #screen-campaign .level-blurb {
-    font-size: 0.46rem;
-    line-height: 1.1;
-    margin-bottom: 0.1rem;
+  body.campaign-screen-active #screen-campaign .level-card-actions {
+    gap: 0.16rem;
   }
 
-  body.campaign-screen-active #screen-campaign .level-start.btn.primary {
+  body.campaign-screen-active #screen-campaign .level-start.btn.primary,
+  body.campaign-screen-active #screen-campaign .level-rewards-btn {
     min-height: 0;
     padding: 0.1rem 0.22rem;
     font-size: 0.52rem;
