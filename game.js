@@ -2905,6 +2905,25 @@ function renderCampaignLevels() {
   });
 }
 
+/** Mini portrait chips for the Character Box party toolbar (static portraits, not battle sprites). */
+function buildPartyActiveChipsHtml(partyIds) {
+  if (!partyIds.length) {
+    return '<span class="party-active-empty" aria-hidden="true">—</span>';
+  }
+  const items = partyIds
+    .map((id) => {
+      const def = getHeroDefById(id);
+      if (!def) return "";
+      const u = { id, name: def.name };
+      const rc = rarityClass(def.rarity);
+      const tip = escapeHtml(def.name);
+      return `<li class="party-active-chip ${rc}" role="listitem" title="${tip}">${portraitBlockHtml(u)}</li>`;
+    })
+    .filter(Boolean)
+    .join("");
+  return `<ul class="party-active-list" role="list" aria-label="Active battle party heroes">${items}</ul>`;
+}
+
 function renderPartyToolbar() {
   const toolbar = el("party-toolbar");
   if (!toolbar) return;
@@ -2912,7 +2931,14 @@ function renderPartyToolbar() {
   const names = party
     .map((id) => getHeroDefById(id)?.name || id)
     .join(", ");
-  toolbar.innerHTML = `<p class="party-toolbar-text"><strong>Battle party</strong> <span class="party-count">${party.length}</span> / ${MAX_PARTY_SIZE}</p><p class="party-names">${escapeHtml(names || "—")}</p>`;
+  const chips = buildPartyActiveChipsHtml(party);
+  toolbar.innerHTML = `<div class="party-toolbar-main">
+    <div class="party-toolbar-line">
+      <p class="party-toolbar-text"><strong>Battle party</strong> <span class="party-count">${party.length}</span> / ${MAX_PARTY_SIZE}</p>
+      ${chips}
+    </div>
+    <p class="party-names">${escapeHtml(names || "—")}</p>
+  </div>`;
 }
 
 function renderXpScrollPanel() {
