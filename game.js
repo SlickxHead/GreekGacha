@@ -2614,11 +2614,12 @@ function showPlayerTurnUI(actor) {
     preview.className = "turn-skill-preview turn-skill-preview--muted";
     panel.appendChild(preview);
   }
-  const coarsePointer =
+  const touchStyleSkillPreview =
     typeof window !== "undefined" &&
     window.matchMedia &&
-    window.matchMedia("(pointer: coarse)").matches;
-  const defaultDesc = coarsePointer
+    (window.matchMedia("(pointer: coarse)").matches ||
+      window.matchMedia("(max-width: 950px)").matches);
+  const defaultDesc = touchStyleSkillPreview
     ? "Hold a skill to read its full effect."
     : "Hover a skill to read its full effect and cooldown.";
   preview.textContent = defaultDesc;
@@ -2676,7 +2677,7 @@ function showPlayerTurnUI(actor) {
       skillHoldTimer = null;
     }
   };
-  if (coarsePointer) {
+  if (touchStyleSkillPreview) {
     box.onmouseover = null;
     box.onmouseleave = null;
     box.onpointerdown = (e) => {

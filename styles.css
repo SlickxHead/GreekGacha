@@ -818,6 +818,15 @@ select#targeting {
   gap: 0.24rem;
 }
 
+/* Hide title + gold/scrolls bar on every tab except the main hub (more room for screen content). */
+body:not(.hub-screen-active) .hero-global {
+  display: none !important;
+}
+
+body:not(.hub-screen-active) .app {
+  padding-top: calc(0.35rem + var(--safe-top));
+}
+
 .hub-resource-panel {
   margin-top: 0.28rem;
   min-width: min(94vw, 22.5rem);
@@ -4493,6 +4502,10 @@ body.battle-active .app {
     gap: 0.15rem;
   }
 
+  body:not(.hub-screen-active) .app {
+    padding-top: calc(0.32rem + var(--safe-top));
+  }
+
   /* Stretch backdrop fully to phone edges for debugging fit. */
   #screen-hub.screen-active::before,
   #screen-battle.screen-active::before,
@@ -4825,12 +4838,8 @@ body.battle-active .app {
   }
 }
 
-/* Campaign (touch phones): hide global header; use vertical space for stage list. */
+/* Campaign (touch phones): tighter app chrome (global header hidden on all non-hub tabs). */
 @media (max-width: 950px) and (pointer: coarse) {
-  body.campaign-screen-active .hero-global {
-    display: none;
-  }
-
   body.campaign-screen-active .app {
     padding-top: calc(0.3rem + var(--safe-top));
     gap: 0;
@@ -4916,8 +4925,9 @@ body.battle-active .app {
   }
 }
 
-/* Battle (touch phones / tablets): fit arena + dock; allies pinned bottom; compact skill dock. */
-@media (max-width: 950px) and (pointer: coarse) {
+/* Battle (narrow viewports): fit arena + dock; allies pinned bottom; compact skill dock.
+   Not gated on pointer:coarse — many phones report fine pointer; width is enough. */
+@media (max-width: 950px) {
   body.battle-active #screen-battle.screen-active .battle-layout {
     padding-bottom: 4.35rem;
     padding-left: calc(0.28rem + var(--safe-left));
@@ -5054,7 +5064,7 @@ body.battle-active .app {
   }
 }
 
-@media (max-width: 950px) and (pointer: coarse) and (orientation: landscape) {
+@media (max-width: 950px) and (orientation: landscape) {
   body.battle-active #screen-battle.screen-active .battle-layout {
     padding-bottom: 3.65rem;
     padding-top: 0.12rem;
