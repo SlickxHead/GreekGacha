@@ -2954,18 +2954,20 @@ function renderXpScrollPanel() {
       return `<option value="${escapeHtml(id)}">${escapeHtml(def.name)} · Lv ${p.level}</option>`;
     })
     .join("");
-  panel.innerHTML = `<h3 class="xp-scroll-title">XP scroll</h3>
-    <p class="xp-scroll-desc">Use on a party member to grant +${XP_SCROLL_XP_GRANT} XP.</p>
-    <div class="xp-scroll-row">
-      <p class="xp-scroll-count">Owned: <strong>${count.toLocaleString()}</strong></p>
-      <select id="xp-scroll-target" class="xp-scroll-target" ${party.length ? "" : "disabled"}>
-        ${options || '<option value="">No party heroes</option>'}
-      </select>
-      <button type="button" id="btn-use-xp-scroll" class="btn primary" ${
-        count < 1 || party.length < 1 ? "disabled" : ""
-      }>Use (+${XP_SCROLL_XP_GRANT} XP)</button>
-    </div>
-    <p id="xp-scroll-feedback" class="shop-inline-feedback" role="status" aria-live="polite"></p>`;
+  panel.innerHTML = `<div class="xp-scroll-head">
+    <h3 class="xp-scroll-title">XP scroll</h3>
+    <p class="xp-scroll-count">Owned: <strong>${count.toLocaleString()}</strong></p>
+  </div>
+  <p class="xp-scroll-desc">Use on a party member to grant +${XP_SCROLL_XP_GRANT} XP.</p>
+  <div class="xp-scroll-row">
+    <select id="xp-scroll-target" class="xp-scroll-target" ${party.length ? "" : "disabled"}>
+      ${options || '<option value="">No party heroes</option>'}
+    </select>
+    <button type="button" id="btn-use-xp-scroll" class="btn primary" ${
+      count < 1 || party.length < 1 ? "disabled" : ""
+    }>Use (+${XP_SCROLL_XP_GRANT} XP)</button>
+  </div>
+  <p id="xp-scroll-feedback" class="shop-inline-feedback" role="status" aria-live="polite"></p>`;
 }
 
 function useXpScrollOnPartyHero() {
