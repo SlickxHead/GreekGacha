@@ -4934,30 +4934,83 @@ body.battle-active .app {
     padding-right: calc(0.28rem + var(--safe-right));
   }
 
+  /* Summoners War–style columns: party left, enemies right (fixes lunge + clipping on phones). */
   body.battle-active .battle-arena--sw {
-    justify-content: flex-start;
-    gap: 0.3rem;
-    overflow-x: hidden;
-    overflow-y: hidden;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 0.45rem;
+    overflow: hidden;
     min-height: 0;
   }
 
+  body.battle-active .battle-strip {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
   body.battle-active .battle-strip--enemy {
-    flex-shrink: 0;
-    max-height: min(34vh, 200px);
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    order: 2;
+    flex-shrink: 1;
+    max-height: none;
+    overflow: visible;
   }
 
   body.battle-active .battle-strip--ally {
-    margin-top: auto;
-    flex-shrink: 0;
-    min-height: 4.75rem;
+    order: 1;
+    margin-top: 0;
+    flex-shrink: 1;
+    min-height: 0;
     position: relative;
     z-index: 3;
-    width: 100%;
     box-sizing: border-box;
+  }
+
+  body.battle-active .battle-strip .roster--battle {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  body.battle-active .battle-strip .sw-team {
+    flex: 1 1 auto;
+    min-height: 0;
+    justify-content: center;
+  }
+
+  body.battle-active .battle-strip .sw-team-label {
+    display: none;
+  }
+
+  body.battle-active .battle-strip .roster--sw-enemy .sw-unit-row,
+  body.battle-active .battle-strip .roster--sw-ally .sw-unit-row {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-content: center;
+    padding: 0.2rem 0.15rem;
+    overflow-x: visible;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  /* Face the gap: allies toward center-right, enemies toward center-left */
+  body.battle-active .battle-strip--ally .sw-unit-row {
+    align-items: flex-end;
+  }
+
+  body.battle-active .battle-strip--enemy .sw-unit-row {
+    align-items: flex-start;
+  }
+
+  body.battle-active .battle-arena--sw .unit-card--arena {
+    min-width: 4rem;
+    max-width: 5.75rem;
   }
 
   body.battle-active .battle-bll-dock {
@@ -4999,7 +5052,8 @@ body.battle-active .app {
   body.battle-active .turn-panel--br-fixed {
     right: calc(0.28rem + var(--safe-right));
     bottom: calc(0.28rem + var(--safe-bottom));
-    max-width: min(42vw, 9.75rem);
+    left: auto;
+    max-width: min(calc(100vw - 3.25rem), 22rem);
     padding: 0.32rem 0.38rem;
   }
 
@@ -5012,9 +5066,28 @@ body.battle-active .app {
     display: none;
   }
 
-  body.battle-active .skill-slot-row {
-    justify-content: center;
+  body.battle-active .turn-skill-buttons {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
     gap: 0.28rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-width: 100%;
+    padding-bottom: 0.1rem;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  body.battle-active .skill-slot-row {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.28rem;
+    width: max-content;
+    min-width: 100%;
   }
 
   body.battle-active .turn-skill-buttons .btn.skill-pick.skill-slot {
@@ -5070,16 +5143,8 @@ body.battle-active .app {
     padding-top: 0.12rem;
   }
 
-  body.battle-active .battle-strip--enemy {
-    max-height: min(30vh, 170px);
-  }
-
-  body.battle-active .battle-strip--ally {
-    min-height: 4.25rem;
-  }
-
   body.battle-active .turn-panel--br-fixed {
-    max-width: min(38vw, 8.85rem);
+    max-width: min(calc(100vw - 3rem), 20rem);
     padding: 0.28rem 0.32rem;
   }
 
