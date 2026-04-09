@@ -220,11 +220,7 @@
           ← Hub
         </button>
         <h2 class="screen-title">Summon</h2>
-        <p class="screen-desc">
-          Normal pulls use <strong>1 summon scroll</strong> (campaign drops or Shop). Pity carries over for those pulls.
-          <strong>Legend scrolls</strong> (Shop) always yield Epic or Legendary — Legendary is still uncommon. Max hero
-          level is 50; XP comes from campaign clears.
-        </p>
+        <p class="screen-desc screen-desc--summon" aria-label="Summon heroes with scrolls"></p>
         <div class="summon-pull-row">
           <button type="button" id="btn-summon-pull" class="btn primary">Summon (1 scroll)</button>
           <button type="button" id="btn-summon-legend-pull" class="btn primary summon-legend-pull-btn">
@@ -256,7 +252,34 @@
             <p class="summon-rates-line">Epic: <strong>97%</strong> · Legendary: <strong>3%</strong></p>
           </section>
         </div>
-        <div id="summon-result" class="summon-result" aria-live="polite"></div>
+        <div id="summon-result" class="summon-result summon-result--inline" aria-live="polite"></div>
+
+        <div
+          id="summon-reveal-overlay"
+          class="summon-reveal-overlay is-hidden"
+          aria-hidden="true"
+        >
+          <div class="summon-reveal-backdrop" aria-hidden="true"></div>
+          <div class="summon-reveal-lightning" aria-hidden="true"></div>
+          <button
+            type="button"
+            id="btn-summon-reveal-skip"
+            class="btn ghost summon-reveal-skip"
+          >
+            Skip
+          </button>
+          <div class="summon-reveal-center">
+            <div id="summon-reveal-stage" class="summon-reveal-stage"></div>
+            <div id="summon-reveal-actions" class="summon-reveal-actions is-hidden">
+              <button type="button" id="btn-summon-again" class="btn primary">
+                Summon again
+              </button>
+              <button type="button" id="btn-summon-continue" class="btn ghost">
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
 
         <section
           id="summon-pool-widget"

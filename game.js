@@ -579,6 +579,8 @@ let state = {
   /** Summon reel animation can be skipped by user. */
   summonAnimSkipRequested: false,
   summonAnimRunning: false,
+  /** Last gacha pull used a legend scroll (for “Summon again” on reveal overlay). */
+  lastSummonWasLegend: false,
   praySpinRunning: false,
 };
 
@@ -655,7 +657,57 @@ function ensureAutoBattleTarget() {
   if (first) state.battleTargetEnemyId = String(first.id);
 }
 
+function closeSummonRevealOverlay() {
+  const ov = el("summon-reveal-overlay");
+  if (ov) {
+    ov.classList.add("is-hidden");
+    ov.setAttribute("aria-hidden", "true");
+  }
+  document.body.classList.remove("summon-reveal-active");
+  const stage = el("summon-reveal-stage");
+  if (stage) stage.innerHTML = "";
+  const actions = el("summon-reveal-actions");
+  if (actions) actions.classList.add("is-hidden");
+  const skip = el("btn-summon-reveal-skip");
+  if (skip) skip.classList.add("is-hidden");
+  state.summonAnimRunning = false;
+  state.summonAnimSkipRequested = false;
+  updateSummonPullButton();
+}
+
+function openSummonRevealOverlay() {
+  const ov = el("summon-reveal-overlay");
+  if (!ov) return;
+  ov.classList.remove("is-hidden");
+  ov.setAttribute("aria-hidden", "false");
+  document.body.classList.add("summon-reveal-active");
+  const actions = el("summon-reveal-actions");
+  if (actions) actions.classList.add("is-hidden");
+  const skip = el("btn-summon-reveal-skip");
+  if (skip) {
+    skip.classList.remove("is-hidden");
+    skip.disabled = false;
+  }
+}
+
+function showSummonRevealActionsBar() {
+  const actions = el("summon-reveal-actions");
+  if (actions) actions.classList.remove("is-hidden");
+  const skip = el("btn-summon-reveal-skip");
+  if (skip) skip.classList.add("is-hidden");
+  const again = el("btn-summon-again");
+  if (again) {
+    again.disabled =
+      state.lastSummonWasLegend
+        ? getLegendScrolls() < 1
+        : getSummonScrolls() < 1;
+  }
+}
+
 function showScreen(screenElId) {
+  if (screenElId !== "screen-summon") {
+    closeSummonRevealOverlay();
+  }
   document.querySelectorAll(".screen").forEach((s) => {
     s.classList.remove("screen-active");
   });
@@ -3102,9 +3154,14 @@ function renderSummonRoster() {
     .join("");
 }
 
-/** Character card for the summon screen (matches Character Box styling). */
-function buildSummonResultCardHtml(def, pull) {
-  if (!def || !pull.id) {
+/**
+ * Character card for summon reveal (shop cupid / inline errors use full card + optional duplicate text).
+ * @param {{ minimal?: boolean, omitMsg?: boolean }} [cardOpts]
+ */
+function buildSummonResultCardHtml(def, pull, cardOpts = {}) {
+  const minimal = Boolean(cardOpts.minimal);
+  const omitMsg = Boolean(cardOpts.omitMsg);
+  if (!def || !pull?.id) {
     return `<p class="summon-result-msg">Could not display this hero.</p>`;
   }
   const u = { id: pull.id, name: def.name };
@@ -3120,7 +3177,23 @@ function buildSummonResultCardHtml(def, pull) {
     ? "New hero — added to your collection."
     : `Duplicate — you already own this hero. +${dupGold} gold.`;
   const skillHud = buildHeroSkillHudHtml(pull.id);
-  return `<p class="${msgClass}">${escapeHtml(msg)}</p>
+
+  if (minimal) {
+    return `<div class="summon-result-cards summon-result-cards--reel">
+      <article class="card unit-card box-collection-card summon-reveal-card summon-reveal-card--minimal ${rc}" data-hero-id="${escapeHtml(pull.id)}">
+        ${newBadge}
+        ${portraitBlockHtml(u)}
+        <header>
+          <h3>${escapeHtml(def.name)}</h3>
+          <p class="char-rarity">${escapeHtml(def.rarity)}</p>
+        </header>
+      </article>
+    </div>`;
+  }
+
+  const msgBlock = omitMsg ? "" : `<p class="${msgClass}">${escapeHtml(msg)}</p>`;
+
+  return `${msgBlock}
     <div class="summon-result-cards">
       <article class="card unit-card box-collection-card summon-reveal-card ${rc}" data-hero-id="${escapeHtml(pull.id)}">
         ${newBadge}
@@ -3137,12 +3210,11 @@ function buildSummonResultCardHtml(def, pull) {
 }
 
 async function playSummonReelAnimation(finalHero, opts = {}) {
-  const box = el("summon-result");
-  if (!box || !finalHero?.id) return;
+  const stage = el("summon-reveal-stage");
+  if (!stage || !finalHero?.id) return;
   state.summonAnimSkipRequested = false;
   state.summonAnimRunning = true;
   updateSummonPullButton();
-  const includeLegendPrefix = Boolean(opts.includeLegendPrefix);
   const pool = HERO_DATA.filter((h) => h.id !== CUPID_HERO_ID);
   if (!pool.length) {
     state.summonAnimRunning = false;
@@ -3153,26 +3225,27 @@ async function playSummonReelAnimation(finalHero, opts = {}) {
   for (let i = 0; i < frames; i += 1) {
     if (state.summonAnimSkipRequested) break;
     const pick = pool[Math.floor(Math.random() * pool.length)] || finalHero;
-    box.innerHTML = buildSummonResultCardHtml(pick, {
-      id: pick.id,
-      isNew: true,
-    });
+    stage.innerHTML = buildSummonResultCardHtml(
+      pick,
+      { id: pick.id, isNew: true },
+      { minimal: true }
+    );
     const delay = 55 + i * 17;
     // eslint-disable-next-line no-await-in-loop
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
-  const finalCard = buildSummonResultCardHtml(finalHero, {
-    id: finalHero.id,
-    isNew: !!opts.isNew,
-  });
-  box.innerHTML =
-    includeLegendPrefix && finalHero.rarity === "Legendary"
-      ? '<p class="summon-result-msg summon-result-msg--legend-note">Legendary — rare pull from a legend scroll.</p>' +
-        finalCard
-      : finalCard;
+  stage.innerHTML = buildSummonResultCardHtml(
+    finalHero,
+    {
+      id: finalHero.id,
+      isNew: !!opts.isNew,
+    },
+    { omitMsg: true }
+  );
   state.summonAnimRunning = false;
   state.summonAnimSkipRequested = false;
   updateSummonPullButton();
+  showSummonRevealActionsBar();
 }
 
 async function doSummon() {
@@ -3182,6 +3255,7 @@ async function doSummon() {
     );
     return;
   }
+  state.lastSummonWasLegend = false;
   const h = summonHero();
   if (h?.rarity === "Epic") {
     completeQuest(QUEST_SUMMON_EPIC);
@@ -3203,6 +3277,7 @@ async function doSummon() {
   }
   const def = getHeroDefById(h.id);
   if (def) {
+    openSummonRevealOverlay();
     await playSummonReelAnimation(def, { isNew: !!h.isNew });
   } else if (box) {
     box.innerHTML = buildSummonResultCardHtml(def, {
@@ -3224,6 +3299,7 @@ async function doSummonLegend() {
     );
     return;
   }
+  state.lastSummonWasLegend = true;
   const h = summonHeroFromLegendScroll();
   if (h?.rarity === "Epic") {
     completeQuest(QUEST_SUMMON_EPIC);
@@ -3245,10 +3321,8 @@ async function doSummonLegend() {
   }
   const def = getHeroDefById(h.id);
   if (def) {
-    await playSummonReelAnimation(def, {
-      isNew: !!h.isNew,
-      includeLegendPrefix: true,
-    });
+    openSummonRevealOverlay();
+    await playSummonReelAnimation(def, { isNew: !!h.isNew });
   } else if (box) {
     box.innerHTML = buildSummonResultCardHtml(def, {
       id: h.id,
@@ -3303,6 +3377,8 @@ function init() {
     shopXpBtn.addEventListener("click", () => purchaseXpScroll());
   }
   el("nav-summon").addEventListener("click", () => {
+    const sr = el("summon-result");
+    if (sr) sr.innerHTML = "";
     showScreen("screen-summon");
     renderSummonRoster();
   });
@@ -3402,6 +3478,37 @@ function init() {
     btnSkipSummon.addEventListener("click", () => {
       if (!state.summonAnimRunning) return;
       state.summonAnimSkipRequested = true;
+    });
+  }
+
+  const btnSummonRevealSkip = el("btn-summon-reveal-skip");
+  if (btnSummonRevealSkip) {
+    btnSummonRevealSkip.addEventListener("click", () => {
+      if (!state.summonAnimRunning) return;
+      state.summonAnimSkipRequested = true;
+    });
+  }
+
+  const btnSummonAgain = el("btn-summon-again");
+  if (btnSummonAgain) {
+    btnSummonAgain.addEventListener("click", async () => {
+      const ok = state.lastSummonWasLegend
+        ? getLegendScrolls() >= 1
+        : getSummonScrolls() >= 1;
+      if (!ok) return;
+      closeSummonRevealOverlay();
+      if (state.lastSummonWasLegend) {
+        await doSummonLegend();
+      } else {
+        await doSummon();
+      }
+    });
+  }
+
+  const btnSummonContinue = el("btn-summon-continue");
+  if (btnSummonContinue) {
+    btnSummonContinue.addEventListener("click", () => {
+      closeSummonRevealOverlay();
     });
   }
 

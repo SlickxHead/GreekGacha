@@ -800,6 +800,32 @@ select#targeting {
   line-height: 1.3;
 }
 
+/* Summon tab: no intro paragraph — collapse empty placeholder and pull content up */
+#screen-summon.screen-active .screen-desc--summon:empty {
+  display: none;
+}
+
+#screen-summon.screen-active .screen-title {
+  margin: 0.22rem 0 0.12rem;
+}
+
+#screen-summon .summon-pull-row {
+  margin-top: 0;
+}
+
+#screen-summon .summon-rates-wrap {
+  margin-top: 0.18rem;
+}
+
+#screen-summon .summon-pool-widget {
+  margin-top: 0.32rem;
+}
+
+body.summon-reveal-active .summon-skip-btn {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 #screen-settings.screen-active .back-btn,
 #screen-campaign.screen-active .back-btn,
 #screen-summon.screen-active .back-btn,
@@ -2132,6 +2158,143 @@ body:not(.hub-screen-active) .app {
   border: 2px solid var(--gold-muted);
   border-radius: var(--radius);
   min-height: 2.2rem;
+}
+
+/* Inline result box (errors / refunds); gacha reveal uses full-screen overlay */
+.summon-result--inline:empty {
+  display: none;
+}
+
+.summon-result--inline:not(:empty) {
+  margin-top: 0.35rem;
+  padding: 0.45rem 0.55rem;
+  min-height: 0;
+}
+
+/* Full-screen gacha reveal: blur, lightning, centered card */
+.summon-reveal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: max(0.75rem, env(safe-area-inset-top))
+    max(0.75rem, env(safe-area-inset-right))
+    max(0.75rem, env(safe-area-inset-bottom))
+    max(0.75rem, env(safe-area-inset-left));
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+
+.summon-reveal-overlay.is-hidden {
+  display: none !important;
+}
+
+body.summon-reveal-active {
+  overflow: hidden;
+}
+
+.summon-reveal-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 45%, rgba(30, 58, 138, 0.35) 0%, transparent 55%),
+    rgba(8, 12, 24, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.summon-reveal-lightning {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      165deg,
+      transparent 0%,
+      rgba(250, 250, 250, 0.07) 38%,
+      transparent 42%,
+      rgba(147, 197, 253, 0.12) 48%,
+      transparent 52%,
+      rgba(255, 255, 255, 0.09) 58%,
+      transparent 62%
+    );
+  opacity: 0.85;
+  animation: summon-lightning-pulse 2.2s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+@keyframes summon-lightning-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.95;
+    filter: brightness(1.15);
+  }
+}
+
+.summon-reveal-skip {
+  position: absolute;
+  top: max(0.5rem, env(safe-area-inset-top));
+  right: max(0.5rem, env(safe-area-inset-right));
+  z-index: 2;
+  min-height: 2.25rem;
+}
+
+.summon-reveal-skip.is-hidden {
+  display: none !important;
+}
+
+.summon-reveal-center {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: min(100%, 28rem);
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.summon-reveal-stage {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: min(52vh, 420px);
+}
+
+.summon-reveal-stage .summon-result-cards {
+  animation: summon-reveal-pop 200ms ease-out;
+}
+
+.summon-reveal-card--minimal {
+  min-height: auto !important;
+  max-width: 220px;
+}
+
+.summon-reveal-card--minimal .portrait-frame {
+  max-width: 160px;
+}
+
+.summon-reveal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.summon-reveal-actions.is-hidden {
+  display: none !important;
 }
 
 .summon-result-msg {
@@ -5319,6 +5482,9 @@ body.battle-active #screen-battle.screen-active {
     max-width: 24%;
     width: auto;
     padding: 0.06rem 0.02rem 0.12rem !important;
+    /* Negative margin pulls portraits closer than gap:0 alone */
+    margin-left: -0.28rem;
+    margin-right: -0.28rem;
   }
 
   /*
