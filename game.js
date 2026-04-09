@@ -1077,8 +1077,35 @@ function portraitBlockHtml(u, opts = {}) {
       </div>`;
 }
 
+/** Mobile battle formation: allies in a shallow V; enemies nudged toward center (CSS vars --bf-tx / --bf-ty). */
+function battleFormationStyleAttr(side, index, count) {
+  if (
+    typeof window.matchMedia !== "function" ||
+    !window.matchMedia("(max-width: 950px)").matches
+  ) {
+    return "";
+  }
+  if (count <= 1) return "";
+  const mid = (count - 1) / 2;
+  const dist = index - mid;
+  let tx = "0%";
+  let ty = "0px";
+  if (side === "A") {
+    const kx = count === 2 ? 3.5 : count === 3 ? 3.2 : 2.85;
+    const ky = count === 2 ? 7 : count === 3 ? 5.5 : 4.5;
+    tx = `${-dist * kx}%`;
+    ty = `${Math.abs(dist) * ky + (count >= 4 ? 2 : 0)}px`;
+  } else {
+    const kx = count === 2 ? 2.8 : count === 3 ? 3.4 : 3.1;
+    tx = `${-dist * kx}%`;
+    ty = "0px";
+  }
+  return ` style="--bf-tx:${tx};--bf-ty:${ty}"`;
+}
+
 function buildTeamHtml(team, label, side) {
   const targetId = state.battleTargetEnemyId;
+  const n = team.length;
   const cards = team
     .map((u, i) => {
       const targeted =
@@ -1110,10 +1137,11 @@ function buildTeamHtml(team, label, side) {
       const spriteFaceClass = isSpriteUnit(u) ? " battle-char-cardface--sprite" : "";
       const heroIdAttr = u.id != null ? String(u.id) : "";
       const skillHud = buildHeroSkillHudHtml(heroIdAttr);
+      const formAttr = battleFormationStyleAttr(side, i, n);
       return `
     <div class="card unit-card unit-card--compact unit-card--sw unit-card--arena unit-card--battle-card ${rarityClass(u.rarity)}${targetedClass}${actingClass}${defeatVanishClass}${stunnedClass}" data-side="${side}" data-index="${i}"${
         u.id != null ? ` data-hero-id="${escapeHtml(String(u.id))}"` : ""
-      } data-rarity="${escapeHtml(String(u.rarity || ""))}">
+      } data-rarity="${escapeHtml(String(u.rarity || ""))}"${formAttr}>
       <div class="unit-card-motion">
       <div class="sw-float-ui" aria-hidden="true">
         <span class="sw-lvl-badge">${lvl}</span>
@@ -3062,6 +3090,7 @@ function renderCharacterBox() {
         ? '<span class="card-new-badge">NEW</span>'
         : "";
       const skillHud = buildHeroSkillHudHtml(id);
+      const { level: heroLv } = getHeroProgress(id);
       return `<article class="card unit-card box-collection-card ${rc}" data-hero-id="${escapeHtml(id)}" role="listitem" data-rarity="${escapeHtml(def.rarity)}">
       ${newBadge}
       <label class="box-party-row">
@@ -3072,6 +3101,7 @@ function renderCharacterBox() {
       <header>
         <h3>${escapeHtml(def.name)}</h3>
         <p class="char-rarity">${escapeHtml(def.rarity)}</p>
+        <p class="box-card-level" aria-label="Level ${heroLv}">Lv. ${heroLv}</p>
       </header>
       <button type="button" class="btn ghost box-card-stats-btn" aria-expanded="false">Stats</button>
       ${heroCombatStatsHtml(id)}
