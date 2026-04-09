@@ -3432,12 +3432,26 @@ function init() {
     if (e.target.closest("label") || e.target.closest("input[type=checkbox]")) {
       return;
     }
+    if (e.target.closest(".card-skill-hud")) {
+      return;
+    }
     const art = e.target.closest(".box-collection-card");
     if (!art) return;
     const hid = art.getAttribute("data-hero-id");
-    if (!hid || !getNewHeroIds().includes(hid)) return;
-    clearNewHeroMarker(hid);
-    renderCharacterBox();
+    if (!hid) return;
+
+    if (getNewHeroIds().includes(hid)) {
+      clearNewHeroMarker(hid);
+      renderCharacterBox();
+      return;
+    }
+
+    const mobileStats =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(max-width: 950px)").matches;
+    if (mobileStats) {
+      art.classList.toggle("box-card--stats-open");
+    }
   });
 
   const battleSpeedBtn = el("btn-battle-speed");
