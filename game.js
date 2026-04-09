@@ -3073,6 +3073,7 @@ function renderCharacterBox() {
         <h3>${escapeHtml(def.name)}</h3>
         <p class="char-rarity">${escapeHtml(def.rarity)}</p>
       </header>
+      <button type="button" class="btn ghost box-card-stats-btn" aria-expanded="false">Stats</button>
       ${heroCombatStatsHtml(id)}
       ${heroXpRowHtml(id)}
       <p class="box-card-desc">${escapeHtml(def.description || "")}</p>
@@ -3240,7 +3241,8 @@ async function playSummonReelAnimation(finalHero, opts = {}) {
       id: finalHero.id,
       isNew: !!opts.isNew,
     },
-    { omitMsg: true }
+    /* Same compact card as reel — full-size winner was too tall on mobile */
+    { omitMsg: true, minimal: true }
   );
   state.summonAnimRunning = false;
   state.summonAnimSkipRequested = false;
@@ -3536,6 +3538,15 @@ function init() {
   });
 
   el("character-box-list").addEventListener("click", (e) => {
+    const statsBtn = e.target.closest(".box-card-stats-btn");
+    if (statsBtn) {
+      e.preventDefault();
+      const art = statsBtn.closest(".box-collection-card");
+      if (!art) return;
+      const open = art.classList.toggle("box-card--stats-open");
+      statsBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      return;
+    }
     if (e.target.closest("label") || e.target.closest("input[type=checkbox]")) {
       return;
     }
@@ -3551,13 +3562,6 @@ function init() {
       clearNewHeroMarker(hid);
       renderCharacterBox();
       return;
-    }
-
-    const mobileStats =
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(max-width: 950px)").matches;
-    if (mobileStats) {
-      art.classList.toggle("box-card--stats-open");
     }
   });
 

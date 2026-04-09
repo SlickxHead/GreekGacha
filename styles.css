@@ -826,6 +826,54 @@ body.summon-reveal-active .summon-skip-btn {
   pointer-events: none;
 }
 
+@media (max-width: 950px) {
+  #screen-summon .summon-pool-widget {
+    padding: 0.48rem 0.52rem 0.55rem;
+  }
+
+  #screen-summon .summon-pool-title {
+    margin: 0 0 0.22rem;
+    font-size: 1.02rem;
+  }
+
+  #screen-summon .summon-pool-filters--compact {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.3rem 0.4rem;
+    margin-bottom: 0.32rem;
+    padding-bottom: 0.32rem;
+  }
+
+  #screen-summon .summon-filter-group--rarity {
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-wrap: nowrap;
+    gap: 0.15rem 0.28rem;
+  }
+
+  #screen-summon .summon-filter-group--status {
+    flex: 0 0 auto;
+  }
+
+  #screen-summon .summon-filter-chip {
+    font-size: 0.68rem;
+    gap: 0.18rem;
+  }
+
+  #screen-summon .summon-filter-chip input {
+    width: 0.82rem;
+    height: 0.82rem;
+  }
+
+  #screen-summon .summon-f-status {
+    min-width: 0;
+    max-width: 42vw;
+    padding: 0.18rem 0.28rem;
+    font-size: 0.7rem;
+    border-width: 1px;
+  }
+}
+
 #screen-settings.screen-active .back-btn,
 #screen-campaign.screen-active .back-btn,
 #screen-summon.screen-active .back-btn,
@@ -2441,48 +2489,41 @@ body.summon-reveal-active {
 }
 
 .summon-pool-title {
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.28rem;
   font-size: 1.15rem;
   color: var(--laurel-dim);
-}
-
-.summon-pool-desc {
-  margin: 0 0 0.55rem;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  line-height: 1.45;
 }
 
 .summon-pool-filters {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 0.6rem 0.9rem;
-  margin-bottom: 0.55rem;
-  padding-bottom: 0.5rem;
+  align-items: center;
+  gap: 0.45rem 0.65rem;
+  margin-bottom: 0.45rem;
+  padding-bottom: 0.42rem;
   border-bottom: 1px solid var(--gold-muted);
+}
+
+.summon-pool-filters--compact {
+  align-items: center;
 }
 
 .summon-filter-group {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 0.75rem;
+  gap: 0.45rem 0.65rem;
+}
+
+.summon-filter-group--rarity {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .summon-filter-group--status {
+  flex: 0 0 auto;
   align-items: center;
-  gap: 0.5rem;
-}
-
-.summon-filter-label,
-.summon-filter-status-label {
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-  margin-right: 0.25rem;
+  gap: 0.35rem;
 }
 
 .summon-filter-chip {
@@ -2502,9 +2543,9 @@ body.summon-reveal-active {
 }
 
 .summon-f-status {
-  min-width: 11rem;
-  padding: 0.35rem 0.5rem;
-  font-size: 0.88rem;
+  min-width: min(11rem, 100%);
+  padding: 0.28rem 0.42rem;
+  font-size: 0.84rem;
   border-radius: var(--radius);
   border: 2px solid var(--gold-muted);
   background: var(--card-white);
@@ -3149,6 +3190,29 @@ body.summon-reveal-active {
   color: var(--text-muted);
   font-style: italic;
   text-align: center;
+}
+
+/* Character Box: combat + XP behind Stats button */
+#screen-box .box-collection-card .hero-combat-stats,
+#screen-box .box-collection-card .hero-xp-block {
+  display: none;
+}
+
+#screen-box .box-collection-card.box-card--stats-open .hero-combat-stats {
+  display: flex;
+}
+
+#screen-box .box-collection-card.box-card--stats-open .hero-xp-block {
+  display: block;
+}
+
+.box-card-stats-btn {
+  align-self: center;
+  margin: 0.22rem auto 0.38rem;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.74rem;
+  min-height: 1.85rem;
+  line-height: 1.15;
 }
 
 /* —— Battle screen: one viewport, no page scroll —— */
@@ -4876,29 +4940,29 @@ body.battle-active #screen-battle.screen-active {
     flex: 0 0 min(68vw, 220px);
   }
 
-  /* Character Box: compact chrome, stats on tap (see .box-card--stats-open) */
+  /* Character Box: compact chrome; stats via .box-card-stats-btn */
   #screen-box.screen-active {
     padding-left: max(0.45rem, var(--safe-left));
     padding-right: max(0.45rem, var(--safe-right));
-    padding-bottom: max(0.5rem, var(--safe-bottom));
-    padding-top: 0.35rem;
+    padding-bottom: max(0.45rem, var(--safe-bottom));
+    padding-top: 0.22rem;
     box-sizing: border-box;
   }
 
   #screen-box.screen-active .screen-title {
-    margin: 0.12rem 0 0.08rem;
-    font-size: 1.12rem;
+    margin: 0.08rem 0 0.06rem;
+    font-size: 1.08rem;
   }
 
   #screen-box.screen-active .screen-desc {
-    margin: 0 0 0.28rem;
-    font-size: 0.64rem;
-    line-height: 1.22;
+    margin: 0 0 0.14rem;
+    font-size: 0.62rem;
+    line-height: 1.2;
   }
 
   #screen-box.screen-active .shop-back-btn {
-    margin-bottom: 0.18rem;
-    padding: 0.2rem 0.42rem;
+    margin-bottom: 0.12rem;
+    padding: 0.18rem 0.38rem;
   }
 
   #screen-box.screen-active .party-toolbar,
@@ -4908,8 +4972,8 @@ body.battle-active #screen-battle.screen-active {
   }
 
   #screen-box.screen-active .party-toolbar {
-    padding: 0.28rem 0.4rem;
-    margin-bottom: 0.22rem;
+    padding: 0.22rem 0.34rem;
+    margin-bottom: 0.12rem;
   }
 
   #screen-box.screen-active .party-toolbar-text {
@@ -4927,8 +4991,8 @@ body.battle-active #screen-battle.screen-active {
 
   /* XP scroll: no dead vertical space */
   #screen-box.screen-active .xp-scroll-panel {
-    padding: 0.1rem 0.28rem 0.12rem;
-    margin-bottom: 0.12rem;
+    padding: 0.08rem 0.24rem 0.1rem;
+    margin-bottom: 0.06rem;
     display: flex;
     flex-direction: column;
     gap: 0.06rem;
@@ -4986,54 +5050,53 @@ body.battle-active #screen-battle.screen-active {
   #screen-box.screen-active .character-box-grid {
     flex: 1 1 auto;
     min-height: 0;
-    margin-top: 0.05rem;
-    gap: 0.4rem;
+    margin-top: 0;
+    gap: 0.32rem;
     padding-right: max(0.2rem, env(safe-area-inset-right, 0px));
     scroll-padding-inline: max(0.35rem, env(safe-area-inset-left, 0px));
     overscroll-behavior-x: contain;
   }
 
   #screen-box.screen-active .character-box-grid > .box-collection-card {
-    flex: 0 0 min(58vw, 152px);
+    flex: 0 0 min(48vw, 128px);
   }
 
   #screen-box.screen-active .box-collection-card {
-    padding: 0.38rem 0.42rem;
+    padding: 0.3rem 0.32rem;
   }
 
   #screen-box.screen-active .box-collection-card .portrait-frame {
-    max-width: 72px;
+    max-width: 56px;
   }
 
   #screen-box.screen-active .box-collection-card header h3 {
-    font-size: 0.76rem;
+    font-size: 0.7rem;
   }
 
   #screen-box.screen-active .box-collection-card .char-rarity {
-    font-size: 0.6rem;
+    font-size: 0.56rem;
+  }
+
+  #screen-box.screen-active .box-card-stats-btn {
+    margin: 0.08rem auto 0.16rem;
+    padding: 0.1rem 0.38rem;
+    font-size: 0.62rem;
+    min-height: 1.45rem;
   }
 
   #screen-box.screen-active .box-card-desc {
-    font-size: 0.6rem;
-    line-height: 1.25;
-    margin-top: 0.22rem;
-  }
-
-  /* Stats + XP bar hidden until card is tapped (toggle .box-card--stats-open in JS) */
-  #screen-box.screen-active .box-collection-card .hero-combat-stats,
-  #screen-box.screen-active .box-collection-card .hero-xp-block {
-    display: none;
+    font-size: 0.56rem;
+    line-height: 1.22;
+    margin-top: 0.14rem;
   }
 
   #screen-box.screen-active .box-collection-card.box-card--stats-open .hero-combat-stats {
-    display: flex;
-    gap: 0.25rem 0.35rem;
-    margin: 0.28rem 0 0.32rem;
+    gap: 0.2rem 0.28rem;
+    margin: 0.18rem 0 0.22rem;
   }
 
   #screen-box.screen-active .box-collection-card.box-card--stats-open .hero-xp-block {
-    display: block;
-    margin: 0.35rem 0 0.4rem;
+    margin: 0.22rem 0 0.28rem;
   }
 
   #screen-box.screen-active .hero-stat-pill {

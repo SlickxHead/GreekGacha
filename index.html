@@ -287,13 +287,8 @@
           aria-labelledby="summon-pool-heading"
         >
           <h3 id="summon-pool-heading" class="summon-pool-title">Summon pool</h3>
-          <p class="summon-pool-desc">
-            Heroes you can roll with summon scrolls (Rare, Epic, Legendary). Each pull consumes one scroll. Cupid is
-            shop-only — not listed here.
-          </p>
-          <div class="summon-pool-filters" id="summon-pool-filters">
-            <div class="summon-filter-group" role="group" aria-label="Filter by rarity">
-              <span class="summon-filter-label">Rarity</span>
+          <div class="summon-pool-filters summon-pool-filters--compact" id="summon-pool-filters">
+            <div class="summon-filter-group summon-filter-group--rarity" role="group" aria-label="Filter by rarity">
               <label class="summon-filter-chip">
                 <input
                   type="checkbox"
@@ -326,8 +321,12 @@
               </label>
             </div>
             <div class="summon-filter-group summon-filter-group--status">
-              <label class="summon-filter-status-label" for="summon-f-status">Status</label>
-              <select id="summon-f-status" class="summon-f-status" name="summon-status">
+              <select
+                id="summon-f-status"
+                class="summon-f-status"
+                name="summon-status"
+                aria-label="Filter by unlock status"
+              >
                 <option value="all">All</option>
                 <option value="unlocked">Unlocked only</option>
                 <option value="locked">Locked only</option>
