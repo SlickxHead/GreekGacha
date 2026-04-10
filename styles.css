@@ -5720,7 +5720,8 @@ body.battle-active #screen-battle.screen-active {
     flex-direction: column;
     align-items: stretch;
     justify-content: space-between;
-    gap: 0.3rem;
+    /* Visible band between enemy line and player line */
+    gap: min(1.35rem, 4.2vw);
     min-height: 0;
     /* Clear top safe area + room so enemy HP bars are not clipped */
     padding-top: max(0.5rem, calc(0.2rem + var(--safe-top)));
@@ -5738,12 +5739,14 @@ body.battle-active #screen-battle.screen-active {
     flex: 1 1 0;
     justify-content: flex-end;
     padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
   }
 
   body.battle-active .battle-strip--ally {
     flex: 1 1 0;
     justify-content: flex-end;
     margin-top: 0;
+    padding-top: 0.45rem;
     position: relative;
     z-index: 3;
   }
@@ -5795,6 +5798,16 @@ body.battle-active #screen-battle.screen-active {
     margin-right: auto;
   }
 
+  /*
+   * Ally row: narrow band + overlap — without this, flex max-width:24% spreads
+   * four cards across the full viewport and JS formation barely moves them.
+   */
+  body.battle-active .battle-strip--ally .roster--sw-ally .sw-unit-row {
+    max-width: min(52%, 14.5rem);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   /* Up to four units share the row; shrink equally so none sit off-screen */
   body.battle-active .battle-arena--sw .unit-card--arena {
     flex: 1 1 0;
@@ -5805,6 +5818,11 @@ body.battle-active #screen-battle.screen-active {
     /* Negative margin pulls portraits closer than gap:0 alone */
     margin-left: -0.36rem;
     margin-right: -0.36rem;
+  }
+
+  body.battle-active .battle-strip--ally .unit-card--arena {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
   }
 
   /* Nudge both teams down so HP/labels clear the top edge and overlap reads better */

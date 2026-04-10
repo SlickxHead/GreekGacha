@@ -1097,8 +1097,9 @@ function battleFormationStyleAttr(side, index, count) {
   let tx = "0%";
   let ty = "0px";
   if (side === "A") {
-    const kx = count === 2 ? 2.45 : count === 3 ? 2.25 : 2;
-    const ky = count === 2 ? 7 : count === 3 ? 5.5 : 4.5;
+    /* Shallow V + modest horizontal nudge; row width is capped in CSS on mobile */
+    const kx = count === 2 ? 1.35 : count === 3 ? 1.25 : 1.15;
+    const ky = count === 2 ? 6 : count === 3 ? 4.5 : 3.75;
     tx = `${-dist * kx}%`;
     ty = `${Math.abs(dist) * ky + (count >= 4 ? 2 : 0)}px`;
   } else {
