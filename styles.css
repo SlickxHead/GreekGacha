@@ -5720,8 +5720,8 @@ body.battle-active #screen-battle.screen-active {
     flex-direction: column;
     align-items: stretch;
     justify-content: space-between;
-    /* Visible band between enemy line and player line */
-    gap: min(1.35rem, 4.2vw);
+    /* Clear vertical band between enemy line and player line */
+    gap: min(2.25rem, 6.5vw);
     min-height: 0;
     /* Clear top safe area + room so enemy HP bars are not clipped */
     padding-top: max(0.5rem, calc(0.2rem + var(--safe-top)));
@@ -5739,14 +5739,14 @@ body.battle-active #screen-battle.screen-active {
     flex: 1 1 0;
     justify-content: flex-end;
     padding-top: 0.35rem;
-    padding-bottom: 0.35rem;
+    padding-bottom: 0.55rem;
   }
 
   body.battle-active .battle-strip--ally {
     flex: 1 1 0;
     justify-content: flex-end;
     margin-top: 0;
-    padding-top: 0.45rem;
+    padding-top: 0.65rem;
     position: relative;
     z-index: 3;
   }
@@ -5791,60 +5791,47 @@ body.battle-active #screen-battle.screen-active {
     min-height: 0;
   }
 
-  /* Enemy line: tighter cluster toward center */
+  /* Enemy line: full width — cluster via overlap + JS --bf-tx (no narrow row = no tiny sprites) */
   body.battle-active .battle-strip--enemy .roster--sw-enemy .sw-unit-row {
-    max-width: 68%;
+    max-width: 100%;
     margin-left: auto;
     margin-right: auto;
   }
 
-  /*
-   * Ally row: narrow band + overlap — without this, flex max-width:24% spreads
-   * four cards across the full viewport and JS formation barely moves them.
-   */
-  body.battle-active .battle-strip--ally .roster--sw-ally .sw-unit-row {
-    max-width: min(52%, 14.5rem);
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  /* Up to four units share the row; shrink equally so none sit off-screen */
+  /* Up to four units share the row; overlap pulls same-team units together without shrinking art */
   body.battle-active .battle-arena--sw .unit-card--arena {
     flex: 1 1 0;
     min-width: 0;
     max-width: 24%;
     width: auto;
     padding: 0.06rem 0.02rem 0.12rem !important;
-    /* Negative margin pulls portraits closer than gap:0 alone */
-    margin-left: -0.36rem;
-    margin-right: -0.36rem;
+    margin-left: -0.42rem;
+    margin-right: -0.42rem;
   }
 
   body.battle-active .battle-strip--ally .unit-card--arena {
-    margin-left: -0.5rem;
-    margin-right: -0.5rem;
+    margin-left: -0.62rem;
+    margin-right: -0.62rem;
   }
 
-  /* Nudge both teams down so HP/labels clear the top edge and overlap reads better */
+  /*
+   * Enemies: move down toward player so HP bars clear the top; keep full scale (no 0.96 shrink).
+   * Allies: move down in the bottom band; extra gap from arena keeps teams farther apart vertically.
+   */
   body.battle-active .roster--sw-enemy .unit-card--arena {
-    transform: translate(var(--bf-tx, 0px), calc(var(--bf-ty, 0px) + 0.65rem)) scale(0.96);
+    transform: translate(var(--bf-tx, 0px), calc(var(--bf-ty, 0px) + 1.15rem)) scale(1);
   }
 
   body.battle-active .roster--sw-ally .unit-card--arena {
-    transform: translate(var(--bf-tx, 0px), calc(var(--bf-ty, 0px) + 0.65rem)) scale(1);
+    transform: translate(var(--bf-tx, 0px), calc(var(--bf-ty, 0px) + 1.05rem)) scale(1);
   }
 
   body.battle-active .roster--sw-enemy .unit-card--arena.unit-card--acting {
-    transform: translate(var(--bf-tx, 0px), calc(var(--bf-ty, 0px) + 0.65rem)) scale(1.02);
+    transform: translate(var(--bf-tx, 0px), calc(var(--bf-ty, 0px) + 1.15rem)) scale(1.04);
   }
 
   body.battle-active .roster--sw-ally .unit-card--arena.unit-card--acting {
-    transform: translate(var(--bf-tx, 0px), calc(var(--bf-ty, 0px) + 0.65rem)) scale(1.06);
-  }
-
-  /* Shorter sprites on narrow viewports so idle poses do not push HP bars off-screen */
-  body.battle-active .battle-strip .battle-char-cardface--sprite .portrait-mat {
-    max-height: clamp(7.75rem, 34vw, 11.5rem);
+    transform: translate(var(--bf-tx, 0px), calc(var(--bf-ty, 0px) + 1.05rem)) scale(1.06);
   }
 
   /*

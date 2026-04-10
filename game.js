@@ -1097,13 +1097,13 @@ function battleFormationStyleAttr(side, index, count) {
   let tx = "0%";
   let ty = "0px";
   if (side === "A") {
-    /* Shallow V + modest horizontal nudge; row width is capped in CSS on mobile */
-    const kx = count === 2 ? 1.35 : count === 3 ? 1.25 : 1.15;
+    /* Shallow V + horizontal pull toward center; overlap margins in CSS cluster without shrinking cards */
+    const kx = count === 2 ? 2.35 : count === 3 ? 2.15 : 1.95;
     const ky = count === 2 ? 6 : count === 3 ? 4.5 : 3.75;
     tx = `${-dist * kx}%`;
     ty = `${Math.abs(dist) * ky + (count >= 4 ? 2 : 0)}px`;
   } else {
-    const kx = count === 2 ? 2 : count === 3 ? 2.45 : 2.25;
+    const kx = count === 2 ? 2.35 : count === 3 ? 2.75 : 2.5;
     tx = `${-dist * kx}%`;
     ty = "0px";
   }
