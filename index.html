@@ -286,8 +286,33 @@
           class="summon-pool-widget card"
           aria-labelledby="summon-pool-heading"
         >
-          <h3 id="summon-pool-heading" class="summon-pool-title">Summon pool</h3>
-          <div class="summon-pool-filters summon-pool-filters--compact" id="summon-pool-filters">
+          <button
+            type="button"
+            id="btn-summon-pool-open"
+            class="summon-pool-entry-btn btn ghost"
+            aria-expanded="false"
+            aria-controls="summon-pool-panel"
+          >
+            <span class="summon-pool-entry-label">Summon pool</span>
+            <span class="summon-pool-entry-chevron" aria-hidden="true">▾</span>
+          </button>
+          <div
+            id="summon-pool-panel"
+            class="summon-pool-panel"
+            role="region"
+            aria-labelledby="summon-pool-heading"
+          >
+            <header class="summon-pool-panel-head">
+              <button
+                type="button"
+                id="btn-summon-pool-back"
+                class="btn ghost summon-pool-back-btn"
+              >
+                ← Summon
+              </button>
+              <h3 id="summon-pool-heading" class="summon-pool-title">Summon pool</h3>
+            </header>
+            <div class="summon-pool-filters summon-pool-filters--compact" id="summon-pool-filters">
             <div class="summon-filter-group summon-filter-group--rarity" role="group" aria-label="Filter by rarity">
               <label class="summon-filter-chip">
                 <input
@@ -332,13 +357,14 @@
                 <option value="locked">Locked only</option>
               </select>
             </div>
+            </div>
+            <div
+              id="summon-roster-grid"
+              class="summon-roster-grid"
+              role="list"
+              aria-live="polite"
+            ></div>
           </div>
-          <div
-            id="summon-roster-grid"
-            class="summon-roster-grid"
-            role="list"
-            aria-live="polite"
-          ></div>
         </section>
       </section>
 

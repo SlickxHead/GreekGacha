@@ -707,6 +707,12 @@ function showSummonRevealActionsBar() {
 function showScreen(screenElId) {
   if (screenElId !== "screen-summon") {
     closeSummonRevealOverlay();
+    const summonScreen = el("screen-summon");
+    if (summonScreen) {
+      summonScreen.classList.remove("summon-pool-sub-open");
+      const poolOpen = el("btn-summon-pool-open");
+      if (poolOpen) poolOpen.setAttribute("aria-expanded", "false");
+    }
   }
   document.querySelectorAll(".screen").forEach((s) => {
     s.classList.remove("screen-active");
@@ -3170,16 +3176,25 @@ function renderSummonRoster() {
         ? '<span class="summon-status-badge summon-status-badge--owned">Owned</span>'
         : '<span class="summon-status-badge summon-status-badge--locked">Locked</span>';
       const skillHud = buildHeroSkillHudHtml(def.id);
-      return `<article class="summon-roster-card card unit-card box-collection-card ${rc}${lockedClass}" data-hero-id="${escapeHtml(def.id)}" data-owned="${unlocked}" role="listitem">
+      const tabLabel = escapeHtml(def.name);
+      return `<article class="summon-roster-card card unit-card box-collection-card summon-roster-card--tabbed ${rc}${lockedClass}" data-hero-id="${escapeHtml(def.id)}" data-owned="${unlocked}" role="listitem">
         ${badge}
         ${portraitBlockHtml(u)}
         <header>
           <h3>${escapeHtml(def.name)}</h3>
           <p class="char-rarity">${escapeHtml(def.rarity)}</p>
         </header>
-        ${heroBaseStatsFromDefHtml(def)}
-        <p class="box-card-desc summon-roster-desc">${escapeHtml(def.description || "")}</p>
-        ${skillHud}
+        <div class="summon-roster-tabs" role="tablist" aria-label="${tabLabel} card details">
+          <button type="button" class="summon-roster-tab summon-roster-tab--active" role="tab" aria-selected="true" data-summon-tab="stats">Stats</button>
+          <button type="button" class="summon-roster-tab" role="tab" aria-selected="false" data-summon-tab="info">Info</button>
+        </div>
+        <div class="summon-roster-tab-panel summon-roster-tab-panel--stats" data-panel="stats" role="tabpanel">
+          ${heroBaseStatsFromDefHtml(def)}
+        </div>
+        <div class="summon-roster-tab-panel summon-roster-tab-panel--info is-hidden" data-panel="info" role="tabpanel" aria-hidden="true" hidden>
+          <p class="box-card-desc summon-roster-desc">${escapeHtml(def.description || "")}</p>
+          ${skillHud}
+        </div>
       </article>`;
     })
     .join("");
@@ -3555,6 +3570,59 @@ function init() {
   if (summonFilters) {
     summonFilters.addEventListener("change", () => renderSummonRoster());
   }
+
+  const summonRosterGrid = el("summon-roster-grid");
+  if (summonRosterGrid) {
+    summonRosterGrid.addEventListener("click", (e) => {
+      const tab = e.target.closest(".summon-roster-tab");
+      if (!tab || !summonRosterGrid.contains(tab)) return;
+      e.preventDefault();
+      const card = tab.closest(".summon-roster-card");
+      if (!card) return;
+      const name = tab.getAttribute("data-summon-tab");
+      if (!name) return;
+      for (const t of card.querySelectorAll(".summon-roster-tab")) {
+        const on = t === tab;
+        t.classList.toggle("summon-roster-tab--active", on);
+        t.setAttribute("aria-selected", on ? "true" : "false");
+      }
+      for (const p of card.querySelectorAll(".summon-roster-tab-panel")) {
+        const show = p.getAttribute("data-panel") === name;
+        p.classList.toggle("is-hidden", !show);
+        p.setAttribute("aria-hidden", show ? "false" : "true");
+        p.hidden = !show;
+      }
+    });
+  }
+
+  const screenSummon = el("screen-summon");
+  const btnSummonPoolOpen = el("btn-summon-pool-open");
+  const btnSummonPoolBack = el("btn-summon-pool-back");
+  if (screenSummon && btnSummonPoolOpen && btnSummonPoolBack) {
+    btnSummonPoolOpen.addEventListener("click", () => {
+      screenSummon.classList.add("summon-pool-sub-open");
+      btnSummonPoolOpen.setAttribute("aria-expanded", "true");
+      btnSummonPoolBack.focus();
+    });
+    btnSummonPoolBack.addEventListener("click", () => {
+      screenSummon.classList.remove("summon-pool-sub-open");
+      btnSummonPoolOpen.setAttribute("aria-expanded", "false");
+      btnSummonPoolOpen.focus();
+    });
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    const s = el("screen-summon");
+    if (
+      !s?.classList.contains("screen-active") ||
+      !s.classList.contains("summon-pool-sub-open")
+    ) {
+      return;
+    }
+    s.classList.remove("summon-pool-sub-open");
+    el("btn-summon-pool-open")?.setAttribute("aria-expanded", "false");
+  });
 
   el("screen-battle").addEventListener("click", (e) => {
     const card = e.target.closest('.unit-card[data-side="B"]');

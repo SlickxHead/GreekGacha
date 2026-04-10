@@ -2615,6 +2615,229 @@ body.summon-reveal-active {
   grid-column: 1 / -1;
 }
 
+/* Summon pool roster: Stats / Info tabs (description moved off the default face) */
+.summon-roster-tabs {
+  display: flex;
+  gap: 0.22rem;
+  margin: 0.32rem 0 0.24rem;
+  width: 100%;
+}
+
+.summon-roster-tab {
+  flex: 1 1 50%;
+  margin: 0;
+  padding: 0.24rem 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 6px;
+  border: 1px solid var(--gold-muted);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.summon-roster-tab--active {
+  border-color: var(--laurel);
+  color: var(--laurel-dim);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: inset 0 0 0 1px rgba(45, 90, 60, 0.22);
+}
+
+.summon-roster-tab-panel--stats .hero-combat-stats--compact {
+  margin-top: 0;
+}
+
+.summon-roster-tab-panel--info .summon-roster-desc {
+  display: block;
+  -webkit-line-clamp: unset;
+  margin: 0 0 0.38rem;
+  font-size: 0.74rem;
+  line-height: 1.38;
+}
+
+.summon-roster-card--tabbed .summon-roster-tab-panel--info .card-skill-hud {
+  position: static;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  width: 100%;
+  max-width: none;
+  pointer-events: auto;
+  margin-top: 0;
+  bottom: auto;
+  left: auto;
+}
+
+.summon-roster-card--tabbed .summon-roster-tab-panel--info .card-skill-hud-title {
+  font-size: 0.7rem;
+}
+
+.summon-roster-card--tabbed .summon-roster-tab-panel--info .card-skill-hud-desc {
+  font-size: 0.68rem;
+}
+
+.summon-roster-card--tabbed .portrait-frame {
+  max-width: 76px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.summon-roster-card--tabbed header h3 {
+  font-size: 0.82rem;
+}
+
+.summon-roster-card--tabbed .char-rarity {
+  font-size: 0.65rem;
+}
+
+/* Wide screens: full summon pool inline; entry / back chrome hidden */
+@media (min-width: 951px) {
+  .summon-pool-entry-btn {
+    display: none !important;
+  }
+
+  .summon-pool-back-btn {
+    display: none !important;
+  }
+
+  .summon-pool-panel-head {
+    display: block;
+  }
+}
+
+/* Narrow viewports: open pool from a tab row (see #screen-summon.summon-pool-sub-open) */
+@media (max-width: 950px) {
+  .summon-pool-entry-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 40rem;
+    margin: 0.28rem 0 0;
+    padding: 0.42rem 0.65rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    border: 1px solid var(--gold-muted);
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.78);
+    box-sizing: border-box;
+  }
+
+  .summon-pool-entry-chevron {
+    font-size: 0.75rem;
+    opacity: 0.75;
+  }
+
+  #screen-summon:not(.summon-pool-sub-open) .summon-pool-panel {
+    display: none !important;
+  }
+
+  #screen-summon.summon-pool-sub-open {
+    overflow: hidden !important;
+  }
+
+  #screen-summon.summon-pool-sub-open .summon-pool-entry-btn {
+    display: none !important;
+  }
+
+  #screen-summon.summon-pool-sub-open .summon-pool-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: flex !important;
+    flex-direction: column;
+    box-sizing: border-box;
+    margin: 0;
+    max-width: none;
+    width: 100%;
+    min-height: 0;
+    padding: max(0.45rem, env(safe-area-inset-top, 0px))
+      max(0.55rem, env(safe-area-inset-right, 0px))
+      max(0.55rem, env(safe-area-inset-bottom, 0px))
+      max(0.55rem, env(safe-area-inset-left, 0px));
+    overflow: hidden;
+    border-radius: 0;
+    border: 0;
+    background: var(--tab-frost-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: none;
+  }
+
+  #screen-summon.summon-pool-sub-open .summon-pool-widget {
+    overflow: visible;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .summon-pool-panel-head {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+    margin-bottom: 0.28rem;
+  }
+
+  .summon-pool-panel-head .summon-pool-title {
+    margin: 0;
+    flex: 1 1 auto;
+    font-size: 1.05rem;
+  }
+
+  .summon-pool-back-btn {
+    flex: 0 0 auto;
+    padding: 0.28rem 0.45rem;
+    font-size: 0.82rem;
+  }
+
+  #screen-summon.summon-pool-sub-open .summon-pool-filters {
+    flex-shrink: 0;
+  }
+
+  #screen-summon.summon-pool-sub-open .summon-roster-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    gap: 0.45rem;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: wrap;
+    scroll-snap-type: none;
+    padding-bottom: 0.35rem;
+    overscroll-behavior: contain;
+  }
+
+  #screen-summon.summon-pool-sub-open .summon-roster-grid > .summon-roster-card {
+    flex: none;
+    scroll-snap-align: none;
+    max-width: none;
+  }
+
+  #screen-summon.summon-pool-sub-open .summon-roster-card--tabbed .portrait-frame {
+    max-width: 56px;
+  }
+
+  #screen-summon.summon-pool-sub-open .summon-roster-card--tabbed header h3 {
+    font-size: 0.72rem;
+  }
+
+  #screen-summon.summon-pool-sub-open .summon-roster-tab {
+    font-size: 0.58rem;
+    padding: 0.16rem 0.22rem;
+  }
+}
+
 /* Victory modal (campaign win) */
 .modal-overlay {
   position: fixed;
