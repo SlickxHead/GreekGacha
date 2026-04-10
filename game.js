@@ -1097,12 +1097,12 @@ function battleFormationStyleAttr(side, index, count) {
   let tx = "0%";
   let ty = "0px";
   if (side === "A") {
-    const kx = count === 2 ? 3.5 : count === 3 ? 3.2 : 2.85;
+    const kx = count === 2 ? 2.45 : count === 3 ? 2.25 : 2;
     const ky = count === 2 ? 7 : count === 3 ? 5.5 : 4.5;
     tx = `${-dist * kx}%`;
     ty = `${Math.abs(dist) * ky + (count >= 4 ? 2 : 0)}px`;
   } else {
-    const kx = count === 2 ? 2.8 : count === 3 ? 3.4 : 3.1;
+    const kx = count === 2 ? 2 : count === 3 ? 2.45 : 2.25;
     tx = `${-dist * kx}%`;
     ty = "0px";
   }

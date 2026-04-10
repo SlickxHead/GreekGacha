@@ -5722,6 +5722,8 @@ body.battle-active #screen-battle.screen-active {
     justify-content: space-between;
     gap: 0.3rem;
     min-height: 0;
+    /* Clear top safe area + room so enemy HP bars are not clipped */
+    padding-top: max(0.5rem, calc(0.2rem + var(--safe-top)));
   }
 
   body.battle-active .battle-strip {
@@ -5735,6 +5737,7 @@ body.battle-active #screen-battle.screen-active {
   body.battle-active .battle-strip--enemy {
     flex: 1 1 0;
     justify-content: flex-end;
+    padding-top: 0.35rem;
   }
 
   body.battle-active .battle-strip--ally {
@@ -5785,9 +5788,9 @@ body.battle-active #screen-battle.screen-active {
     min-height: 0;
   }
 
-  /* Enemy line: narrower band so units sit closer to center */
+  /* Enemy line: tighter cluster toward center */
   body.battle-active .battle-strip--enemy .roster--sw-enemy .sw-unit-row {
-    max-width: 76%;
+    max-width: 68%;
     margin-left: auto;
     margin-right: auto;
   }
@@ -5800,14 +5803,38 @@ body.battle-active #screen-battle.screen-active {
     width: auto;
     padding: 0.06rem 0.02rem 0.12rem !important;
     /* Negative margin pulls portraits closer than gap:0 alone */
-    margin-left: -0.28rem;
-    margin-right: -0.28rem;
+    margin-left: -0.36rem;
+    margin-right: -0.36rem;
+  }
+
+  /* Nudge both teams down so HP/labels clear the top edge and overlap reads better */
+  body.battle-active .roster--sw-enemy .unit-card--arena {
+    transform: translate(var(--bf-tx, 0px), calc(var(--bf-ty, 0px) + 0.65rem)) scale(0.96);
+  }
+
+  body.battle-active .roster--sw-ally .unit-card--arena {
+    transform: translate(var(--bf-tx, 0px), calc(var(--bf-ty, 0px) + 0.65rem)) scale(1);
+  }
+
+  body.battle-active .roster--sw-enemy .unit-card--arena.unit-card--acting {
+    transform: translate(var(--bf-tx, 0px), calc(var(--bf-ty, 0px) + 0.65rem)) scale(1.02);
+  }
+
+  body.battle-active .roster--sw-ally .unit-card--arena.unit-card--acting {
+    transform: translate(var(--bf-tx, 0px), calc(var(--bf-ty, 0px) + 0.65rem)) scale(1.06);
+  }
+
+  /* Shorter sprites on narrow viewports so idle poses do not push HP bars off-screen */
+  body.battle-active .battle-strip .battle-char-cardface--sprite .portrait-mat {
+    max-height: clamp(7.75rem, 34vw, 11.5rem);
   }
 
   /*
    * HP/ATB: fixed-width bar column (chunky), not stretched full card width (long + skinny).
    */
   body.battle-active .battle-strip .sw-float-ui {
+    position: relative;
+    z-index: 2;
     min-height: 0;
     gap: 0.16rem;
     margin-bottom: 0.06rem;
