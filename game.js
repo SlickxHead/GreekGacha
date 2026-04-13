@@ -1097,13 +1097,14 @@ function battleFormationStyleAttr(side, index, count) {
   let tx = "0%";
   let ty = "0px";
   if (side === "A") {
-    /* Shallow V + horizontal pull toward center; overlap margins in CSS cluster without shrinking cards */
-    const kx = count === 2 ? 2.35 : count === 3 ? 2.15 : 1.95;
-    const ky = count === 2 ? 6 : count === 3 ? 4.5 : 3.75;
+    /* Strong inward pull so allies huddle in the center; CSS overlap margins stack them tight */
+    const kx = count === 2 ? 8 : count === 3 ? 7 : 6;
+    const ky = count === 2 ? 5 : count === 3 ? 3.5 : 3;
     tx = `${-dist * kx}%`;
-    ty = `${Math.abs(dist) * ky + (count >= 4 ? 2 : 0)}px`;
+    ty = `${Math.abs(dist) * ky + (count >= 4 ? 1.5 : 0)}px`;
   } else {
-    const kx = count === 2 ? 2.35 : count === 3 ? 2.75 : 2.5;
+    /* Enemies cluster toward center */
+    const kx = count === 2 ? 6 : count === 3 ? 6.5 : 5.5;
     tx = `${-dist * kx}%`;
     ty = "0px";
   }

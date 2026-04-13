@@ -5744,9 +5744,9 @@ body.battle-active #screen-battle.screen-active {
 
   body.battle-active .battle-strip--ally {
     flex: 1 1 0;
-    justify-content: flex-end;
+    justify-content: flex-start;
     margin-top: 0;
-    padding-top: 0.65rem;
+    padding-top: 0;
     position: relative;
     z-index: 3;
   }
@@ -5805,13 +5805,13 @@ body.battle-active #screen-battle.screen-active {
     max-width: 24%;
     width: auto;
     padding: 0.06rem 0.02rem 0.12rem !important;
-    margin-left: -0.42rem;
-    margin-right: -0.42rem;
+    margin-left: -0.65rem;
+    margin-right: -0.65rem;
   }
 
   body.battle-active .battle-strip--ally .unit-card--arena {
-    margin-left: -0.62rem;
-    margin-right: -0.62rem;
+    margin-left: -1.15rem;
+    margin-right: -1.15rem;
   }
 
   /*
@@ -5823,7 +5823,7 @@ body.battle-active #screen-battle.screen-active {
   }
 
   body.battle-active .roster--sw-ally .unit-card--arena {
-    transform: translate(var(--bf-tx, 0px), calc(var(--bf-ty, 0px) + 1.05rem)) scale(1);
+    transform: translate(var(--bf-tx, 0px), calc(var(--bf-ty, 0px) + 2.75rem)) scale(1);
   }
 
   body.battle-active .roster--sw-enemy .unit-card--arena.unit-card--acting {
@@ -5831,7 +5831,7 @@ body.battle-active #screen-battle.screen-active {
   }
 
   body.battle-active .roster--sw-ally .unit-card--arena.unit-card--acting {
-    transform: translate(var(--bf-tx, 0px), calc(var(--bf-ty, 0px) + 1.05rem)) scale(1.06);
+    transform: translate(var(--bf-tx, 0px), calc(var(--bf-ty, 0px) + 2.75rem)) scale(1.06);
   }
 
   /*
