@@ -1984,6 +1984,20 @@ function resetAllGameData() {
   }
 }
 
+function showBattleQuitConfirm() {
+  const overlay = el("battle-quit-overlay");
+  if (!overlay) return;
+  overlay.classList.remove("is-hidden");
+  overlay.setAttribute("aria-hidden", "false");
+}
+
+function hideBattleQuitConfirm() {
+  const overlay = el("battle-quit-overlay");
+  if (!overlay) return;
+  overlay.classList.add("is-hidden");
+  overlay.setAttribute("aria-hidden", "true");
+}
+
 function hideBattleWinUI() {
   const overlay = el("battle-win-overlay");
   if (!overlay) return;
@@ -3469,6 +3483,25 @@ function init() {
   );
   el("btn-reset-game-data").addEventListener("click", () => resetAllGameData());
   el("btn-back-campaign").addEventListener("click", () => {
+    const winOverlay = el("battle-win-overlay");
+    const defeatOverlay = el("battle-defeat-overlay");
+    const winVisible = winOverlay && !winOverlay.classList.contains("is-hidden");
+    const defeatVisible = defeatOverlay && !defeatOverlay.classList.contains("is-hidden");
+    if (winVisible || defeatVisible) {
+      hideBattleWinUI();
+      hideBattleDefeatUI();
+      showScreen("screen-campaign");
+      renderCampaignLevels();
+    } else {
+      showBattleQuitConfirm();
+    }
+  });
+
+  el("btn-quit-cancel").addEventListener("click", () => {
+    hideBattleQuitConfirm();
+  });
+  el("btn-quit-confirm").addEventListener("click", () => {
+    hideBattleQuitConfirm();
     hideBattleWinUI();
     hideBattleDefeatUI();
     showScreen("screen-campaign");
