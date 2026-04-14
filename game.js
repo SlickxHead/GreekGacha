@@ -582,6 +582,8 @@ let state = {
   /** Last gacha pull used a legend scroll (for “Summon again” on reveal overlay). */
   lastSummonWasLegend: false,
   praySpinRunning: false,
+  /** Character box (mobile): currently selected hero id in bottom portrait strip. */
+  boxSelectedHeroId: null,
 };
 
 function el(id) {
@@ -3098,9 +3100,84 @@ function renderCharacterBox() {
   renderPartyToolbar();
   renderXpScrollPanel();
   const grid = el("character-box-list");
+  if (!grid) return;
   const ids = getCollection();
   const party = getBattleParty();
   const newIds = getNewHeroIds();
+  if (!ids.length) {
+    grid.innerHTML = "";
+    state.boxSelectedHeroId = null;
+    return;
+  }
+
+  const mobileLayout = isLikelyMobileDevice();
+  const selectedHeroId = ids.includes(state.boxSelectedHeroId)
+    ? state.boxSelectedHeroId
+    : ids[0];
+  state.boxSelectedHeroId = selectedHeroId;
+
+  if (mobileLayout) {
+    const selectedDef = getHeroDefById(selectedHeroId);
+    if (!selectedDef) {
+      grid.innerHTML = "";
+      return;
+    }
+    const selectedUnit = { id: selectedHeroId, name: selectedDef.name };
+    const selectedRc = rarityClass(selectedDef.rarity);
+    const selectedLv = getHeroProgress(selectedHeroId).level;
+    const selectedNewBadge = newIds.includes(selectedHeroId)
+      ? '<span class="card-new-badge">NEW</span>'
+      : "";
+    const selectedSkillHud = buildHeroSkillHudHtml(selectedHeroId);
+    const selectedInParty = party.includes(selectedHeroId);
+
+    const strip = ids
+      .map((id) => {
+        const def = getHeroDefById(id);
+        if (!def) return "";
+        const rc = rarityClass(def.rarity);
+        const hero = { id, name: def.name };
+        const activeClass = id === selectedHeroId ? " is-active" : "";
+        const newBadge = newIds.includes(id)
+          ? '<span class="card-new-badge">NEW</span>'
+          : "";
+        return `<button type="button" class="box-mobile-strip-item ${rc}${activeClass}" data-hero-id="${escapeHtml(id)}" aria-label="Select ${escapeHtml(def.name)}">
+          ${newBadge}
+          ${portraitBlockHtml(hero)}
+        </button>`;
+      })
+      .filter(Boolean)
+      .join("");
+
+    grid.innerHTML = `<div class="box-mobile-layout">
+      <article class="card unit-card box-collection-card box-mobile-focus ${selectedRc}" data-hero-id="${escapeHtml(selectedHeroId)}" role="listitem" data-rarity="${escapeHtml(selectedDef.rarity)}">
+        ${selectedNewBadge}
+        <div class="box-mobile-focus-main">
+          <div class="box-mobile-focus-art">${portraitBlockHtml(selectedUnit)}</div>
+          <div class="box-mobile-focus-detail">
+            <header>
+              <h3>${escapeHtml(selectedDef.name)}</h3>
+              <p class="char-rarity">${escapeHtml(selectedDef.rarity)}</p>
+              <p class="box-card-level" aria-label="Level ${selectedLv}">Lv. ${selectedLv}</p>
+            </header>
+            ${heroCombatStatsHtml(selectedHeroId)}
+          </div>
+        </div>
+        ${heroXpRowHtml(selectedHeroId)}
+        <label class="box-party-row">
+          <input type="checkbox" class="party-member-cb" data-hero-id="${escapeHtml(selectedHeroId)}" ${selectedInParty ? "checked" : ""} />
+          <span class="box-party-label">Battle party</span>
+        </label>
+        <p class="box-card-desc">${escapeHtml(selectedDef.description || "")}</p>
+        ${selectedSkillHud}
+      </article>
+      <div class="box-mobile-strip" role="list" aria-label="Owned heroes">
+        ${strip}
+      </div>
+    </div>`;
+    return;
+  }
+
   grid.innerHTML = ids
     .map((id) => {
       const def = getHeroDefById(id);
@@ -3671,6 +3748,18 @@ function init() {
   });
 
   el("character-box-list").addEventListener("click", (e) => {
+    const stripBtn = e.target.closest(".box-mobile-strip-item");
+    if (stripBtn) {
+      e.preventDefault();
+      const hid = stripBtn.getAttribute("data-hero-id");
+      if (!hid) return;
+      state.boxSelectedHeroId = hid;
+      if (getNewHeroIds().includes(hid)) {
+        clearNewHeroMarker(hid);
+      }
+      renderCharacterBox();
+      return;
+    }
     const statsBtn = e.target.closest(".box-card-stats-btn");
     if (statsBtn) {
       e.preventDefault();
