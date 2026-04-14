@@ -1926,6 +1926,30 @@ function heroCombatStatsHtml(heroId) {
   </div>`;
 }
 
+function heroMobileStatsPanelHtml(heroId) {
+  const def = getHeroDefById(heroId);
+  if (!def) return "";
+  const { level } = getHeroProgress(heroId);
+  const unit = applyLevelScaling(heroToGameUnit(def), level);
+  const rows = [
+    ["Level", `${level} / ${MAX_HERO_LEVEL}`],
+    ["HP", statWhole(unit.maxHp ?? unit.hp)],
+    ["ATK", statWhole(unit.attack)],
+    ["DEF", statWhole(unit.defense)],
+    ["SPD", statWhole(unit.speed)],
+  ];
+  return `<div class="box-mobile-stats-panel" aria-label="Combat stats (includes level scaling)">
+    ${rows
+      .map(
+        ([label, value]) => `<div class="box-mobile-stat-row">
+      <span class="box-mobile-stat-label">${escapeHtml(label)}</span>
+      <span class="box-mobile-stat-value">${escapeHtml(String(value))}</span>
+    </div>`
+      )
+      .join("")}
+  </div>`;
+}
+
 /** Level 1 base stats for summon pool, shop listings, and result previews. */
 function heroBaseStatsFromDefHtml(def) {
   if (!def) return "";
@@ -3128,8 +3152,8 @@ function renderCharacterBox() {
     const selectedNewBadge = newIds.includes(selectedHeroId)
       ? '<span class="card-new-badge">NEW</span>'
       : "";
-    const selectedSkillHud = buildHeroSkillHudHtml(selectedHeroId);
     const selectedInParty = party.includes(selectedHeroId);
+    const selectedStats = heroMobileStatsPanelHtml(selectedHeroId);
 
     const strip = ids
       .map((id) => {
@@ -3138,11 +3162,13 @@ function renderCharacterBox() {
         const rc = rarityClass(def.rarity);
         const hero = { id, name: def.name };
         const activeClass = id === selectedHeroId ? " is-active" : "";
+        const heroLv = getHeroProgress(id).level;
         const newBadge = newIds.includes(id)
           ? '<span class="card-new-badge">NEW</span>'
           : "";
         return `<button type="button" class="box-mobile-strip-item ${rc}${activeClass}" data-hero-id="${escapeHtml(id)}" aria-label="Select ${escapeHtml(def.name)}">
           ${newBadge}
+          <span class="box-mobile-strip-level" aria-hidden="true">Lv ${heroLv}</span>
           ${portraitBlockHtml(hero)}
         </button>`;
       })
@@ -3150,26 +3176,23 @@ function renderCharacterBox() {
       .join("");
 
     grid.innerHTML = `<div class="box-mobile-layout">
-      <article class="card unit-card box-collection-card box-mobile-focus ${selectedRc}" data-hero-id="${escapeHtml(selectedHeroId)}" role="listitem" data-rarity="${escapeHtml(selectedDef.rarity)}">
+      <article class="box-mobile-stage ${selectedRc}" data-hero-id="${escapeHtml(selectedHeroId)}" role="listitem" data-rarity="${escapeHtml(selectedDef.rarity)}">
         ${selectedNewBadge}
-        <div class="box-mobile-focus-main">
-          <div class="box-mobile-focus-art">${portraitBlockHtml(selectedUnit)}</div>
-          <div class="box-mobile-focus-detail">
-            <header>
-              <h3>${escapeHtml(selectedDef.name)}</h3>
-              <p class="char-rarity">${escapeHtml(selectedDef.rarity)}</p>
-              <p class="box-card-level" aria-label="Level ${selectedLv}">Lv. ${selectedLv}</p>
-            </header>
-            ${heroCombatStatsHtml(selectedHeroId)}
+        <div class="box-mobile-stage-art" aria-hidden="true">${portraitBlockHtml(selectedUnit)}</div>
+        <div class="box-mobile-stage-panel">
+          <header class="box-mobile-stage-head">
+            <h3>${escapeHtml(selectedDef.name)}</h3>
+            <p class="char-rarity">${escapeHtml(selectedDef.rarity)}</p>
+            <p class="box-card-level" aria-label="Level ${selectedLv}">Lv. ${selectedLv}</p>
+          </header>
+          ${selectedStats}
+          <div class="box-mobile-stage-actions">
+            <label class="box-party-row">
+              <input type="checkbox" class="party-member-cb" data-hero-id="${escapeHtml(selectedHeroId)}" ${selectedInParty ? "checked" : ""} />
+              <span class="box-party-label">Battle party</span>
+            </label>
           </div>
         </div>
-        ${heroXpRowHtml(selectedHeroId)}
-        <label class="box-party-row">
-          <input type="checkbox" class="party-member-cb" data-hero-id="${escapeHtml(selectedHeroId)}" ${selectedInParty ? "checked" : ""} />
-          <span class="box-party-label">Battle party</span>
-        </label>
-        <p class="box-card-desc">${escapeHtml(selectedDef.description || "")}</p>
-        ${selectedSkillHud}
       </article>
       <div class="box-mobile-strip" role="list" aria-label="Owned heroes">
         ${strip}

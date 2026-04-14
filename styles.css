@@ -5428,60 +5428,142 @@ body.battle-active #screen-battle.screen-active {
     gap: 0.3rem;
   }
 
-  #screen-box.screen-active .box-mobile-focus {
-    margin: 0;
-    padding: 0.36rem 0.42rem;
-    gap: 0.24rem;
-  }
-
-  #screen-box.screen-active .box-mobile-focus-main {
+  #screen-box.screen-active .box-mobile-stage {
+    position: relative;
     display: grid;
-    grid-template-columns: minmax(5.3rem, 34%) 1fr;
-    gap: 0.4rem;
-    align-items: start;
+    grid-template-columns: minmax(0, 1.18fr) minmax(10rem, 0.82fr);
+    gap: 0.42rem;
+    align-items: end;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    padding: 0.08rem 0.08rem 0;
   }
 
-  #screen-box.screen-active .box-mobile-focus-art .portrait-frame {
-    max-width: none;
+  #screen-box.screen-active .box-mobile-stage .card-new-badge {
+    top: 0.08rem;
+    left: 0.12rem;
+    right: auto;
+  }
+
+  #screen-box.screen-active .box-mobile-stage-art {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    min-width: 0;
+    min-height: clamp(10rem, 47vw, 15.5rem);
+  }
+
+  #screen-box.screen-active .box-mobile-stage-art .portrait-frame {
     width: 100%;
+    max-width: none;
+    height: 100%;
     margin: 0;
+    padding: 0;
+    background: none;
+    box-shadow: none;
   }
 
-  #screen-box.screen-active .box-mobile-focus-detail header h3 {
+  #screen-box.screen-active .box-mobile-stage-art .portrait-mat {
+    height: 100%;
+    aspect-ratio: auto;
+    align-items: flex-end;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  #screen-box.screen-active .box-mobile-stage-art .portrait-img {
+    object-fit: contain;
+    object-position: center bottom;
+    filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.28));
+  }
+
+  #screen-box.screen-active .box-mobile-stage-art .portrait-placeholder {
+    position: relative;
+    inset: auto;
+    font-size: clamp(3rem, 12vw, 5rem);
+  }
+
+  #screen-box.screen-active .box-mobile-stage-panel {
+    align-self: start;
+    width: 100%;
+    padding: 0.5rem 0.58rem 0.52rem;
+    border-radius: 10px;
+    border: 1px solid rgba(129, 90, 19, 0.45);
+    background:
+      linear-gradient(180deg, rgba(88, 58, 26, 0.96) 0%, rgba(60, 38, 17, 0.94) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 6px 16px rgba(0, 0, 0, 0.2);
+    color: #f7ebc3;
+  }
+
+  #screen-box.screen-active .box-mobile-stage-head h3,
+  #screen-box.screen-active .box-mobile-stage-panel .char-rarity,
+  #screen-box.screen-active .box-mobile-stage-panel .box-card-level {
     text-align: left;
   }
 
-  #screen-box.screen-active .box-mobile-focus .char-rarity,
-  #screen-box.screen-active .box-mobile-focus .box-card-level {
-    text-align: left;
+  #screen-box.screen-active .box-mobile-stage-head h3 {
+    margin-bottom: 0.08rem;
+    color: #fff6d6;
+    font-size: 0.95rem;
   }
 
-  #screen-box.screen-active .box-mobile-focus .hero-combat-stats {
+  #screen-box.screen-active .box-mobile-stage-panel .char-rarity {
+    color: rgba(247, 235, 195, 0.78);
+    font-size: 0.68rem;
+  }
+
+  #screen-box.screen-active .box-mobile-stage-panel .box-card-level {
+    color: #ffed99;
+    font-size: 0.76rem;
+  }
+
+  #screen-box.screen-active .box-mobile-stats-panel {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    justify-content: stretch;
-    gap: 0.18rem 0.2rem;
-    margin: 0.18rem 0 0;
+    gap: 0.22rem;
+    margin-top: 0.34rem;
   }
 
-  #screen-box.screen-active .box-mobile-focus .hero-stat-pill {
-    justify-content: space-between;
-    font-size: 0.62rem;
-    padding: 0.1rem 0.24rem;
+  #screen-box.screen-active .box-mobile-stat-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.18rem 0;
+    border-bottom: 1px solid rgba(247, 235, 195, 0.12);
+    font-variant-numeric: tabular-nums;
   }
 
-  #screen-box.screen-active .box-mobile-focus .hero-xp-block {
-    display: block;
+  #screen-box.screen-active .box-mobile-stat-row:last-child {
+    border-bottom: none;
+  }
+
+  #screen-box.screen-active .box-mobile-stat-label {
+    color: rgba(247, 235, 195, 0.7);
+    font-size: 0.63rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  #screen-box.screen-active .box-mobile-stat-value {
+    justify-self: end;
+    color: #fff9e2;
+    font-size: 0.74rem;
+    font-weight: 800;
+  }
+
+  #screen-box.screen-active .box-mobile-stage-actions {
+    margin-top: 0.36rem;
+  }
+
+  #screen-box.screen-active .box-mobile-stage-actions .box-party-row {
     margin: 0;
-  }
-
-  #screen-box.screen-active .box-mobile-focus .box-party-row {
-    margin: 0.05rem 0 0;
-  }
-
-  #screen-box.screen-active .box-mobile-focus .box-card-desc,
-  #screen-box.screen-active .box-mobile-focus .card-skill-hud {
-    display: none;
+    color: #f3e7bb;
   }
 
   #screen-box.screen-active .box-mobile-strip {
@@ -5499,15 +5581,19 @@ body.battle-active #screen-battle.screen-active {
   #screen-box.screen-active .box-mobile-strip-item {
     position: relative;
     flex: 0 0 auto;
-    width: 3.25rem;
-    height: 4rem;
+    width: 3.8rem;
+    height: 4.55rem;
     padding: 0;
     border: 2px solid rgba(212, 175, 55, 0.35);
-    border-radius: 6px;
-    background: rgba(248, 244, 235, 0.55);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    border-radius: 8px;
+    background:
+      linear-gradient(180deg, rgba(126, 88, 34, 0.95) 0%, rgba(74, 48, 18, 0.95) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      0 2px 6px rgba(0, 0, 0, 0.22);
     cursor: pointer;
     scroll-snap-align: start;
+    overflow: hidden;
   }
 
   #screen-box.screen-active .box-mobile-strip-item.is-active {
@@ -5518,15 +5604,40 @@ body.battle-active #screen-battle.screen-active {
       0 2px 8px rgba(0, 0, 0, 0.22);
   }
 
+  #screen-box.screen-active .box-mobile-strip-level {
+    position: absolute;
+    left: 0.18rem;
+    bottom: 0.18rem;
+    z-index: 3;
+    padding: 0.12rem 0.28rem;
+    border-radius: 999px;
+    background: rgba(29, 22, 13, 0.82);
+    color: #fff3bf;
+    font-size: 0.52rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.03em;
+  }
+
   #screen-box.screen-active .box-mobile-strip-item .portrait-frame {
     max-width: none;
     width: 100%;
     height: 100%;
     margin: 0;
+    padding: 2px;
   }
 
   #screen-box.screen-active .box-mobile-strip-item .portrait-mat {
     height: 100%;
+    aspect-ratio: auto;
+    background: linear-gradient(180deg, #f7efe0 0%, #cfb995 100%);
+    border-color: rgba(103, 72, 22, 0.75);
+  }
+
+  #screen-box.screen-active .box-mobile-strip-item .portrait-img {
+    object-fit: cover;
+    object-position: center 18%;
+    transform: scale(1.14);
   }
 
   #screen-box.screen-active .box-mobile-strip-item .card-new-badge {
