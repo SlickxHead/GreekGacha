@@ -3181,17 +3181,17 @@ function renderCharacterBox() {
         <div class="box-mobile-stage-art" aria-hidden="true">${portraitBlockHtml(selectedUnit)}</div>
         <div class="box-mobile-stage-panel">
           <header class="box-mobile-stage-head">
-            <h3>${escapeHtml(selectedDef.name)}</h3>
-            <p class="char-rarity">${escapeHtml(selectedDef.rarity)}</p>
-            <p class="box-card-level" aria-label="Level ${selectedLv}">Lv. ${selectedLv}</p>
-          </header>
-          ${selectedStats}
-          <div class="box-mobile-stage-actions">
-            <label class="box-party-row">
+            <div class="box-mobile-stage-head-copy">
+              <h3>${escapeHtml(selectedDef.name)}</h3>
+              <p class="char-rarity">${escapeHtml(selectedDef.rarity)}</p>
+              <p class="box-card-level" aria-label="Level ${selectedLv}">Lv. ${selectedLv}</p>
+            </div>
+            <label class="box-party-row box-mobile-stage-party-toggle">
               <input type="checkbox" class="party-member-cb" data-hero-id="${escapeHtml(selectedHeroId)}" ${selectedInParty ? "checked" : ""} />
               <span class="box-party-label">Battle party</span>
             </label>
-          </div>
+          </header>
+          ${selectedStats}
         </div>
       </article>
       <div class="box-mobile-strip" role="list" aria-label="Owned heroes">
