@@ -15,7 +15,14 @@ export const PERSEUS = {
   skills: [
     { name: "Harpe Slash", damageMultiplier: 1.35, cooldown: 2, currentCooldown: 0 },
     { name: "Reflecting Shield", damageMultiplier: 1.2, cooldown: 3, currentCooldown: 0 },
-    { name: "Hero's Rush", damageMultiplier: 1.5, cooldown: 4, currentCooldown: 0 },
+    {
+      name: "Hero's Rush",
+      damageMultiplier: 1.5,
+      cooldown: 4,
+      currentCooldown: 0,
+      defenseBreakMultiplier: 0.5,
+      defenseBreakDurationRounds: 2,
+    },
   ],
 };
 

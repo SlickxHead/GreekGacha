@@ -61,7 +61,7 @@ if (typeof globalThis !== "undefined") {
 
 function computeStepDamage(attacker, defender, multiplier = 1) {
   const mult = multiplier ?? 1;
-  const raw = attacker.attack * mult - defender.defense;
+  const raw = attacker.attack * mult - effectiveUnitDefense(defender);
   return Math.max(0, statWhole(raw));
 }
 
@@ -72,6 +72,12 @@ function useSkillOnUnit(skill) {
 function effectiveUnitSpeed(unit) {
   const base = Number(unit?.speed ?? 0);
   const mult = Number(unit?.speedBuffMultiplierActive ?? 1);
+  return base * (mult > 0 ? mult : 1);
+}
+
+function effectiveUnitDefense(unit) {
+  const base = Number(unit?.defense ?? 0);
+  const mult = Number(unit?.defenseBreakMultiplierActive ?? 1);
   return base * (mult > 0 ? mult : 1);
 }
 
@@ -131,6 +137,32 @@ function tickSpeedBuffRound(unit) {
   unit.speedBuffRounds = Math.max(0, unit.speedBuffRounds - 1);
   if (unit.speedBuffRounds <= 0) {
     unit.speedBuffMultiplierActive = 1;
+  }
+  return true;
+}
+
+function maybeApplyDefenseBreak(useSkill, target, damageDone) {
+  if (!target || damageDone <= 0 || !useSkill) return null;
+  const mult = Number(useSkill.defenseBreakMultiplier ?? 0);
+  if (!(mult > 0 && mult < 1)) return null;
+  const rounds = Math.max(
+    1,
+    Math.floor(Number(useSkill.defenseBreakDurationRounds ?? 1))
+  );
+  target.defenseBreakMultiplierActive = Math.min(
+    Number(target.defenseBreakMultiplierActive ?? 1),
+    mult
+  );
+  target.defenseBreakRounds = Math.max(target.defenseBreakRounds ?? 0, rounds);
+  return { multiplier: mult, rounds };
+}
+
+function tickDefenseBreakRound(unit) {
+  if (!unit) return false;
+  if ((unit.defenseBreakRounds ?? 0) <= 0) return false;
+  unit.defenseBreakRounds = Math.max(0, unit.defenseBreakRounds - 1);
+  if (unit.defenseBreakRounds <= 0) {
+    unit.defenseBreakMultiplierActive = 1;
   }
   return true;
 }
@@ -344,18 +376,27 @@ function applyPlannedAction(attacker, useSkill, target, preview, teams = null) {
   const aoeDamage = [];
   let targetHpLeft = target.hp;
   let stunnedAny = false;
+  let defenseBreakAny = false;
+  let defenseBreakMeta = null;
   for (const t of hitTargets) {
     if (!t) continue;
     if (preview.damage > 0) {
       t.hp = Math.max(0, t.hp - preview.damage);
     }
     const stunned = maybeApplyStun(attacker, useSkill, t, preview.damage);
+    const defenseBreak = maybeApplyDefenseBreak(useSkill, t, preview.damage);
     if (stunned) stunnedAny = true;
+    if (defenseBreak) {
+      defenseBreakAny = true;
+      defenseBreakMeta = defenseBreak;
+    }
     if (t === target) targetHpLeft = t.hp;
     aoeDamage.push({
       target: t.name,
       targetHpLeft: t.hp,
       stunned,
+      defenseBreakApplied: Boolean(defenseBreak),
+      defenseBreakRounds: defenseBreak?.rounds ?? 0,
       visualKey: vanishKeyForUnit(t),
     });
   }
@@ -375,6 +416,9 @@ function applyPlannedAction(attacker, useSkill, target, preview, teams = null) {
     speedBuffApplied,
     speedBuffMultiplier: attacker.speedBuffMultiplierActive ?? 1,
     speedBuffRounds: attacker.speedBuffRounds ?? 0,
+    defenseBreakApplied: defenseBreakAny,
+    defenseBreakMultiplier: defenseBreakMeta?.multiplier ?? 1,
+    defenseBreakRounds: defenseBreakMeta?.rounds ?? 0,
   };
 }
 
@@ -443,7 +487,7 @@ function logActionLine(act) {
     );
     for (const hit of act.aoeDamage) {
       appendLogLine(
-        `• ${escapeHtml(hit.target)} (HP left ${statWhole(hit.targetHpLeft)})${hit.stunned ? ' <span class="tag skill-use">Stunned</span>' : ""}`
+        `• ${escapeHtml(hit.target)} (HP left ${statWhole(hit.targetHpLeft)})${hit.stunned ? ' <span class="tag skill-use">Stunned</span>' : ""}${hit.defenseBreakApplied ? ' <span class="tag skill-use">Defense Break</span>' : ""}`
       );
     }
     if (act.speedBuffApplied) {
@@ -470,6 +514,11 @@ function logActionLine(act) {
   if (act.speedBuffApplied) {
     appendLogLine(
       `<span class="tag skill-use">Speed Up</span> ${escapeHtml(act.actor)} gains ${statWhole(act.speedBuffMultiplier ?? 1)}× SPD for ${statWhole(act.speedBuffRounds ?? 0)} turns.`
+    );
+  }
+  if (act.defenseBreakApplied) {
+    appendLogLine(
+      `<span class="tag skill-use">Defense Break</span> ${escapeHtml(act.target)} suffers reduced DEF for ${statWhole(act.defenseBreakRounds ?? 0)} turns.`
     );
   }
 }
@@ -514,6 +563,8 @@ function cloneUnit(u) {
       stunDurationRounds: s.stunDurationRounds,
       speedBuffMultiplier: s.speedBuffMultiplier,
       speedBuffDurationRounds: s.speedBuffDurationRounds,
+      defenseBreakMultiplier: s.defenseBreakMultiplier,
+      defenseBreakDurationRounds: s.defenseBreakDurationRounds,
       aoe: s.aoe,
       passive: s.passive,
       passiveStunChance: s.passiveStunChance,
@@ -533,6 +584,8 @@ function cloneUnit(u) {
     stunRounds: u.stunRounds ?? 0,
     speedBuffRounds: u.speedBuffRounds ?? 0,
     speedBuffMultiplierActive: u.speedBuffMultiplierActive ?? 1,
+    defenseBreakRounds: u.defenseBreakRounds ?? 0,
+    defenseBreakMultiplierActive: u.defenseBreakMultiplierActive ?? 1,
     skills,
   };
 }
@@ -1144,6 +1197,7 @@ function buildTeamHtml(team, label, side) {
       const lvl = battleUnitDisplayLevel(u, side, i);
       const isStunnedNow = isUnitStunned(u);
       const hasSpeedBuffNow = (u?.speedBuffRounds ?? 0) > 0;
+      const hasDefenseBreakNow = (u?.defenseBreakRounds ?? 0) > 0;
       const modelKind = side === "B" ? "enemy" : "ally";
       const stunnedClass = isStunnedNow ? " unit-card--stunned" : "";
       const spriteBodyClass = isSpriteUnit(u) ? " sw-unit-body--sprite" : "";
@@ -1168,6 +1222,11 @@ function buildTeamHtml(team, label, side) {
           ${
             hasSpeedBuffNow
               ? '<span class="sw-speed-emoji" title="Speed Up">⚡</span>'
+              : ""
+          }
+          ${
+            hasDefenseBreakNow
+              ? '<span class="sw-defbreak-emoji" title="Defense Break">🛡</span>'
               : ""
           }
           <div class="sw-bar sw-bar--hp" title="HP">
@@ -1991,7 +2050,7 @@ function heroMobileSkillsPanelHtml(heroId) {
   </div>`;
 }
 
-function heroMobileDetailsPanelHtml(heroId) {
+function heroMobileDetailTabsHtml(heroId) {
   const def = getHeroDefById(heroId);
   if (!def) return "";
   const activeTab = state.boxDetailTab === "skills" ? "skills" : "stats";
@@ -2004,8 +2063,16 @@ function heroMobileDetailsPanelHtml(heroId) {
     <button type="button" class="box-mobile-detail-tab${skillsSelected ? " box-mobile-detail-tab--active" : ""}" role="tab" aria-selected="${
       skillsSelected ? "true" : "false"
     }" data-box-tab="skills">Skills</button>
-  </div>
-  <div class="box-mobile-detail-panel${statsSelected ? "" : " is-hidden"}" data-box-panel="stats" role="tabpanel" aria-hidden="${
+  </div>`;
+}
+
+function heroMobileDetailPanelsHtml(heroId) {
+  const def = getHeroDefById(heroId);
+  if (!def) return "";
+  const activeTab = state.boxDetailTab === "skills" ? "skills" : "stats";
+  const statsSelected = activeTab === "stats";
+  const skillsSelected = activeTab === "skills";
+  return `<div class="box-mobile-detail-panel${statsSelected ? "" : " is-hidden"}" data-box-panel="stats" role="tabpanel" aria-hidden="${
     statsSelected ? "false" : "true"
   }"${statsSelected ? "" : " hidden"}>
     <p class="box-mobile-stage-desc">${escapeHtml(def.description || "")}</p>
@@ -2306,6 +2373,7 @@ function runAutoBattle() {
     for (const u of [...teamA, ...teamB]) {
       tickSkillCooldowns(u);
       tickSpeedBuffRound(u);
+      tickDefenseBreakRound(u);
     }
     appendLogLine(
       `<strong>Round ${round}</strong> — turns by SPD (highest first)`
@@ -2384,6 +2452,7 @@ function beginNewRoundTurnBattle() {
   for (const u of [...state.teamA, ...state.teamB]) {
     tickSkillCooldowns(u);
     tickSpeedBuffRound(u);
+    tickDefenseBreakRound(u);
   }
   appendLogLine(`<strong>Round ${state.round}</strong> — turns by SPD (highest first)`);
 
@@ -2754,12 +2823,25 @@ function skillHoverTitle(s) {
     speedMult > 1
       ? ` Grants ${speedMult}× SPD for ${speedRounds} turn(s).`
       : "";
+  const defenseBreakMult = Number(s.defenseBreakMultiplier ?? 0);
+  const defenseBreakRounds = Math.max(
+    1,
+    Math.floor(Number(s.defenseBreakDurationRounds ?? 1))
+  );
+  const defenseBreakPct =
+    defenseBreakMult > 0 && defenseBreakMult < 1
+      ? Math.round((1 - defenseBreakMult) * 100)
+      : 0;
+  const defenseBreakLine =
+    defenseBreakPct > 0
+      ? ` Inflicts Defense Break for ${defenseBreakRounds} turn(s), reducing DEF by ${defenseBreakPct}%.`
+      : "";
   const aoeLine = s.aoe ? " Attacks all enemies." : "";
   const passiveStunLine = "";
   if (s.skipAttack) {
-    return `${s.name}: Support skill — no damage this turn. Cooldown ${cd} round(s) after use.${stunLine}${speedLine}${passiveStunLine}`;
+    return `${s.name}: Support skill — no damage this turn. Cooldown ${cd} round(s) after use.${stunLine}${speedLine}${defenseBreakLine}${passiveStunLine}`;
   }
-  return `${s.name}: Deals ${mult}× base damage (your attack minus target defense). Cooldown ${cd} round(s) after use.${aoeLine}${stunLine}${speedLine}${passiveStunLine}`;
+  return `${s.name}: Deals ${mult}× base damage (your attack minus target defense). Cooldown ${cd} round(s) after use.${aoeLine}${stunLine}${speedLine}${defenseBreakLine}${passiveStunLine}`;
 }
 
 function buildHeroSkillHudHtml(heroId) {
@@ -3216,7 +3298,8 @@ function renderCharacterBox() {
       ? '<span class="card-new-badge">NEW</span>'
       : "";
     const selectedInParty = party.includes(selectedHeroId);
-    const selectedDetails = heroMobileDetailsPanelHtml(selectedHeroId);
+    const selectedDetailTabs = heroMobileDetailTabsHtml(selectedHeroId);
+    const selectedDetailPanels = heroMobileDetailPanelsHtml(selectedHeroId);
 
     const strip = ids
       .map((id) => {
@@ -3248,13 +3331,14 @@ function renderCharacterBox() {
               <h3>${escapeHtml(selectedDef.name)}</h3>
               <p class="char-rarity">${escapeHtml(selectedDef.rarity)}</p>
               <p class="box-card-level" aria-label="Level ${selectedLv}">Lv. ${selectedLv}</p>
+              ${selectedDetailTabs}
             </div>
             <label class="box-party-row box-mobile-stage-party-toggle">
               <input type="checkbox" class="party-member-cb" data-hero-id="${escapeHtml(selectedHeroId)}" ${selectedInParty ? "checked" : ""} />
               <span class="box-party-label">Battle party</span>
             </label>
           </header>
-          ${selectedDetails}
+          ${selectedDetailPanels}
         </div>
       </article>
       <div class="box-mobile-strip" role="list" aria-label="Owned heroes">

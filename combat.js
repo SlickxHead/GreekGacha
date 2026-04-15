@@ -37,8 +37,14 @@ function pickTarget(foes, mode, rng = null) {
   return alive[0];
 }
 
+function effectiveDefense(defender) {
+  const base = Number(defender?.defense ?? 0);
+  const mult = Number(defender?.defenseBreakMultiplierActive ?? 1);
+  return base * (mult > 0 ? mult : 1);
+}
+
 function calculateDamage(attacker, defender, multiplier = 1) {
-  const raw = attacker.attack - defender.defense;
+  const raw = attacker.attack - effectiveDefense(defender);
   const base = Math.max(0, raw) * multiplier;
   const floored = MIN_DAMAGE > 0 ? Math.max(MIN_DAMAGE, base) : base;
   return Math.round(floored * 100) / 100;

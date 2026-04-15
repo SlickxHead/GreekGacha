@@ -4242,6 +4242,17 @@ body.battle-active #screen-battle.screen-active {
   pointer-events: none;
 }
 
+.sw-defbreak-emoji {
+  position: absolute;
+  top: -0.98rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.82rem;
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7));
+  pointer-events: none;
+}
+
 @keyframes stun-emoji-bob {
   0%,
   100% {
@@ -5463,7 +5474,7 @@ body.battle-active #screen-battle.screen-active {
     min-height: clamp(13rem, 60vw, 19.5rem);
     overflow: visible;
     padding-top: 0;
-    margin-top: -1.6rem;
+    margin-top: -0.95rem;
     padding-bottom: 0.1rem;
   }
 
@@ -5493,7 +5504,7 @@ body.battle-active #screen-battle.screen-active {
   #screen-box.screen-active .box-mobile-stage-art .portrait-img {
     object-fit: contain;
     object-position: center top;
-    transform: translateY(-1.7rem) scale(1.14);
+    transform: translateY(-1rem) scale(1.12);
     filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.28));
   }
 
@@ -5529,6 +5540,11 @@ body.battle-active #screen-battle.screen-active {
   #screen-box.screen-active .box-mobile-stage-head-copy {
     min-width: 0;
     flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    column-gap: 0.38rem;
+    row-gap: 0.1rem;
   }
 
   #screen-box.screen-active .box-mobile-stage-head h3,
@@ -5538,6 +5554,7 @@ body.battle-active #screen-battle.screen-active {
   }
 
   #screen-box.screen-active .box-mobile-stage-head h3 {
+    grid-column: 1 / -1;
     margin-top: 0;
     margin-bottom: 0.08rem;
     color: #fff6d6;
@@ -5545,30 +5562,37 @@ body.battle-active #screen-battle.screen-active {
   }
 
   #screen-box.screen-active .box-mobile-stage-panel .char-rarity {
+    grid-column: 1 / -1;
     color: rgba(247, 235, 195, 0.78);
     font-size: 0.68rem;
   }
 
   #screen-box.screen-active .box-mobile-stage-panel .box-card-level {
+    grid-column: 1;
     color: #ffed99;
     font-size: 0.76rem;
+    margin: 0;
   }
 
   #screen-box.screen-active .box-mobile-detail-tabs {
-    display: flex;
+    display: inline-flex;
     gap: 0.28rem;
-    margin: 0.34rem 0 0.3rem;
+    grid-column: 2;
+    justify-self: end;
+    align-self: center;
+    margin: 0;
+    width: auto;
   }
 
   #screen-box.screen-active .box-mobile-detail-tab {
-    flex: 1 1 50%;
+    flex: 0 0 auto;
     margin: 0;
-    padding: 0.22rem 0.34rem;
+    padding: 0.18rem 0.34rem;
     border-radius: 999px;
     border: 1px solid rgba(247, 235, 195, 0.26);
     background: rgba(255, 255, 255, 0.08);
     color: rgba(247, 235, 195, 0.78);
-    font-size: 0.62rem;
+    font-size: 0.58rem;
     font-weight: 800;
     letter-spacing: 0.05em;
     text-transform: uppercase;
