@@ -4685,17 +4685,7 @@ body.battle-active #screen-battle.screen-active {
 }
 
 .battle-arena--target-pick .roster--sw-enemy .unit-card[data-side="B"] .sw-float-ui::after {
-  content: "▼▼▼";
-  flex-basis: 100%;
-  display: block;
-  text-align: center;
-  font-size: 0.55rem;
-  line-height: 1;
-  color: #facc15;
-  text-shadow: 0 0 6px rgba(250, 204, 21, 0.9);
-  margin-top: 0.1rem;
-  letter-spacing: -0.05em;
-  animation: battle-target-bob 0.9s ease-in-out infinite;
+  content: none;
 }
 
 @keyframes battle-target-bob {
@@ -5109,6 +5099,80 @@ body.battle-active #screen-battle.screen-active {
 
 /* Mobile fit pass: use horizontal rails to save vertical space. */
 @media (max-width: 950px) {
+  body:not(.hub-screen-active):not(.battle-active) .app {
+    padding-top: calc(0.22rem + var(--safe-top));
+    padding-bottom: calc(0.5rem + var(--safe-bottom));
+    gap: 0.08rem;
+  }
+
+  #screen-settings.screen-active,
+  #screen-campaign.screen-active,
+  #screen-summon.screen-active,
+  #screen-pray.screen-active,
+  #screen-box.screen-active,
+  #screen-quests.screen-active,
+  #screen-shop.screen-active {
+    padding-top: 0.18rem;
+  }
+
+  #screen-settings.screen-active .screen-title,
+  #screen-campaign.screen-active .screen-title,
+  #screen-summon.screen-active .screen-title,
+  #screen-pray.screen-active .screen-title,
+  #screen-quests.screen-active .screen-title,
+  #screen-shop.screen-active .shop-screen-intro .screen-title {
+    margin: -1.5rem auto 0.14rem;
+    padding: 0.18rem 0.58rem;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    border: 2px solid rgba(15, 23, 42, 0.12);
+    border-radius: 0.55rem;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    text-shadow: none;
+    max-width: calc(100% - 7.5rem);
+    position: relative;
+    z-index: 2;
+  }
+
+  #screen-settings.screen-active .screen-desc,
+  #screen-campaign.screen-active .screen-desc,
+  #screen-summon.screen-active .screen-desc,
+  #screen-pray.screen-active .screen-desc,
+  #screen-quests.screen-active .screen-desc,
+  #screen-shop.screen-active .shop-screen-desc {
+    display: none;
+  }
+
+  #screen-settings.screen-active .back-btn,
+  #screen-campaign.screen-active .back-btn,
+  #screen-summon.screen-active .back-btn,
+  #screen-pray.screen-active .back-btn,
+  #screen-quests.screen-active .back-btn,
+  #screen-shop.screen-active .shop-back-btn {
+    margin-bottom: 0.08rem;
+    padding: 0.18rem 0.38rem;
+  }
+
+  #screen-shop.screen-active .shop-screen-top {
+    display: block;
+    margin-bottom: 0.16rem;
+  }
+
+  #screen-shop.screen-active .shop-screen-intro {
+    display: contents;
+  }
+
+  #screen-summon.screen-active .summon-pull-row,
+  #screen-campaign.screen-active .campaign-levels,
+  #screen-pray.screen-active .pray-panel,
+  #screen-settings.screen-active .settings-panel,
+  #screen-quests.screen-active .quest-list,
+  #screen-shop.screen-active .shop-panels-row {
+    margin-top: 0;
+  }
+
   .app {
     display: flex;
     flex-direction: column;
@@ -6168,7 +6232,7 @@ body.battle-active #screen-battle.screen-active {
     flex: 1 1 0;
     justify-content: flex-end;
     padding-top: 0.35rem;
-    padding-bottom: 0.55rem;
+    padding-bottom: 0.2rem;
   }
 
   body.battle-active .battle-strip--ally {
@@ -6276,7 +6340,7 @@ body.battle-active #screen-battle.screen-active {
     z-index: 2;
     min-height: 0;
     gap: 0.12rem;
-    margin-bottom: -0.38rem;
+    margin-bottom: -0.6rem;
     justify-content: center;
     align-items: center;
   }
