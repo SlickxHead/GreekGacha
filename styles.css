@@ -4141,9 +4141,7 @@ body.battle-active #screen-battle.screen-active {
 
 .battle-arena--sw .unit-card--battle-card.unit-card--stunned .sw-unit-pad {
   filter: grayscale(0.12) brightness(0.96);
-  box-shadow:
-    0 0 0 2px rgba(167, 139, 250, 0.45),
-    0 0 14px rgba(109, 40, 217, 0.38);
+  box-shadow: none;
 }
 
 @keyframes battle-card-vanish {
@@ -6245,6 +6243,11 @@ body.battle-active #screen-battle.screen-active {
     margin-right: -1.15rem;
   }
 
+  body.battle-active .battle-strip--enemy .unit-card--arena {
+    margin-left: -1rem;
+    margin-right: -1rem;
+  }
+
   /*
    * Enemies: move down toward player so HP bars clear the top; keep full scale (no 0.96 shrink).
    * Allies: move down in the bottom band; extra gap from arena keeps teams farther apart vertically.
@@ -6273,7 +6276,7 @@ body.battle-active #screen-battle.screen-active {
     z-index: 2;
     min-height: 0;
     gap: 0.12rem;
-    margin-bottom: -0.1rem;
+    margin-bottom: -0.38rem;
     justify-content: center;
     align-items: center;
   }

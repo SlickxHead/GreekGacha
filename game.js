@@ -1162,10 +1162,11 @@ function battleFormationStyleAttr(side, index, count) {
     tx = `${-dist * kx}%`;
     ty = `${Math.abs(dist) * ky + (count >= 4 ? 1.5 : 0)}px`;
   } else {
-    /* Enemies cluster toward center */
-    const kx = count === 2 ? 6 : count === 3 ? 6.5 : 5.5;
+    /* Match the party's tighter mobile huddle so the enemy line does not feel too spread out. */
+    const kx = count === 2 ? 9 : count === 3 ? 8 : 7;
+    const ky = count === 2 ? 3 : count === 3 ? 2.25 : 1.75;
     tx = `${-dist * kx}%`;
-    ty = "0px";
+    ty = `${Math.abs(dist) * ky}px`;
   }
   return ` style="--bf-tx:${tx};--bf-ty:${ty}"`;
 }
