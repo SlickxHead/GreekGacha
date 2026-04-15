@@ -5422,9 +5422,9 @@ body.battle-active #screen-battle.screen-active {
     flex-direction: column;
     flex: 1 1 auto;
     min-height: 0;
-    overflow: hidden;
+    overflow: visible;
     gap: 0.32rem;
-    padding: 0;
+    padding: 0 0 0.22rem;
     margin: 0;
   }
 
@@ -5434,6 +5434,7 @@ body.battle-active #screen-battle.screen-active {
     flex: 1 1 auto;
     min-height: 0;
     gap: 0.3rem;
+    overflow: visible;
   }
 
   #screen-box.screen-active .box-mobile-stage {
@@ -5459,15 +5460,15 @@ body.battle-active #screen-battle.screen-active {
     align-items: flex-end;
     justify-content: center;
     min-width: 0;
-    min-height: clamp(12rem, 56vw, 18rem);
+    min-height: clamp(13rem, 60vw, 19.5rem);
     overflow: visible;
     padding-top: 0;
-    margin-top: -0.5rem;
-    padding-bottom: 0.3rem;
+    margin-top: -0.9rem;
+    padding-bottom: 0.1rem;
   }
 
   #screen-box.screen-active .box-mobile-stage-art .portrait-frame {
-    width: min(100%, 14rem);
+    width: min(100%, 15.5rem);
     max-width: 100%;
     height: auto;
     aspect-ratio: 3 / 4;
@@ -5492,7 +5493,7 @@ body.battle-active #screen-battle.screen-active {
   #screen-box.screen-active .box-mobile-stage-art .portrait-img {
     object-fit: contain;
     object-position: center bottom;
-    transform: translateY(-0.35rem) scale(1.02);
+    transform: translateY(-0.8rem) scale(1.1);
     filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.28));
   }
 
@@ -5605,12 +5606,13 @@ body.battle-active #screen-battle.screen-active {
 
   #screen-box.screen-active .box-mobile-strip {
     margin-top: auto;
+    flex: 0 0 auto;
     display: flex;
     align-items: stretch;
     gap: 0.28rem;
     overflow-x: auto;
-    overflow-y: hidden;
-    padding: 0.1rem 0.06rem 0.22rem;
+    overflow-y: visible;
+    padding: 0.18rem 0.12rem 0.46rem;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x proximity;
   }
@@ -5619,7 +5621,7 @@ body.battle-active #screen-battle.screen-active {
     position: relative;
     flex: 0 0 auto;
     width: 3.8rem;
-    height: 4.55rem;
+    height: 4.42rem;
     padding: 0;
     border: 2px solid rgba(212, 175, 55, 0.35);
     border-radius: 8px;
