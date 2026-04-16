@@ -1939,7 +1939,6 @@ body:not(.hub-screen-active) .app {
 }
 
 .pray-wheel {
-  --pray-spin-deg: 0deg;
   position: relative;
   width: 220px;
   height: 220px;
@@ -1949,28 +1948,22 @@ body:not(.hub-screen-active) .app {
     0 0 0 3px rgba(255, 249, 219, 0.35) inset,
     0 10px 30px rgba(0, 0, 0, 0.28);
   background:
-    conic-gradient(
-      from 0deg,
-      #fbbf24 0deg 72deg,
-      #8b5cf6 72deg 144deg,
-      #34d399 144deg 216deg,
-      #60a5fa 216deg 288deg,
-      #f87171 288deg 360deg
+    var(
+      --pray-wheel-gradient,
+      conic-gradient(
+        from 0deg,
+        #f59e0b 0deg 72deg,
+        #ef4444 72deg 144deg,
+        #8b5cf6 144deg 216deg,
+        #10b981 216deg 288deg,
+        #3b82f6 288deg 360deg
+      )
     );
   overflow: hidden;
 }
 
 .pray-wheel--spinning {
-  animation: pray-wheel-spin 2.8s cubic-bezier(0.17, 0.88, 0.21, 1) forwards;
-}
-
-@keyframes pray-wheel-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(var(--pray-spin-deg));
-  }
+  filter: saturate(1.06) brightness(1.02);
 }
 
 .pray-wheel-pointer {
@@ -2023,11 +2016,15 @@ body:not(.hub-screen-active) .app {
 
 .pray-wheel-item-label {
   position: absolute;
-  left: -42px;
-  top: -95px;
-  width: 84px;
+  left: -34px;
+  top: -88px;
+  width: 68px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.14rem;
   text-align: center;
-  font-size: 0.72rem;
+  font-size: 0.58rem;
   font-weight: 800;
   line-height: 1.1;
   color: #fff;
@@ -2038,6 +2035,18 @@ body:not(.hub-screen-active) .app {
   transform: rotate(calc(var(--item-angle) * -1));
   transform-origin: center center;
   pointer-events: none;
+}
+
+.pray-wheel-item-icon {
+  display: block;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.pray-wheel-item-text {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
 }
 
 .pray-actions {
@@ -2325,12 +2334,28 @@ body.summon-reveal-active {
 }
 
 .summon-reveal-card--minimal {
-  min-height: auto !important;
-  max-width: 220px;
+  width: min(100%, 15.5rem);
+  max-width: 15.5rem;
+  min-height: 21.5rem !important;
+  height: 21.5rem;
+  padding: 0.9rem 0.9rem 1rem;
+  justify-content: flex-start;
 }
 
 .summon-reveal-card--minimal .portrait-frame {
-  max-width: 160px;
+  width: 9.2rem;
+  max-width: 9.2rem;
+  margin-bottom: 0.55rem;
+}
+
+.summon-reveal-card--minimal header {
+  min-height: 3.4rem;
+}
+
+.summon-reveal-stage .summon-result-msg {
+  width: 100%;
+  max-width: 16rem;
+  margin: 0 auto 0.65rem;
 }
 
 .summon-reveal-actions {
@@ -6339,8 +6364,8 @@ body.battle-active #screen-battle.screen-active {
     position: relative;
     z-index: 2;
     min-height: 0;
-    gap: 0.12rem;
-    margin-bottom: -0.6rem;
+    gap: 0.08rem;
+    margin-bottom: -0.95rem;
     justify-content: center;
     align-items: center;
   }

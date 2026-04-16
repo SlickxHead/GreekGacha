@@ -235,6 +235,9 @@ const DAILY_PRAY_REWARDS = [
     id: "gold_500",
     label: "+500 gold",
     wheelLabel: "500 Gold",
+    wheelShortLabel: "500 Gold",
+    wheelIcon: "🪙",
+    wheelColor: "#f59e0b",
     weight: 40,
     apply: () => addGold(500),
   },
@@ -242,6 +245,9 @@ const DAILY_PRAY_REWARDS = [
     id: "gold_1200",
     label: "+1,200 gold",
     wheelLabel: "1.2k Gold",
+    wheelShortLabel: "1.2k Gold",
+    wheelIcon: "💰",
+    wheelColor: "#ef4444",
     weight: 24,
     apply: () => addGold(1200),
   },
@@ -249,6 +255,9 @@ const DAILY_PRAY_REWARDS = [
     id: "summon_1",
     label: "+1 summon scroll",
     wheelLabel: "+1 Summon",
+    wheelShortLabel: "+1 Summon",
+    wheelIcon: "📜",
+    wheelColor: "#8b5cf6",
     weight: 18,
     apply: () => addSummonScrolls(1),
   },
@@ -256,6 +265,9 @@ const DAILY_PRAY_REWARDS = [
     id: "xp_2",
     label: "+2 XP scrolls",
     wheelLabel: "+2 XP",
+    wheelShortLabel: "+2 XP",
+    wheelIcon: "✨",
+    wheelColor: "#10b981",
     weight: 12,
     apply: () => addXpScrolls(2),
   },
@@ -263,6 +275,9 @@ const DAILY_PRAY_REWARDS = [
     id: "legend_1",
     label: "+1 legend scroll",
     wheelLabel: "+1 Legend",
+    wheelShortLabel: "+1 Legend",
+    wheelIcon: "🌟",
+    wheelColor: "#3b82f6",
     weight: 6,
     apply: () => addLegendScrolls(1),
   },
@@ -635,6 +650,7 @@ let state = {
   /** Last gacha pull used a legend scroll (for “Summon again” on reveal overlay). */
   lastSummonWasLegend: false,
   praySpinRunning: false,
+  prayWheelRotation: 0,
   /** Character box (mobile): currently selected hero id in bottom portrait strip. */
   boxSelectedHeroId: null,
   /** Character box (mobile): active detail tab in selected hero panel. */
@@ -1563,13 +1579,29 @@ function rollDailyPrayReward() {
   return DAILY_PRAY_REWARDS[DAILY_PRAY_REWARDS.length - 1];
 }
 
+function dailyPrayWheelGradient() {
+  const sliceCount = Math.max(1, DAILY_PRAY_REWARDS.length);
+  const step = 360 / sliceCount;
+  return `conic-gradient(${DAILY_PRAY_REWARDS.map((reward, idx) => {
+    const start = idx * step;
+    const end = start + step;
+    return `${reward.wheelColor || "#fbbf24"} ${start}deg ${end}deg`;
+  }).join(", ")})`;
+}
+
 function renderPrayWheelItems() {
   const box = el("pray-wheel-items");
+  const wheel = el("pray-wheel");
   if (!box) return;
   const step = 360 / DAILY_PRAY_REWARDS.length;
+  if (wheel) {
+    wheel.style.setProperty("--pray-wheel-gradient", dailyPrayWheelGradient());
+    wheel.style.transform = `rotate(${state.prayWheelRotation}deg)`;
+  }
   box.innerHTML = DAILY_PRAY_REWARDS.map((reward, idx) => {
-    const angle = idx * step;
-    return `<div class="pray-wheel-item" style="--item-angle:${angle}deg"><span class="pray-wheel-item-label">${escapeHtml(reward.wheelLabel || reward.label)}</span></div>`;
+    const angle = idx * step + step / 2;
+    const label = reward.wheelShortLabel || reward.wheelLabel || reward.label;
+    return `<div class="pray-wheel-item" style="--item-angle:${angle}deg"><span class="pray-wheel-item-label"><span class="pray-wheel-item-icon" aria-hidden="true">${escapeHtml(reward.wheelIcon || "✦")}</span><span class="pray-wheel-item-text">${escapeHtml(label)}</span></span></div>`;
   }).join("");
 }
 
@@ -1604,16 +1636,49 @@ async function doDailyPraySpin() {
   const rewardIdx = DAILY_PRAY_REWARDS.findIndex((r) => r.id === reward.id);
   const sliceCount = Math.max(1, DAILY_PRAY_REWARDS.length);
   const step = 360 / sliceCount;
-  const extraTurns = 4 + Math.floor(Math.random() * 3);
-  const targetAngle = ((360 - rewardIdx * step) % 360 + 360) % 360;
-  const jitter = (Math.random() - 0.5) * step * 0.64;
-  const stopDeg = 360 * extraTurns + targetAngle + jitter;
-  wheel.style.setProperty("--pray-spin-deg", `${stopDeg}deg`);
+  const centerAngle = rewardIdx * step + step / 2;
+  const targetRotation = ((360 - centerAngle) % 360 + 360) % 360;
+  const startRotation = Number(state.prayWheelRotation) || 0;
+  const normalizedStart = ((startRotation % 360) + 360) % 360;
+  const neededRotation = (targetRotation - normalizedStart + 360) % 360;
+  const extraTurns = 6 + Math.floor(Math.random() * 2);
+  const stopDeg = startRotation + extraTurns * 360 + neededRotation;
+  const durationMs = 5200;
   wheel.classList.remove("pray-wheel--spinning");
-  // Restart wheel animation cleanly.
-  void wheel.offsetWidth;
+  const activeWheelAnimations =
+    typeof wheel.getAnimations === "function" ? wheel.getAnimations() : [];
+  activeWheelAnimations.forEach((anim) => anim.cancel());
+  wheel.style.transform = `rotate(${startRotation}deg)`;
   wheel.classList.add("pray-wheel--spinning");
-  await new Promise((resolve) => setTimeout(resolve, 2800));
+
+  if (typeof wheel.animate === "function") {
+    const anim = wheel.animate(
+      [
+        { transform: `rotate(${startRotation}deg)` },
+        { transform: `rotate(${stopDeg}deg)` },
+      ],
+      {
+        duration: durationMs,
+        easing: "cubic-bezier(0.08, 0.86, 0.18, 1)",
+        fill: "forwards",
+      }
+    );
+    try {
+      await anim.finished;
+    } catch {
+      // Ignore cancelled animation promises; the final transform is applied below.
+    }
+  } else {
+    wheel.style.transition = `transform ${durationMs}ms cubic-bezier(0.08, 0.86, 0.18, 1)`;
+    requestAnimationFrame(() => {
+      wheel.style.transform = `rotate(${stopDeg}deg)`;
+    });
+    await new Promise((resolve) => setTimeout(resolve, durationMs));
+    wheel.style.transition = "";
+  }
+
+  state.prayWheelRotation = stopDeg;
+  wheel.style.transform = `rotate(${stopDeg}deg)`;
   wheel.classList.remove("pray-wheel--spinning");
 
   reward.apply();
@@ -3485,11 +3550,13 @@ function buildSummonResultCardHtml(def, pull, cardOpts = {}) {
   const dupGold = duplicateSummonGoldRewardForRarity(def?.rarity);
   const msg = pull.isNew
     ? "New hero — added to your collection."
-    : `Duplicate — you already own this hero. +${dupGold} gold.`;
+    : `Duplicate — refunded +${dupGold} gold.`;
   const skillHud = buildHeroSkillHudHtml(pull.id);
+  const msgBlock = omitMsg ? "" : `<p class="${msgClass}">${escapeHtml(msg)}</p>`;
 
   if (minimal) {
-    return `<div class="summon-result-cards summon-result-cards--reel">
+    return `${msgBlock}
+    <div class="summon-result-cards summon-result-cards--reel">
       <article class="card unit-card box-collection-card summon-reveal-card summon-reveal-card--minimal ${rc}" data-hero-id="${escapeHtml(pull.id)}">
         ${newBadge}
         ${portraitBlockHtml(u)}
@@ -3500,8 +3567,6 @@ function buildSummonResultCardHtml(def, pull, cardOpts = {}) {
       </article>
     </div>`;
   }
-
-  const msgBlock = omitMsg ? "" : `<p class="${msgClass}">${escapeHtml(msg)}</p>`;
 
   return `${msgBlock}
     <div class="summon-result-cards">
@@ -3538,7 +3603,7 @@ async function playSummonReelAnimation(finalHero, opts = {}) {
     stage.innerHTML = buildSummonResultCardHtml(
       pick,
       { id: pick.id, isNew: true },
-      { minimal: true }
+      { minimal: true, omitMsg: true }
     );
     const delay = 55 + i * 17;
     // eslint-disable-next-line no-await-in-loop
@@ -3550,8 +3615,8 @@ async function playSummonReelAnimation(finalHero, opts = {}) {
       id: finalHero.id,
       isNew: !!opts.isNew,
     },
-    /* Same compact card as reel — full-size winner was too tall on mobile */
-    { omitMsg: true, minimal: true }
+    /* Keep the reveal compact, but show the final reward / refund text above it. */
+    { minimal: true }
   );
   state.summonAnimRunning = false;
   state.summonAnimSkipRequested = false;
