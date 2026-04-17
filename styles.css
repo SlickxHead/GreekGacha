@@ -800,6 +800,25 @@ select#targeting {
   line-height: 1.3;
 }
 
+#screen-campaign.screen-active .campaign-screen-top {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.2rem;
+}
+
+#screen-campaign.screen-active .campaign-screen-top .screen-title {
+  margin: 0;
+  text-align: center;
+}
+
+#screen-campaign.screen-active .campaign-screen-top-spacer {
+  display: block;
+  width: 4.4rem;
+  min-width: 4.4rem;
+}
+
 /* Summon tab: no intro paragraph — collapse empty placeholder and pull content up */
 #screen-summon.screen-active .screen-desc--summon:empty {
   display: none;
@@ -2155,7 +2174,7 @@ body:not(.hub-screen-active) .app {
 
 .level-card-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.9fr);
   gap: 0.45rem;
   align-items: stretch;
 }
@@ -2200,6 +2219,10 @@ body:not(.hub-screen-active) .app {
 .level-start {
   width: 100%;
   margin-top: auto;
+}
+
+.level-start.btn.primary {
+  font-weight: 800;
 }
 
 .battle-banner {
@@ -6148,14 +6171,24 @@ body.battle-active #screen-battle.screen-active {
 
   body.campaign-screen-active #screen-campaign.screen-active .screen-title {
     font-size: 1.05rem;
-    margin: 0.1rem 0 0.2rem;
+    margin: 0;
+  }
+
+  body.campaign-screen-active #screen-campaign.screen-active .campaign-screen-top {
+    gap: 0.28rem;
+    margin-bottom: 0.14rem;
   }
 
   body.campaign-screen-active #screen-campaign.screen-active .shop-back-btn {
-    margin-bottom: 0.22rem;
+    margin-bottom: 0;
     padding: 0.22rem 0.52rem;
     font-size: 0.76rem;
     min-height: 0;
+  }
+
+  body.campaign-screen-active #screen-campaign.screen-active .campaign-screen-top-spacer {
+    width: 4rem;
+    min-width: 4rem;
   }
 }
 
@@ -6170,50 +6203,67 @@ body.battle-active #screen-battle.screen-active {
     padding: 0.28rem 0.42rem 0.4rem;
   }
 
+  body.campaign-screen-active #screen-campaign.screen-active .campaign-screen-top {
+    gap: 0.22rem;
+    margin-bottom: 0.08rem;
+  }
+
   body.campaign-screen-active #screen-campaign.screen-active .screen-title {
-    font-size: 0.92rem;
-    margin: 0.04rem 0 0.1rem;
+    font-size: 0.88rem;
+    margin: 0;
   }
 
   body.campaign-screen-active #screen-campaign.screen-active .shop-back-btn {
-    padding: 0.14rem 0.42rem;
+    padding: 0.16rem 0.4rem;
     font-size: 0.66rem;
-    margin-bottom: 0.12rem;
+    margin-bottom: 0;
     min-height: 0;
   }
 
+  body.campaign-screen-active #screen-campaign.screen-active .campaign-screen-top-spacer {
+    width: 3.4rem;
+    min-width: 3.4rem;
+  }
+
   body.campaign-screen-active #screen-campaign .campaign-levels {
-    gap: 0.2rem;
-    margin-top: 0.05rem;
+    gap: 0.16rem;
+    margin-top: 0.02rem;
   }
 
   body.campaign-screen-active #screen-campaign .level-card {
-    padding: 0.18rem 0.22rem;
+    padding: 0.14rem 0.18rem;
     border-radius: 0.38rem;
   }
 
   body.campaign-screen-active #screen-campaign .level-card-headline {
-    margin-bottom: 0.06rem;
+    margin-bottom: 0.03rem;
   }
 
   body.campaign-screen-active #screen-campaign .level-num {
-    font-size: 0.46rem;
+    font-size: 0.43rem;
   }
 
   body.campaign-screen-active #screen-campaign .level-title {
-    font-size: 0.54rem;
+    font-size: 0.5rem;
     margin-bottom: 0;
   }
 
   body.campaign-screen-active #screen-campaign .level-card-actions {
-    gap: 0.16rem;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.8fr);
+    gap: 0.14rem;
   }
 
-  body.campaign-screen-active #screen-campaign .level-start.btn.primary,
+  body.campaign-screen-active #screen-campaign .level-start.btn.primary {
+    min-height: 1.7rem;
+    padding: 0.14rem 0.28rem;
+    font-size: 0.58rem;
+    line-height: 1.15;
+  }
+
   body.campaign-screen-active #screen-campaign .level-rewards-btn {
-    min-height: 0;
-    padding: 0.1rem 0.22rem;
-    font-size: 0.52rem;
+    min-height: 1.28rem;
+    padding: 0.08rem 0.16rem;
+    font-size: 0.48rem;
     line-height: 1.2;
   }
 
@@ -6365,7 +6415,7 @@ body.battle-active #screen-battle.screen-active {
     z-index: 2;
     min-height: 0;
     gap: 0.08rem;
-    margin-bottom: -1.2rem;
+    margin-bottom: -1.45rem;
     justify-content: center;
     align-items: center;
   }
