@@ -4996,6 +4996,11 @@ body.battle-active #screen-battle.screen-active {
   box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
 }
 
+.turn-panel--dock .turn-skill-buttons .btn.skill-pick.skill-slot--cooldown:hover {
+  border-color: rgba(148, 163, 184, 0.35);
+  box-shadow: none;
+}
+
 .turn-panel--dock .turn-skill-buttons .btn.skill-pick:disabled:hover {
   border-color: rgba(148, 163, 184, 0.35);
   box-shadow: none;
@@ -5038,6 +5043,13 @@ body.battle-active #screen-battle.screen-active {
     0 0 12px rgba(250, 204, 21, 0.4) !important;
 }
 
+.skill-slot--armed {
+  border-color: rgba(251, 191, 36, 0.95) !important;
+  box-shadow:
+    0 0 0 2px rgba(250, 204, 21, 0.92),
+    0 0 14px rgba(250, 204, 21, 0.42) !important;
+}
+
 .skill-slot {
   display: flex !important;
   flex-direction: column;
@@ -5051,6 +5063,11 @@ body.battle-active #screen-battle.screen-active {
   padding: 0.35rem 0.4rem !important;
   border-radius: 10px !important;
   box-sizing: border-box;
+}
+
+.skill-slot--cooldown {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .skill-slot-icon {

@@ -630,6 +630,8 @@ let state = {
   turnIndex: 0,
   /** @type {string | null} hero id of clicked enemy for player attacks */
   battleTargetEnemyId: null,
+  /** Pending player action during a manual turn; waits for an enemy click after skill selection. */
+  pendingPlayerAction: null,
   /** @type {{ gold: number; partyXpEach: number; scrollDropped: boolean } | null} */
   lastCampaignRewards: null,
   /** @type {string | null} e.g. "A-0" / "B-1" for SW-style active unit highlight */
@@ -858,23 +860,30 @@ function saveBattleSnapshots() {
 }
 
 function ensureValidBattleTarget() {
-  if (!state.teamB?.length) return;
+  if (!state.teamB?.length) {
+    state.battleTargetEnemyId = null;
+    return;
+  }
   const aliveB = state.teamB.filter(isAlive);
-  if (!aliveB.length) return;
+  if (!aliveB.length) {
+    state.battleTargetEnemyId = null;
+    return;
+  }
   const cur = state.battleTargetEnemyId;
-  if (
-    !cur ||
-    !aliveB.some((u) => u.id != null && String(u.id) === String(cur))
-  ) {
-    const first = aliveB[0];
-    state.battleTargetEnemyId = first.id != null ? String(first.id) : null;
+  if (!cur) return;
+  if (!aliveB.some((u) => u.id != null && String(u.id) === String(cur))) {
+    state.battleTargetEnemyId = null;
   }
 }
 
 function canSelectEnemyTarget() {
   if (state.finished) return false;
   if (!state.teamB?.length || !state.teamB.some(isAlive)) return false;
-  return state.mode === "idle" || state.mode === "turn";
+  if (state.mode !== "turn" || state.battleAutoPlay) return false;
+  if (!state.turnQueue.length || state.turnIndex >= state.turnQueue.length) return false;
+  const actor = state.turnQueue[state.turnIndex];
+  if (!actor || actor.team !== "A" || !isAlive(actor)) return false;
+  return state.pendingPlayerAction?.actor === actor;
 }
 
 function syncBattleActingKey() {
@@ -1399,6 +1408,7 @@ function refillAllHp() {
 
 function hideTurnPanel() {
   const panel = el("turn-panel");
+  state.pendingPlayerAction = null;
   if (panel) {
     panel.classList.add("is-hidden");
     const box = el("turn-skill-buttons");
@@ -2938,6 +2948,8 @@ function showPlayerTurnUI(actor) {
   const box = el("turn-skill-buttons");
   if (!panel || !label || !box) return;
   actor.skills = normalizeSkillMetadataForUnit(actor?.id, actor.skills || []);
+  const pendingAction =
+    state.pendingPlayerAction?.actor === actor ? state.pendingPlayerAction : null;
 
   panel.classList.remove("is-hidden");
   const currentSpd = statWhole(effectiveUnitSpeed(actor));
@@ -2965,8 +2977,11 @@ function showPlayerTurnUI(actor) {
   preview.classList.add("turn-skill-preview--muted");
 
   const basicDesc =
-    "Standard attack: 1× damage (your attack stat minus target defense). Click an enemy to target, then tap a skill.";
-  const basicBtn = `<button type="button" class="btn skill-pick skill-slot skill-slot--default" data-action="basic" data-skill-desc="${escapeHtml(basicDesc)}" title="${escapeHtml(basicDesc)}">
+    "Standard attack: 1× damage (your attack stat minus target defense). Select this, then tap an enemy to attack.";
+  const basicArmed = pendingAction && pendingAction.skillId == null;
+  const basicBtn = `<button type="button" class="btn skill-pick skill-slot skill-slot--default${
+    basicArmed ? " skill-slot--armed" : ""
+  }" data-action="basic" data-skill-desc="${escapeHtml(basicDesc)}" title="${escapeHtml(basicDesc)}">
     <span class="skill-slot-icon" aria-hidden="true">⚔</span>
     <span class="skill-slot-caption">Basic</span>
   </button>`;
@@ -2985,7 +3000,12 @@ function showPlayerTurnUI(actor) {
       const stunTag = Number(s.stunChance ?? 0) > 0 ? " · STUN" : "";
       const aoeTag = s.aoe ? " · ALL ENEMIES" : "";
       const cap = `${escapeHtml(s.name)} ×${mult}${skip}${aoeTag}${stunTag}${cd ? ` · CD ${s.cooldownRemaining}` : ""}`;
-      return `<button type="button" class="btn skill-pick skill-slot" data-action="skill" data-skill-id="${escapeHtml(s.id)}" data-skill-desc="${tip}" title="${tip}" ${cd ? "disabled" : ""}>
+      const armed = pendingAction && pendingAction.skillId === s.id;
+      return `<button type="button" class="btn skill-pick skill-slot${
+        armed ? " skill-slot--armed" : ""
+      }${cd ? " skill-slot--cooldown" : ""}" data-action="skill" data-skill-id="${escapeHtml(s.id)}" data-skill-desc="${tip}" data-cooldown-locked="${
+        cd ? "true" : "false"
+      }" title="${tip}" ${cd ? 'aria-disabled="true"' : ""}>
     <span class="skill-slot-icon" aria-hidden="true">${icon}</span>
     <span class="skill-slot-caption">${cap}</span>
   </button>`;
@@ -3009,6 +3029,14 @@ function showPlayerTurnUI(actor) {
     preview.textContent = text || defaultDesc;
     preview.classList.toggle("turn-skill-preview--muted", !text);
   };
+  if (pendingAction) {
+    const pendingSkill =
+      pendingAction.skillId == null
+        ? null
+        : activeSkills.find((x) => x.id === pendingAction.skillId) || null;
+    const pendingName = pendingSkill?.name || "Basic attack";
+    setSkillPreview(`Tap an enemy to use ${pendingName}.`);
+  }
   let skillHoldTimer = null;
   const clearSkillHold = () => {
     if (skillHoldTimer != null) {
@@ -3021,7 +3049,7 @@ function showPlayerTurnUI(actor) {
     box.onmouseleave = null;
     box.onpointerdown = (e) => {
       const btn = e.target.closest(".skill-pick");
-      if (!btn || btn.disabled) return;
+      if (!btn || btn.matches(":disabled")) return;
       clearSkillHold();
       skillHoldTimer = window.setTimeout(() => {
         skillHoldTimer = null;
@@ -3061,7 +3089,11 @@ function showPlayerTurnUI(actor) {
 
   box.onclick = (e) => {
     const btn = e.target.closest(".skill-pick");
-    if (!btn || btn.disabled) return;
+    if (!btn || btn.matches(":disabled")) return;
+    if (btn.getAttribute("data-cooldown-locked") === "true") {
+      setSkillPreview(btn.getAttribute("data-skill-desc"));
+      return;
+    }
     if (btn.getAttribute("data-action") === "basic") {
       onPlayerSkillChosen(actor, null);
       return;
@@ -3073,13 +3105,24 @@ function showPlayerTurnUI(actor) {
 }
 
 function onPlayerSkillChosen(actor, skill) {
+  state.pendingPlayerAction = {
+    actor,
+    skillId: skill?.id ?? null,
+  };
+  state.battleTargetEnemyId = null;
+  renderTeams();
+  showPlayerTurnUI(actor);
+}
+
+function executePlayerChosenAction(actor, skill, targetId) {
   hideTurnPanel();
+  state.battleTargetEnemyId = targetId != null ? String(targetId) : null;
   const plan = planSingleAction(
     actor,
     skill,
     state.teamA,
     state.teamB,
-    state.battleTargetEnemyId
+    targetId
   );
   if (!plan) {
     state.turnIndex += 1;
@@ -3979,8 +4022,13 @@ function init() {
     if (Number.isNaN(idx)) return;
     const unit = state.teamB[idx];
     if (!unit || !isAlive(unit) || unit.id == null) return;
-    state.battleTargetEnemyId = String(unit.id);
-    renderTeams();
+    const pending = state.pendingPlayerAction;
+    if (!pending) return;
+    const skill =
+      pending.skillId == null
+        ? null
+        : (pending.actor?.skills || []).find((s) => s.id === pending.skillId) || null;
+    executePlayerChosenAction(pending.actor, skill, String(unit.id));
   });
 
   el("character-box-list").addEventListener("click", (e) => {
