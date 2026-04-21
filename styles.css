@@ -2097,10 +2097,10 @@ body:not(.hub-screen-active) .app {
   flex-shrink: 0;
   align-self: flex-start;
   margin-bottom: 0.35rem;
-  padding: 0.22rem 0.55rem;
-  font-size: 0.78rem;
+  padding: 0.36rem 0.82rem;
+  font-size: 0.92rem;
   line-height: 1.25;
-  min-height: 0;
+  min-height: 2.2rem;
   background: #ffffff !important;
   color: #0f172a !important;
   border: 2px solid rgba(15, 23, 42, 0.12) !important;
@@ -5216,8 +5216,8 @@ body.battle-active #screen-battle.screen-active {
   #screen-pray.screen-active .back-btn,
   #screen-quests.screen-active .back-btn,
   #screen-shop.screen-active .shop-back-btn {
-    margin-bottom: 0.08rem;
-    padding: 0.18rem 0.38rem;
+    margin-bottom: 0.12rem;
+    padding: 0.32rem 0.72rem;
   }
 
   #screen-shop.screen-active .shop-screen-top {
@@ -5377,8 +5377,8 @@ body.battle-active #screen-battle.screen-active {
   }
 
   #screen-box.screen-active .shop-back-btn {
-    margin-bottom: 0.08rem;
-    padding: 0.18rem 0.38rem;
+    margin-bottom: 0.12rem;
+    padding: 0.32rem 0.72rem;
   }
 
   #screen-box.screen-active .party-toolbar,
@@ -6151,8 +6151,10 @@ body.battle-active #screen-battle.screen-active {
   }
 
   .btn.shop-back-btn {
-    min-height: 36px;
-    padding: 0.28rem 0.55rem;
+    min-height: 2.35rem;
+    min-width: 5rem;
+    padding: 0.42rem 0.88rem;
+    font-size: 0.95rem;
   }
 
   .battle-fab-back {
@@ -6171,7 +6173,10 @@ body.battle-active #screen-battle.screen-active {
   }
 
   .btn.shop-back-btn {
-    min-height: 32px;
+    min-height: 2.35rem;
+    min-width: 5rem;
+    padding: 0.42rem 0.88rem;
+    font-size: 0.95rem;
   }
 }
 
@@ -6198,9 +6203,9 @@ body.battle-active #screen-battle.screen-active {
 
   body.campaign-screen-active #screen-campaign.screen-active .shop-back-btn {
     margin-bottom: 0;
-    padding: 0.22rem 0.52rem;
-    font-size: 0.76rem;
-    min-height: 0;
+    padding: 0.42rem 0.88rem;
+    font-size: 0.95rem;
+    min-height: 2.35rem;
   }
 
   body.campaign-screen-active #screen-campaign.screen-active .campaign-screen-top-spacer {
@@ -6231,10 +6236,10 @@ body.battle-active #screen-battle.screen-active {
   }
 
   body.campaign-screen-active #screen-campaign.screen-active .shop-back-btn {
-    padding: 0.16rem 0.4rem;
-    font-size: 0.66rem;
+    padding: 0.42rem 0.88rem;
+    font-size: 0.95rem;
     margin-bottom: 0;
-    min-height: 0;
+    min-height: 2.35rem;
   }
 
   body.campaign-screen-active #screen-campaign.screen-active .campaign-screen-top-spacer {
