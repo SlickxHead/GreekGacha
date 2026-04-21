@@ -3500,18 +3500,17 @@ body.summon-reveal-active {
   text-align: center;
 }
 
-/* Character Box: combat + XP behind Stats button */
-#screen-box .box-collection-card .hero-combat-stats,
-#screen-box .box-collection-card .hero-xp-block {
+/* Character Box: combat stats behind Stats button; XP bar always visible */
+#screen-box .box-collection-card .hero-combat-stats {
   display: none;
+}
+
+#screen-box .box-collection-card .hero-xp-block {
+  display: block;
 }
 
 #screen-box .box-collection-card.box-card--stats-open .hero-combat-stats {
   display: flex;
-}
-
-#screen-box .box-collection-card.box-card--stats-open .hero-xp-block {
-  display: block;
 }
 
 .box-card-stats-btn {
@@ -3521,6 +3520,17 @@ body.summon-reveal-active {
   font-size: 0.74rem;
   min-height: 1.85rem;
   line-height: 1.15;
+}
+
+#screen-box .box-card-xp-scroll-inline {
+  margin: 0.12rem 0 0.35rem;
+  width: 100%;
+}
+
+#screen-box .box-card-xp-scroll-inline .box-use-xp-scroll-btn {
+  width: 100%;
+  font-weight: 700;
+  font-size: 0.82rem;
 }
 
 /* —— Battle screen: one viewport, no page scroll —— */
@@ -5516,7 +5526,7 @@ body.battle-active #screen-battle.screen-active {
     margin: 0.18rem 0 0.22rem;
   }
 
-  #screen-box.screen-active .box-collection-card.box-card--stats-open .hero-xp-block {
+  #screen-box.screen-active .box-collection-card .hero-xp-block {
     margin: 0.22rem 0 0.28rem;
   }
 
@@ -5539,13 +5549,24 @@ body.battle-active #screen-battle.screen-active {
     max-width: min(22rem, calc(100vw - 2rem));
   }
 
-  #screen-box.screen-active .box-collection-card.box-card--stats-open .hero-xp-meta {
+  #screen-box.screen-active .box-collection-card .hero-xp-meta {
     font-size: 0.72rem;
     margin-bottom: 0.22rem;
   }
 
-  #screen-box.screen-active .box-collection-card.box-card--stats-open .hero-xp-bar {
+  #screen-box.screen-active .box-collection-card .hero-xp-bar {
     height: 6px;
+  }
+
+  #screen-box.screen-active .box-card-xp-scroll-inline {
+    margin: 0.12rem 0 0.28rem;
+  }
+
+  #screen-box.screen-active .box-card-xp-scroll-inline .box-use-xp-scroll-btn {
+    width: 100%;
+    min-height: 2.35rem;
+    font-size: 0.78rem;
+    font-weight: 700;
   }
 
   /* Character Box (mobile): selected hero panel + bottom portrait strip. */
@@ -5699,6 +5720,73 @@ body.battle-active #screen-battle.screen-active {
     color: #ffed99;
     font-size: 0.76rem;
     margin: 0;
+  }
+
+  #screen-box.screen-active .box-mobile-xp-section {
+    margin: 0.28rem 0 0.32rem;
+    padding: 0.28rem 0.32rem;
+    border-radius: 8px;
+    background: rgba(12, 9, 5, 0.22);
+    border: 1px solid rgba(247, 235, 195, 0.14);
+  }
+
+  #screen-box.screen-active .box-mobile-xp-section .hero-xp-block {
+    margin: 0 0 0.42rem;
+  }
+
+  #screen-box.screen-active .box-mobile-xp-section .hero-xp-meta {
+    margin-bottom: 0.22rem;
+    font-size: 0.68rem;
+  }
+
+  #screen-box.screen-active .box-mobile-xp-section .hero-level-tag {
+    color: #fff6d6;
+  }
+
+  #screen-box.screen-active .box-mobile-xp-section .hero-xp-numbers,
+  #screen-box.screen-active .box-mobile-xp-section .hero-xp-cap {
+    color: rgba(247, 235, 195, 0.88);
+  }
+
+  #screen-box.screen-active .box-mobile-xp-section .hero-xp-bar {
+    height: 6px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      rgba(74, 222, 128, 0.95) 0%,
+      rgba(74, 222, 128, 0.95) var(--xp-pct, 0%),
+      rgba(255, 255, 255, 0.12) var(--xp-pct, 0%)
+    );
+  }
+
+  #screen-box.screen-active .box-mobile-xp-scroll-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.38rem;
+  }
+
+  #screen-box.screen-active .box-mobile-scroll-count {
+    font-size: 0.66rem;
+    color: rgba(247, 235, 195, 0.82);
+    font-variant-numeric: tabular-nums;
+  }
+
+  #screen-box.screen-active .box-mobile-scroll-count strong {
+    color: #fff8dd;
+  }
+
+  #screen-box.screen-active .box-mobile-use-xp-btn {
+    flex: 1 1 auto;
+    min-height: 2.35rem;
+    padding: 0.32rem 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  #screen-box.screen-active .box-mobile-use-xp-btn:disabled {
+    opacity: 0.45;
   }
 
   #screen-box.screen-active .box-mobile-detail-tabs {

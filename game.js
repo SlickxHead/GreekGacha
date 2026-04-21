@@ -2203,6 +2203,42 @@ function heroXpRowHtml(heroId) {
   </div>`;
 }
 
+/** Character Box (mobile): compact XP scroll use for the selected hero. */
+function boxMobileXpScrollControlsHtml(heroId, partyIds) {
+  const count = getXpScrolls();
+  const inParty = partyIds.includes(heroId);
+  const { level } = getHeroProgress(heroId);
+  const maxed = level >= MAX_HERO_LEVEL;
+  const disabled = count < 1 || !inParty || maxed;
+  let hint = "Grants +" + XP_SCROLL_XP_GRANT + " XP to this hero.";
+  if (!inParty) hint = "Add this hero to your battle party to use XP scrolls.";
+  else if (maxed) hint = "This hero is already max level.";
+  else if (count < 1) hint = "No XP scrolls — buy some in the Shop.";
+  return `<div class="box-mobile-xp-scroll-row">
+    <span class="box-mobile-scroll-count">Scrolls: <strong>${count.toLocaleString()}</strong></span>
+    <button type="button" class="btn primary box-use-xp-scroll-btn box-mobile-use-xp-btn"${disabled ? " disabled" : ""} data-hero-id="${escapeHtml(heroId)}" title="${escapeHtml(hint)}">
+      Use (+${XP_SCROLL_XP_GRANT} XP)
+    </button>
+  </div>`;
+}
+
+/** Character Box (desktop): use scroll on this card’s hero when they are in the battle party. */
+function boxDesktopCardXpScrollBtnHtml(heroId, inParty) {
+  const count = getXpScrolls();
+  const { level } = getHeroProgress(heroId);
+  const maxed = level >= MAX_HERO_LEVEL;
+  const disabled = count < 1 || !inParty || maxed;
+  let hint = "Uses one XP scroll on this hero (must be in battle party).";
+  if (!inParty) hint = "Add this hero to your battle party to use XP scrolls.";
+  else if (maxed) hint = "This hero is already max level.";
+  else if (count < 1) hint = "No XP scrolls — buy some in the Shop.";
+  return `<div class="box-card-xp-scroll-inline">
+    <button type="button" class="btn primary box-use-xp-scroll-btn"${disabled ? " disabled" : ""} data-hero-id="${escapeHtml(heroId)}" title="${escapeHtml(hint)}">
+      Use XP scroll (+${XP_SCROLL_XP_GRANT})
+    </button>
+  </div>`;
+}
+
 function resetAllGameData() {
   const msg =
     "Reset ALL saved data? You will keep only the starter heroes (Perseus and Aethra), " +
@@ -3371,6 +3407,35 @@ function useXpScrollOnPartyHero() {
   renderSummonScrollBar();
 }
 
+function useXpScrollOnHeroInParty(heroId) {
+  if (!heroId || !getCollection().includes(heroId)) return;
+  if (getXpScrolls() < 1) {
+    globalThis.alert("You do not have any XP scrolls.");
+    return;
+  }
+  if (!getBattleParty().includes(heroId)) {
+    globalThis.alert("Add this hero to your battle party to use XP scrolls.");
+    return;
+  }
+  if (getHeroProgress(heroId).level >= MAX_HERO_LEVEL) {
+    globalThis.alert("This hero is already max level.");
+    return;
+  }
+  if (!tryConsumeXpScroll()) {
+    globalThis.alert("You do not have any XP scrolls.");
+    return;
+  }
+  addHeroXp(heroId, XP_SCROLL_XP_GRANT);
+  const def = getHeroDefById(heroId);
+  const fb = el("xp-scroll-feedback");
+  if (fb) {
+    fb.textContent = `${def?.name || "Hero"} gained +${XP_SCROLL_XP_GRANT} XP.`;
+    fb.classList.add("shop-inline-feedback--ok");
+  }
+  renderCharacterBox();
+  renderSummonScrollBar();
+}
+
 function renderCharacterBox() {
   renderPartyToolbar();
   renderXpScrollPanel();
@@ -3444,6 +3509,10 @@ function renderCharacterBox() {
               <span class="box-party-label">Battle party</span>
             </label>
           </header>
+          <div class="box-mobile-xp-section">
+            ${heroXpRowHtml(selectedHeroId)}
+            ${boxMobileXpScrollControlsHtml(selectedHeroId, party)}
+          </div>
           ${selectedDetailPanels}
         </div>
       </article>
@@ -3478,9 +3547,10 @@ function renderCharacterBox() {
         <p class="char-rarity">${escapeHtml(def.rarity)}</p>
         <p class="box-card-level" aria-label="Level ${heroLv}">Lv. ${heroLv}</p>
       </header>
+      ${heroXpRowHtml(id)}
+      ${boxDesktopCardXpScrollBtnHtml(id, inParty)}
       <button type="button" class="btn ghost box-card-stats-btn" aria-expanded="false">Stats</button>
       ${heroCombatStatsHtml(id)}
-      ${heroXpRowHtml(id)}
       <p class="box-card-desc">${escapeHtml(def.description || "")}</p>
       ${skillHud}
     </article>`;
@@ -4029,6 +4099,13 @@ function init() {
   });
 
   el("character-box-list").addEventListener("click", (e) => {
+    const useXpCard = e.target.closest(".box-use-xp-scroll-btn");
+    if (useXpCard && !useXpCard.disabled) {
+      e.preventDefault();
+      const hid = useXpCard.getAttribute("data-hero-id");
+      if (hid) useXpScrollOnHeroInParty(hid);
+      return;
+    }
     const stripBtn = e.target.closest(".box-mobile-strip-item");
     if (stripBtn) {
       e.preventDefault();
