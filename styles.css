@@ -4947,7 +4947,7 @@ body.battle-active #screen-battle.screen-active {
   left: auto;
   top: auto;
   width: auto;
-  max-width: min(96vw, 21rem);
+  max-width: min(96vw, 25rem);
   z-index: 40;
   margin: 0;
 }
@@ -5026,7 +5026,7 @@ body.battle-active #screen-battle.screen-active {
 .turn-skill-buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: 0.45rem;
 }
 
 .skill-slot-row {
@@ -5055,12 +5055,12 @@ body.battle-active #screen-battle.screen-active {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.2rem;
-  flex: 1 1 3.75rem;
-  min-width: 3.5rem;
-  max-width: 7.5rem;
-  min-height: 4.35rem;
-  padding: 0.35rem 0.4rem !important;
+  gap: 0.28rem;
+  flex: 1 1 4.5rem;
+  min-width: 4.2rem;
+  max-width: 8.25rem;
+  min-height: 5rem;
+  padding: 0.42rem 0.48rem !important;
   border-radius: 10px !important;
   box-sizing: border-box;
 }
@@ -5071,27 +5071,27 @@ body.battle-active #screen-battle.screen-active {
 }
 
 .skill-slot-icon {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   line-height: 1;
   flex-shrink: 0;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
 }
 
 .skill-slot-icon-img {
-  width: 1.2rem;
-  height: 1.2rem;
+  width: 1.45rem;
+  height: 1.45rem;
   display: block;
   object-fit: contain;
   image-rendering: auto;
 }
 
 .skill-slot-caption {
-  font-size: 0.58rem;
+  font-size: 0.66rem;
   font-weight: 600;
   text-align: center;
   line-height: 1.2;
   width: 100%;
-  max-width: 6rem;
+  max-width: 6.8rem;
   min-height: 2.5em;
   overflow: hidden;
   display: -webkit-box;
@@ -5103,8 +5103,8 @@ body.battle-active #screen-battle.screen-active {
 }
 
 .turn-skill-buttons .btn.skill-pick {
-  font-size: 0.78rem;
-  padding: 0.35rem 0.5rem;
+  font-size: 0.88rem;
+  padding: 0.42rem 0.58rem;
 }
 
 .turn-skill-buttons .btn.skill-pick.skill-slot {
@@ -6511,8 +6511,8 @@ body.battle-active #screen-battle.screen-active {
     right: max(0.25rem, var(--safe-right));
     bottom: calc(0.85rem + var(--safe-bottom));
     left: auto;
-    max-width: min(calc(100vw - 2.5rem), 22rem);
-    padding: 0.32rem 0.38rem;
+    max-width: min(calc(100vw - 2rem), 25rem);
+    padding: 0.4rem 0.46rem;
     box-sizing: border-box;
   }
 
@@ -6529,7 +6529,7 @@ body.battle-active #screen-battle.screen-active {
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
-    gap: 0.28rem;
+    gap: 0.38rem;
     overflow-x: auto;
     overflow-y: hidden;
     max-width: 100%;
@@ -6544,7 +6544,7 @@ body.battle-active #screen-battle.screen-active {
     flex-wrap: nowrap;
     justify-content: flex-start;
     align-items: center;
-    gap: 0.28rem;
+    gap: 0.38rem;
     width: max-content;
     min-width: 100%;
   }
@@ -6561,20 +6561,20 @@ body.battle-active #screen-battle.screen-active {
 
   body.battle-active .skill-slot {
     flex: 0 0 auto;
-    min-width: 2.45rem;
-    max-width: 2.75rem;
-    min-height: 2.55rem !important;
-    padding: 0.22rem 0.24rem !important;
-    gap: 0;
+    min-width: 3rem;
+    max-width: 3.3rem;
+    min-height: 3.15rem !important;
+    padding: 0.3rem 0.32rem !important;
+    gap: 0.08rem;
   }
 
   body.battle-active .skill-slot-icon {
-    font-size: 1.05rem;
+    font-size: 1.28rem;
   }
 
   body.battle-active .skill-slot-icon-img {
-    width: 1.05rem;
-    height: 1.05rem;
+    width: 1.28rem;
+    height: 1.28rem;
   }
 
   body.battle-active .turn-skill-preview {

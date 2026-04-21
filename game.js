@@ -655,10 +655,6 @@ let state = {
   prayWheelRotation: 0,
   /** Character box (mobile): currently selected hero id in bottom portrait strip. */
   boxSelectedHeroId: null,
-  /** Character box (mobile): active detail tab in selected hero panel. */
-  boxDetailTab: "stats",
-  /** Character box (mobile): selected skill id for the skills tab description. */
-  boxSelectedSkillId: null,
 };
 
 function el(id) {
@@ -2096,69 +2092,12 @@ function heroMobileStatsPanelHtml(heroId) {
   </div>`;
 }
 
-function heroMobileSkillsPanelHtml(heroId) {
-  const def = getHeroDefById(heroId);
-  if (!def?.skills?.length) return "";
-  const selectedSkillId =
-    def.skills.some((skill, idx) => runtimeSkillId(skill, idx) === state.boxSelectedSkillId)
-      ? state.boxSelectedSkillId
-      : runtimeSkillId(def.skills[0], 0);
-  state.boxSelectedSkillId = selectedSkillId;
-  const selectedSkill =
-    def.skills.find((skill, idx) => runtimeSkillId(skill, idx) === selectedSkillId) || def.skills[0];
-  const selectedDesc = escapeHtml(skillHoverTitle(selectedSkill));
-  const skillButtons = def.skills
-    .map((skill, idx) => {
-      const skillId = runtimeSkillId(skill, idx);
-      const activeClass = skillId === selectedSkillId ? " box-mobile-skill-btn--active" : "";
-      const icon = skillIconHtmlForUnitSkill(def.id, { id: skillId, ...skill }, idx + 1);
-      return `<button type="button" class="box-mobile-skill-btn${activeClass}" data-box-skill-id="${escapeHtml(skillId)}" aria-pressed="${
-        skillId === selectedSkillId ? "true" : "false"
-      }">
-        <span class="box-mobile-skill-btn-icon" aria-hidden="true">${icon}</span>
-        <span class="box-mobile-skill-btn-name">${escapeHtml(skill.name || `Skill ${idx + 1}`)}</span>
-      </button>`;
-    })
-    .join("");
-  return `<div class="box-mobile-skills-panel" aria-label="${escapeHtml(def.name)} skills">
-    <div class="box-mobile-skill-list" role="list">${skillButtons}</div>
-    <div class="box-mobile-skill-desc" role="status" aria-live="polite">${selectedDesc}</div>
-  </div>`;
-}
-
-function heroMobileDetailTabsHtml(heroId) {
-  const def = getHeroDefById(heroId);
-  if (!def) return "";
-  const activeTab = state.boxDetailTab === "skills" ? "skills" : "stats";
-  const statsSelected = activeTab === "stats";
-  const skillsSelected = activeTab === "skills";
-  return `<div class="box-mobile-detail-tabs" role="tablist" aria-label="${escapeHtml(def.name)} details">
-    <button type="button" class="box-mobile-detail-tab${statsSelected ? " box-mobile-detail-tab--active" : ""}" role="tab" aria-selected="${
-      statsSelected ? "true" : "false"
-    }" data-box-tab="stats">Stats</button>
-    <button type="button" class="box-mobile-detail-tab${skillsSelected ? " box-mobile-detail-tab--active" : ""}" role="tab" aria-selected="${
-      skillsSelected ? "true" : "false"
-    }" data-box-tab="skills">Skills</button>
-  </div>`;
-}
-
 function heroMobileDetailPanelsHtml(heroId) {
   const def = getHeroDefById(heroId);
   if (!def) return "";
-  const activeTab = state.boxDetailTab === "skills" ? "skills" : "stats";
-  const statsSelected = activeTab === "stats";
-  const skillsSelected = activeTab === "skills";
-  return `<div class="box-mobile-detail-panel${statsSelected ? "" : " is-hidden"}" data-box-panel="stats" role="tabpanel" aria-hidden="${
-    statsSelected ? "false" : "true"
-  }"${statsSelected ? "" : " hidden"}>
+  return `<div class="box-mobile-detail-panel" data-box-panel="stats" role="tabpanel" aria-hidden="false">
     <p class="box-mobile-stage-desc">${escapeHtml(def.description || "")}</p>
     ${heroMobileStatsPanelHtml(heroId)}
-  </div>
-  <div class="box-mobile-detail-panel${skillsSelected ? "" : " is-hidden"}" data-box-panel="skills" role="tabpanel" aria-hidden="${
-    skillsSelected ? "false" : "true"
-  }"${skillsSelected ? "" : " hidden"}>
-    <p class="box-mobile-stage-desc">${escapeHtml(def.description || "")}</p>
-    ${heroMobileSkillsPanelHtml(heroId)}
   </div>`;
 }
 
@@ -3407,7 +3346,6 @@ function renderCharacterBox() {
       ? '<span class="card-new-badge">NEW</span>'
       : "";
     const selectedInParty = party.includes(selectedHeroId);
-    const selectedDetailTabs = heroMobileDetailTabsHtml(selectedHeroId);
     const selectedDetailPanels = heroMobileDetailPanelsHtml(selectedHeroId);
 
     const strip = ids
@@ -3440,7 +3378,6 @@ function renderCharacterBox() {
               <h3>${escapeHtml(selectedDef.name)}</h3>
               <p class="char-rarity">${escapeHtml(selectedDef.rarity)}</p>
               <p class="box-card-level" aria-label="Level ${selectedLv}">Lv. ${selectedLv}</p>
-              ${selectedDetailTabs}
             </div>
             <label class="box-party-row box-mobile-stage-party-toggle">
               <input type="checkbox" class="party-member-cb" data-hero-id="${escapeHtml(selectedHeroId)}" ${selectedInParty ? "checked" : ""} />
@@ -3467,7 +3404,6 @@ function renderCharacterBox() {
       const newBadge = newIds.includes(id)
         ? '<span class="card-new-badge">NEW</span>'
         : "";
-      const skillHud = buildHeroSkillHudHtml(id);
       const { level: heroLv } = getHeroProgress(id);
       return `<article class="card unit-card box-collection-card ${rc}" data-hero-id="${escapeHtml(id)}" role="listitem" data-rarity="${escapeHtml(def.rarity)}">
       ${newBadge}
@@ -3485,7 +3421,6 @@ function renderCharacterBox() {
       ${heroCombatStatsHtml(id)}
       ${heroXpRowHtml(id)}
       <p class="box-card-desc">${escapeHtml(def.description || "")}</p>
-      ${skillHud}
     </article>`;
     })
     .join("");
@@ -4038,28 +3973,9 @@ function init() {
       const hid = stripBtn.getAttribute("data-hero-id");
       if (!hid) return;
       state.boxSelectedHeroId = hid;
-      state.boxSelectedSkillId = null;
       if (getNewHeroIds().includes(hid)) {
         clearNewHeroMarker(hid);
       }
-      renderCharacterBox();
-      return;
-    }
-    const detailTab = e.target.closest(".box-mobile-detail-tab");
-    if (detailTab) {
-      e.preventDefault();
-      const tabName = detailTab.getAttribute("data-box-tab");
-      if (!tabName) return;
-      state.boxDetailTab = tabName === "skills" ? "skills" : "stats";
-      renderCharacterBox();
-      return;
-    }
-    const skillBtn = e.target.closest(".box-mobile-skill-btn");
-    if (skillBtn) {
-      e.preventDefault();
-      const skillId = skillBtn.getAttribute("data-box-skill-id");
-      if (!skillId) return;
-      state.boxSelectedSkillId = skillId;
       renderCharacterBox();
       return;
     }
