@@ -655,7 +655,7 @@ let state = {
   prayWheelRotation: 0,
   /** Character box (mobile): currently selected hero id in bottom portrait strip. */
   boxSelectedHeroId: null,
-  /** Character box (mobile): active detail tab in selected hero panel. */
+  /** Character box (mobile): active detail tab in selected hero panel — "stats" | "skills" | "scroll". */
   boxDetailTab: "stats",
   /** Character box (mobile): selected skill id for the skills tab description. */
   boxSelectedSkillId: null,
@@ -2123,12 +2123,26 @@ function heroMobileSkillsPanelHtml(heroId) {
   </div>`;
 }
 
+function boxMobileActiveDetailTab() {
+  const t = state.boxDetailTab;
+  if (t === "skills" || t === "scroll") return t;
+  return "stats";
+}
+
+function heroMobileScrollPanelHtml(heroId, partyIds) {
+  return `<div class="box-mobile-scroll-panel" aria-label="XP scroll">
+    <p class="box-mobile-scroll-hint">Grants +${XP_SCROLL_XP_GRANT} XP to this hero when they are in your battle party.</p>
+    ${boxMobileXpScrollControlsHtml(heroId, partyIds)}
+  </div>`;
+}
+
 function heroMobileDetailTabsHtml(heroId) {
   const def = getHeroDefById(heroId);
   if (!def) return "";
-  const activeTab = state.boxDetailTab === "skills" ? "skills" : "stats";
+  const activeTab = boxMobileActiveDetailTab();
   const statsSelected = activeTab === "stats";
   const skillsSelected = activeTab === "skills";
+  const scrollSelected = activeTab === "scroll";
   return `<div class="box-mobile-detail-tabs" role="tablist" aria-label="${escapeHtml(def.name)} details">
     <button type="button" class="box-mobile-detail-tab${statsSelected ? " box-mobile-detail-tab--active" : ""}" role="tab" aria-selected="${
       statsSelected ? "true" : "false"
@@ -2136,15 +2150,19 @@ function heroMobileDetailTabsHtml(heroId) {
     <button type="button" class="box-mobile-detail-tab${skillsSelected ? " box-mobile-detail-tab--active" : ""}" role="tab" aria-selected="${
       skillsSelected ? "true" : "false"
     }" data-box-tab="skills">Skills</button>
+    <button type="button" class="box-mobile-detail-tab${scrollSelected ? " box-mobile-detail-tab--active" : ""}" role="tab" aria-selected="${
+      scrollSelected ? "true" : "false"
+    }" data-box-tab="scroll" title="Use XP scrolls">Scroll</button>
   </div>`;
 }
 
-function heroMobileDetailPanelsHtml(heroId) {
+function heroMobileDetailPanelsHtml(heroId, partyIds) {
   const def = getHeroDefById(heroId);
   if (!def) return "";
-  const activeTab = state.boxDetailTab === "skills" ? "skills" : "stats";
+  const activeTab = boxMobileActiveDetailTab();
   const statsSelected = activeTab === "stats";
   const skillsSelected = activeTab === "skills";
+  const scrollSelected = activeTab === "scroll";
   return `<div class="box-mobile-detail-panel${statsSelected ? "" : " is-hidden"}" data-box-panel="stats" role="tabpanel" aria-hidden="${
     statsSelected ? "false" : "true"
   }"${statsSelected ? "" : " hidden"}>
@@ -2156,6 +2174,11 @@ function heroMobileDetailPanelsHtml(heroId) {
   }"${skillsSelected ? "" : " hidden"}>
     <p class="box-mobile-stage-desc">${escapeHtml(def.description || "")}</p>
     ${heroMobileSkillsPanelHtml(heroId)}
+  </div>
+  <div class="box-mobile-detail-panel${scrollSelected ? "" : " is-hidden"}" data-box-panel="scroll" role="tabpanel" aria-hidden="${
+    scrollSelected ? "false" : "true"
+  }"${scrollSelected ? "" : " hidden"}>
+    ${heroMobileScrollPanelHtml(heroId, partyIds)}
   </div>`;
 }
 
@@ -3470,7 +3493,7 @@ function renderCharacterBox() {
       : "";
     const selectedInParty = party.includes(selectedHeroId);
     const selectedDetailTabs = heroMobileDetailTabsHtml(selectedHeroId);
-    const selectedDetailPanels = heroMobileDetailPanelsHtml(selectedHeroId);
+    const selectedDetailPanels = heroMobileDetailPanelsHtml(selectedHeroId, party);
 
     const strip = ids
       .map((id) => {
@@ -3511,7 +3534,6 @@ function renderCharacterBox() {
           </header>
           <div class="box-mobile-xp-section">
             ${heroXpRowHtml(selectedHeroId)}
-            ${boxMobileXpScrollControlsHtml(selectedHeroId, party)}
           </div>
           ${selectedDetailPanels}
         </div>
@@ -4124,7 +4146,9 @@ function init() {
       e.preventDefault();
       const tabName = detailTab.getAttribute("data-box-tab");
       if (!tabName) return;
-      state.boxDetailTab = tabName === "skills" ? "skills" : "stats";
+      if (tabName === "skills") state.boxDetailTab = "skills";
+      else if (tabName === "scroll") state.boxDetailTab = "scroll";
+      else state.boxDetailTab = "stats";
       renderCharacterBox();
       return;
     }

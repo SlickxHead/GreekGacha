@@ -5731,7 +5731,7 @@ body.battle-active #screen-battle.screen-active {
   }
 
   #screen-box.screen-active .box-mobile-xp-section .hero-xp-block {
-    margin: 0 0 0.42rem;
+    margin: 0 0 0.12rem;
   }
 
   #screen-box.screen-active .box-mobile-xp-section .hero-xp-meta {
@@ -5757,6 +5757,20 @@ body.battle-active #screen-battle.screen-active {
       rgba(74, 222, 128, 0.95) var(--xp-pct, 0%),
       rgba(255, 255, 255, 0.12) var(--xp-pct, 0%)
     );
+  }
+
+  #screen-box.screen-active .box-mobile-scroll-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.32rem;
+    min-width: 0;
+  }
+
+  #screen-box.screen-active .box-mobile-scroll-hint {
+    margin: 0;
+    color: rgba(247, 235, 195, 0.82);
+    font-size: 0.64rem;
+    line-height: 1.32;
   }
 
   #screen-box.screen-active .box-mobile-xp-scroll-row {
@@ -5791,18 +5805,21 @@ body.battle-active #screen-battle.screen-active {
 
   #screen-box.screen-active .box-mobile-detail-tabs {
     display: inline-flex;
-    gap: 0.28rem;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.22rem;
     grid-column: 2;
     justify-self: end;
     align-self: center;
     margin: 0;
+    max-width: 100%;
     width: auto;
+    justify-content: flex-end;
   }
 
   #screen-box.screen-active .box-mobile-detail-tab {
     flex: 0 0 auto;
     margin: 0;
-    padding: 0.18rem 0.34rem;
+    padding: 0.16rem 0.28rem;
     border-radius: 999px;
     border: 1px solid rgba(247, 235, 195, 0.26);
     background: rgba(255, 255, 255, 0.08);
