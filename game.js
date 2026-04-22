@@ -59,9 +59,14 @@ if (typeof globalThis !== "undefined") {
   globalThis.summonHero = summonHero;
 }
 
-function computeStepDamage(attacker, defender, multiplier = 1) {
+function computeStepDamage(attacker, defender, multiplier = 1, skill = null) {
   const mult = multiplier ?? 1;
-  const raw = attacker.attack * mult - effectiveUnitDefense(defender);
+  let def = effectiveUnitDefense(defender);
+  const ign = skill != null ? Number(skill.ignoreDefensePercent) : 0;
+  if (ign > 0 && ign < 1) {
+    def = def * (1 - ign);
+  }
+  const raw = attacker.attack * mult - def;
   return Math.max(0, statWhole(raw));
 }
 
@@ -72,7 +77,9 @@ function useSkillOnUnit(skill) {
 function effectiveUnitSpeed(unit) {
   const base = Number(unit?.speed ?? 0);
   const mult = Number(unit?.speedBuffMultiplierActive ?? 1);
-  return base * (mult > 0 ? mult : 1);
+  const slowM = Number(unit?.slowMult ?? 1);
+  const slow = slowM > 0 ? slowM : 1;
+  return base * (mult > 0 ? mult : 1) * slow;
 }
 
 function effectiveUnitDefense(unit) {
@@ -92,11 +99,28 @@ function tickStunRound(unit) {
   return true;
 }
 
+function teamAAllyStunResistForTarget(target) {
+  if (!target || target.team !== "A" || !state.teamA?.length) return 0;
+  for (const u of state.teamA) {
+    if (!isAlive(u) || u.id !== PERSEUS_HERO_ID) continue;
+    for (const s of u.skills || []) {
+      if (s?.passive && Number(s.leaderAlliesStunResist ?? 0) > 0) {
+        return Math.min(0.95, Number(s.leaderAlliesStunResist));
+      }
+    }
+  }
+  return 0;
+}
+
 function maybeApplyStun(attacker, useSkill, target, damageDone) {
   if (!target || damageDone <= 0) return false;
   const activeChance = useSkill ? Number(useSkill.stunChance ?? 0) : 0;
   const passiveChance = passiveStunChanceForUnit(attacker);
-  const chance = Math.max(activeChance, passiveChance);
+  let chance = Math.max(activeChance, passiveChance);
+  if (target.team === "A") {
+    const resist = teamAAllyStunResistForTarget(target);
+    if (resist > 0) chance *= 1 - resist;
+  }
   if (!(chance > 0)) return false;
   if (Math.random() >= chance) return false;
   const rounds = Math.max(
@@ -167,16 +191,40 @@ function tickDefenseBreakRound(unit) {
   return true;
 }
 
+function tickSlowRound(unit) {
+  if (!unit) return false;
+  if ((unit.slowRounds ?? 0) <= 0) return false;
+  unit.slowRounds = Math.max(0, (unit.slowRounds ?? 0) - 1);
+  if (unit.slowRounds <= 0) {
+    unit.slowMult = 1;
+  }
+  return true;
+}
+
+function tickShieldRound(unit) {
+  if (!unit) return false;
+  if ((unit.shieldRounds ?? 0) <= 0) return false;
+  unit.shieldRounds = Math.max(0, unit.shieldRounds - 1);
+  if (unit.shieldRounds <= 0) {
+    unit.shieldAmount = 0;
+  }
+  return true;
+}
+
 function previewResolveStepAttack(attacker, skill, target) {
   if (!skill) {
-    const damage = computeStepDamage(attacker, target, 1);
-    return { damage, skillId: null, skillName: null };
+    return { damage: 0, skillId: null, skillName: null, isAoe: false };
   }
   if (skill.skipAttack) {
-    return { damage: 0, skillId: skill.id, skillName: skill.name };
+    return {
+      damage: 0,
+      skillId: skill.id,
+      skillName: skill.name,
+      isAoe: false,
+    };
   }
   const mult = skill.damageMultiplier ?? 1;
-  const damage = computeStepDamage(attacker, target, mult);
+  const damage = computeStepDamage(attacker, target, mult, skill);
   return {
     damage,
     skillId: skill.id,
@@ -326,23 +374,41 @@ function duplicateSummonGoldRewardForRarity(rarity) {
   return SUMMON_DUPLICATE_GOLD_REWARD_DEFAULT;
 }
 
-/** AI: strongest ready damaging skill, else first ready skill, else basic. */
-function pickAiSkill(attacker, useSkills) {
-  if (!useSkills || !attacker.skills?.length) return null;
-  const ready = attacker.skills.filter(
-    (s) => !s.passive && s.cooldownRemaining <= 0
-  );
-  if (!ready.length) return null;
-  const damaging = ready.filter((s) => !s.skipAttack);
-  if (damaging.length) {
-    return damaging.reduce((a, b) =>
-      (b.damageMultiplier ?? 1) > (a.damageMultiplier ?? 1) ? b : a
-    );
+/** AI: strongest ready damaging skill, else a fallback when all are on cooldown (no “basic” attack). */
+function pickBattleAiSkill(attacker) {
+  if (!attacker.skills?.length) return { skill: null, bypassSkillCd: false };
+  const actives = attacker.skills.filter((s) => !s.passive);
+  if (!actives.length) return { skill: null, bypassSkillCd: false };
+  const ready = actives.filter((s) => s.cooldownRemaining <= 0);
+  if (ready.length) {
+    const damaging = ready.filter((s) => !s.skipAttack);
+    if (damaging.length) {
+      return {
+        skill: damaging.reduce((a, b) =>
+          (b.damageMultiplier ?? 1) > (a.damageMultiplier ?? 1) ? b : a
+        ),
+        bypassSkillCd: false,
+      };
+    }
+    return { skill: ready[0], bypassSkillCd: false };
   }
-  return ready[0];
+  return {
+    skill: actives.reduce((a, b) =>
+      a.cooldownRemaining <= b.cooldownRemaining ? a : b
+    ),
+    bypassSkillCd: true,
+  };
 }
 
-function planSingleAction(attacker, skill, teamA, teamB, manualTargetId = null) {
+function planSingleAction(
+  attacker,
+  skill,
+  teamA,
+  teamB,
+  manualTargetId = null,
+  battleOpts = {}
+) {
+  const bypassSkillCd = Boolean(battleOpts.bypassSkillCd);
   attacker.skills = normalizeSkillMetadataForUnit(attacker?.id, attacker.skills || []);
   if (skill && Array.isArray(attacker.skills)) {
     const chosenId = skill.id != null ? String(skill.id) : null;
@@ -376,10 +442,28 @@ function planSingleAction(attacker, skill, teamA, teamB, manualTargetId = null) 
   if (!target) return null;
 
   let useSkill = skill;
-  if (useSkill && useSkill.cooldownRemaining > 0) useSkill = null;
+  if (useSkill && useSkill.cooldownRemaining > 0 && !bypassSkillCd) {
+    return null;
+  }
+  if (!useSkill) {
+    return null;
+  }
 
   const preview = previewResolveStepAttack(attacker, useSkill, target);
   return { target, useSkill, preview };
+}
+
+function applyDamageThroughShield(target, rawDamage) {
+  if (!target || rawDamage <= 0) return;
+  let dmg = rawDamage;
+  if ((target.shieldAmount ?? 0) > 0) {
+    const absorb = Math.min(target.shieldAmount, dmg);
+    target.shieldAmount -= absorb;
+    dmg -= absorb;
+  }
+  if (dmg > 0) {
+    target.hp = Math.max(0, target.hp - dmg);
+  }
 }
 
 function applyPlannedAction(attacker, useSkill, target, preview, teams = null) {
@@ -393,13 +477,46 @@ function applyPlannedAction(attacker, useSkill, target, preview, teams = null) {
   let stunnedAny = false;
   let defenseBreakAny = false;
   let defenseBreakMeta = null;
+  const gorgonAoe = Boolean(
+    isAoe && useSkill?.onStunResistSlowRounds && useSkill?.aoe
+  );
+
   for (const t of hitTargets) {
     if (!t) continue;
-    if (preview.damage > 0) {
-      t.hp = Math.max(0, t.hp - preview.damage);
+    if (isAoe && useSkill?.aoeAllMeterSlowMult) {
+      const m = Number(useSkill.aoeAllMeterSlowMult);
+      const r = Math.max(
+        1,
+        Math.floor(Number(useSkill.aoeAllMeterSlowRounds ?? 1))
+      );
+      if (m > 0 && m < 1) {
+        t.slowMult = m;
+        t.slowRounds = Math.max(t.slowRounds ?? 0, r);
+      }
     }
-    const stunned = maybeApplyStun(attacker, useSkill, t, preview.damage);
-    const defenseBreak = maybeApplyDefenseBreak(useSkill, t, preview.damage);
+    if (preview.damage > 0) {
+      applyDamageThroughShield(t, preview.damage);
+    }
+    let stunned = false;
+    if (gorgonAoe) {
+      stunned = maybeApplyStun(attacker, useSkill, t, preview.damage);
+      if (!stunned && preview.damage > 0) {
+        const sm = Number(useSkill.onStunResistSlowMult ?? 0.8);
+        const sr = Math.max(
+          1,
+          Math.floor(Number(useSkill.onStunResistSlowRounds ?? 2))
+        );
+        if (sm > 0 && sm < 1) {
+          t.slowMult = sm;
+          t.slowRounds = Math.max(t.slowRounds ?? 0, sr);
+        }
+      }
+    } else {
+      stunned = maybeApplyStun(attacker, useSkill, t, preview.damage);
+    }
+    const defenseBreak = gorgonAoe
+      ? null
+      : maybeApplyDefenseBreak(useSkill, t, preview.damage);
     if (stunned) stunnedAny = true;
     if (defenseBreak) {
       defenseBreakAny = true;
@@ -414,6 +531,38 @@ function applyPlannedAction(attacker, useSkill, target, preview, teams = null) {
       defenseBreakRounds: defenseBreak?.rounds ?? 0,
       visualKey: vanishKeyForUnit(t),
     });
+  }
+  if (
+    !isAoe &&
+    useSkill?.stripOrShredChance > 0 &&
+    preview.damage > 0 &&
+    target
+  ) {
+    const t = target;
+    if (isAlive(t) && Math.random() < Number(useSkill.stripOrShredChance)) {
+      const mult = Number(useSkill.stripDefenseBreakMultiplier ?? 0.5);
+      if (mult > 0 && mult < 1) {
+        t.defenseBreakMultiplierActive = Math.min(
+          Number(t.defenseBreakMultiplierActive ?? 1),
+          mult
+        );
+        t.defenseBreakRounds = Math.max(
+          t.defenseBreakRounds ?? 0,
+          Math.max(
+            1,
+            Math.floor(Number(useSkill.stripDefenseBreakRounds ?? 1))
+          )
+        );
+      }
+      const frac = Number(useSkill.grantShieldHpFraction ?? 0);
+      if (frac > 0) {
+        attacker.shieldAmount = (attacker.maxHp ?? 0) * frac;
+        attacker.shieldRounds = Math.max(
+          1,
+          Math.floor(Number(useSkill.grantShieldRounds ?? 2))
+        );
+      }
+    }
   }
   if (useSkill) {
     useSkillOnUnit(useSkill);
@@ -482,8 +631,22 @@ function scheduleVanishAndProcessTurn(act, plan) {
   }
 }
 
-function executeSingleAction(attacker, skill, teamA, teamB, manualTargetId = null) {
-  const plan = planSingleAction(attacker, skill, teamA, teamB, manualTargetId);
+function executeSingleAction(
+  attacker,
+  skill,
+  teamA,
+  teamB,
+  manualTargetId = null,
+  battleOpts = {}
+) {
+  const plan = planSingleAction(
+    attacker,
+    skill,
+    teamA,
+    teamB,
+    manualTargetId,
+    battleOpts
+  );
   if (!plan) return null;
   return applyPlannedAction(attacker, plan.useSkill, plan.target, plan.preview, {
     teamA,
@@ -580,9 +743,20 @@ function cloneUnit(u) {
       speedBuffDurationRounds: s.speedBuffDurationRounds,
       defenseBreakMultiplier: s.defenseBreakMultiplier,
       defenseBreakDurationRounds: s.defenseBreakDurationRounds,
+      ignoreDefensePercent: s.ignoreDefensePercent,
+      stripOrShredChance: s.stripOrShredChance,
+      stripDefenseBreakMultiplier: s.stripDefenseBreakMultiplier,
+      stripDefenseBreakRounds: s.stripDefenseBreakRounds,
+      grantShieldHpFraction: s.grantShieldHpFraction,
+      grantShieldRounds: s.grantShieldRounds,
       aoe: s.aoe,
+      aoeAllMeterSlowMult: s.aoeAllMeterSlowMult,
+      aoeAllMeterSlowRounds: s.aoeAllMeterSlowRounds,
+      onStunResistSlowMult: s.onStunResistSlowMult,
+      onStunResistSlowRounds: s.onStunResistSlowRounds,
       passive: s.passive,
       passiveStunChance: s.passiveStunChance,
+      leaderAlliesStunResist: s.leaderAlliesStunResist,
       cooldownRemaining: s.cooldownRemaining ?? 0,
     }))
   );
@@ -601,6 +775,10 @@ function cloneUnit(u) {
     speedBuffMultiplierActive: u.speedBuffMultiplierActive ?? 1,
     defenseBreakRounds: u.defenseBreakRounds ?? 0,
     defenseBreakMultiplierActive: u.defenseBreakMultiplierActive ?? 1,
+    slowRounds: u.slowRounds ?? 0,
+    slowMult: u.slowMult ?? 1,
+    shieldRounds: u.shieldRounds ?? 0,
+    shieldAmount: u.shieldAmount ?? 0,
     skills,
   };
 }
@@ -883,7 +1061,9 @@ function canSelectEnemyTarget() {
   if (!state.turnQueue.length || state.turnIndex >= state.turnQueue.length) return false;
   const actor = state.turnQueue[state.turnIndex];
   if (!actor || actor.team !== "A" || !isAlive(actor)) return false;
-  return state.pendingPlayerAction?.actor === actor;
+  const pending = state.pendingPlayerAction;
+  if (pending?.actor !== actor) return false;
+  return pending.skillId != null;
 }
 
 function syncBattleActingKey() {
@@ -2096,16 +2276,25 @@ function heroMobileStatsPanelHtml(heroId) {
 function heroMobileSkillsPanelHtml(heroId) {
   const def = getHeroDefById(heroId);
   if (!def?.skills?.length) return "";
+  const actives = def.skills
+    .map((skill, idx) => ({ skill, idx }))
+    .filter(({ skill }) => !skill.passive);
+  if (!actives.length) return "";
   const selectedSkillId =
-    def.skills.some((skill, idx) => runtimeSkillId(skill, idx) === state.boxSelectedSkillId)
+    actives.some(
+      ({ skill, idx }) => runtimeSkillId(skill, idx) === state.boxSelectedSkillId
+    )
       ? state.boxSelectedSkillId
-      : runtimeSkillId(def.skills[0], 0);
+      : runtimeSkillId(actives[0].skill, actives[0].idx);
   state.boxSelectedSkillId = selectedSkillId;
-  const selectedSkill =
-    def.skills.find((skill, idx) => runtimeSkillId(skill, idx) === selectedSkillId) || def.skills[0];
+  const selectedEntry =
+    actives.find(
+      ({ skill, idx }) => runtimeSkillId(skill, idx) === selectedSkillId
+    ) || actives[0];
+  const selectedSkill = selectedEntry.skill;
   const selectedDesc = escapeHtml(skillHoverTitle(selectedSkill));
-  const skillButtons = def.skills
-    .map((skill, idx) => {
+  const skillButtons = actives
+    .map(({ skill, idx }) => {
       const skillId = runtimeSkillId(skill, idx);
       const activeClass = skillId === selectedSkillId ? " box-mobile-skill-btn--active" : "";
       const icon = skillIconHtmlForUnitSkill(def.id, { id: skillId, ...skill }, idx + 1);
@@ -2117,7 +2306,15 @@ function heroMobileSkillsPanelHtml(heroId) {
       </button>`;
     })
     .join("");
+  const passives = def.skills.filter((s) => s.passive);
+  const passiveLine =
+    passives.length > 0
+      ? `<p class="box-mobile-skill-passive-note">${passives
+          .map((s) => escapeHtml(skillHoverTitle(s)))
+          .join(" ")}</p>`
+      : "";
   return `<div class="box-mobile-skills-panel" aria-label="${escapeHtml(def.name)} skills">
+    ${passiveLine}
     <div class="box-mobile-skill-list" role="list">${skillButtons}</div>
     <div class="box-mobile-skill-desc" role="status" aria-live="polite">${selectedDesc}</div>
   </div>`;
@@ -2506,6 +2703,8 @@ function runAutoBattle() {
       tickSkillCooldowns(u);
       tickSpeedBuffRound(u);
       tickDefenseBreakRound(u);
+      tickSlowRound(u);
+      tickShieldRound(u);
     }
     appendLogLine(
       `<strong>Round ${round}</strong> — turns by SPD (highest first)`
@@ -2524,8 +2723,13 @@ function runAutoBattle() {
         );
         continue;
       }
-      const skill = pickAiSkill(actor, useAiSkills);
-      const act = executeSingleAction(actor, skill, teamA, teamB);
+      const { skill, bypassSkillCd } = pickBattleAiSkill(actor);
+      if (!skill) {
+        continue;
+      }
+      const act = executeSingleAction(actor, skill, teamA, teamB, null, {
+        bypassSkillCd,
+      });
       if (act) logActionLine(act);
     }
   }
@@ -2585,6 +2789,8 @@ function beginNewRoundTurnBattle() {
     tickSkillCooldowns(u);
     tickSpeedBuffRound(u);
     tickDefenseBreakRound(u);
+    tickSlowRound(u);
+    tickShieldRound(u);
   }
   appendLogLine(`<strong>Round ${state.round}</strong> — turns by SPD (highest first)`);
 
@@ -2643,8 +2849,10 @@ function processTurnStep() {
 }
 
 function runEnemyTurnAnimation(actor) {
-  const skill = pickAiSkill(actor, true);
-  const plan = planSingleAction(actor, skill, state.teamA, state.teamB, null);
+  const { skill, bypassSkillCd } = pickBattleAiSkill(actor);
+  const plan = planSingleAction(actor, skill, state.teamA, state.teamB, null, {
+    bypassSkillCd,
+  });
   if (!plan) {
     state.turnIndex += 1;
     processTurnStep();
@@ -2669,13 +2877,14 @@ function runEnemyTurnAnimation(actor) {
 }
 
 function runPlayerAutoTurn(actor) {
-  const skill = pickAiSkill(actor, true);
+  const { skill, bypassSkillCd } = pickBattleAiSkill(actor);
   const plan = planSingleAction(
     actor,
     skill,
     state.teamA,
     state.teamB,
-    state.battleTargetEnemyId
+    state.battleTargetEnemyId,
+    { bypassSkillCd }
   );
   if (!plan) {
     state.turnIndex += 1;
@@ -2934,9 +3143,19 @@ function playBattleAttackAnimation(fromSide, fromIdx, toSide, toIdx, preview) {
 }
 
 function skillHoverTitle(s) {
-  const passiveStunChance = Number(s.passiveStunChance ?? 0);
-  if (s.passive && passiveStunChance > 0) {
-    return `${s.name}: Passive — all damaging attacks (including Basic) have ${Math.round(passiveStunChance * 100)}% chance to stun for 1 round.`;
+  if (s.passive) {
+    if (Number(s.leaderAlliesStunResist ?? 0) > 0) {
+      return `${s.name}: Leader (passive) — allies gain +${Math.round(
+        Number(s.leaderAlliesStunResist) * 100
+      )}% resistance against stun and similar control effects.`;
+    }
+    const passiveStunChance = Number(s.passiveStunChance ?? 0);
+    if (passiveStunChance > 0) {
+      return `${s.name}: Passive — damaging skills have ${Math.round(
+        passiveStunChance * 100
+      )}% chance to stun for 1 round.`;
+    }
+    return `${s.name}: Passive.`;
   }
   const mult = s.damageMultiplier ?? 1;
   const cd = s.cooldown ?? 0;
@@ -2949,11 +3168,11 @@ function skillHoverTitle(s) {
   );
   const stunLine =
     stunChance > 0
-      ? ` ${Math.round(stunChance * 100)}% chance to stun for ${stunRounds} round(s).`
+      ? ` ${Math.round(stunChance * 100)}% chance to stun (petrify) for ${stunRounds} round(s).`
       : "";
   const speedLine =
     speedMult > 1
-      ? ` Grants ${speedMult}× SPD for ${speedRounds} turn(s).`
+      ? ` Afterward: ${speedMult}× SPD for ${speedRounds} turn(s) (ambush tempo).`
       : "";
   const defenseBreakMult = Number(s.defenseBreakMultiplier ?? 0);
   const defenseBreakRounds = Math.max(
@@ -2968,12 +3187,39 @@ function skillHoverTitle(s) {
     defenseBreakPct > 0
       ? ` Inflicts Defense Break for ${defenseBreakRounds} turn(s), reducing DEF by ${defenseBreakPct}%.`
       : "";
+  const ign = Number(s.ignoreDefensePercent ?? 0);
+  const ignLine =
+    ign > 0 && ign < 1
+      ? ` Ignores ${Math.round(ign * 100)}% of the target’s DEF.`
+      : "";
+  const stripC = Number(s.stripOrShredChance ?? 0);
+  const stripLine =
+    stripC > 0
+      ? ` ${Math.round(stripC * 100)}% to strip (shred DEF) and grant a shield of ${Math.round(
+          Number(s.grantShieldHpFraction ?? 0) * 100
+        )}% Max HP for ${Math.max(1, Math.floor(Number(s.grantShieldRounds ?? 2)))} turn(s) on success.`
+      : "";
   const aoeLine = s.aoe ? " Attacks all enemies." : "";
-  const passiveStunLine = "";
+  const aoeMeterLine =
+    s.aoe && s.aoeAllMeterSlowMult
+      ? ` All enemies lose ~${Math.round(
+          (1 - Number(s.aoeAllMeterSlowMult)) * 100
+        )}% attack bar (SPD) for ${Math.max(
+          1,
+          Math.floor(Number(s.aoeAllMeterSlowRounds ?? 1))
+        )} turn(s).`
+      : "";
+  const gorgonResistLine =
+    s.onStunResistSlowRounds
+      ? ` If stun fails, a stronger slow lasts ${Math.max(
+          1,
+          Math.floor(Number(s.onStunResistSlowRounds ?? 2))
+        )} turn(s).`
+      : "";
   if (s.skipAttack) {
-    return `${s.name}: Support skill — no damage this turn. Cooldown ${cd} round(s) after use.${stunLine}${speedLine}${defenseBreakLine}${passiveStunLine}`;
+    return `${s.name}: Support skill — no damage this turn. Cooldown ${cd} round(s) after use.${stunLine}${speedLine}${defenseBreakLine}`;
   }
-  return `${s.name}: Deals ${mult}× base damage (your attack minus target defense). Cooldown ${cd} round(s) after use.${aoeLine}${stunLine}${speedLine}${defenseBreakLine}${passiveStunLine}`;
+  return `${s.name}: Deals ${mult}× base damage (attack minus defense). Cooldown ${cd} round(s) after use.${aoeLine}${stunLine}${ignLine}${stripLine}${aoeMeterLine}${gorgonResistLine}${speedLine}${defenseBreakLine}`;
 }
 
 function buildHeroSkillHudHtml(heroId) {
@@ -3032,16 +3278,6 @@ function showPlayerTurnUI(actor) {
   preview.textContent = defaultDesc;
   preview.classList.add("turn-skill-preview--muted");
 
-  const basicDesc =
-    "Standard attack: 1× damage (your attack stat minus target defense). Select this, then tap an enemy to attack.";
-  const basicArmed = pendingAction && pendingAction.skillId == null;
-  const basicBtn = `<button type="button" class="btn skill-pick skill-slot skill-slot--default${
-    basicArmed ? " skill-slot--armed" : ""
-  }" data-action="basic" data-skill-desc="${escapeHtml(basicDesc)}" title="${escapeHtml(basicDesc)}">
-    <span class="skill-slot-icon" aria-hidden="true">⚔</span>
-    <span class="skill-slot-caption">Basic</span>
-  </button>`;
-
   const skills = actor.skills || [];
   const activeSkills = skills.filter((s) => !s.passive);
   const passiveSkills = skills.filter((s) => s.passive);
@@ -3080,18 +3316,18 @@ function showPlayerTurnUI(actor) {
         .join("")}</div>`
     : "";
 
-  box.innerHTML = `<div class="skill-slot-row">${basicBtn}${skillBtns}</div>${passiveRow}`;
+  box.innerHTML = `<div class="skill-slot-row">${skillBtns}</div>${passiveRow}`;
   const setSkillPreview = (text) => {
     preview.textContent = text || defaultDesc;
     preview.classList.toggle("turn-skill-preview--muted", !text);
   };
-  if (pendingAction) {
-    const pendingSkill =
-      pendingAction.skillId == null
-        ? null
-        : activeSkills.find((x) => x.id === pendingAction.skillId) || null;
-    const pendingName = pendingSkill?.name || "Basic attack";
-    setSkillPreview(`Tap an enemy to use ${pendingName}.`);
+  if (pendingAction?.skillId != null) {
+    const pendingSkill = activeSkills.find(
+      (x) => x.id === pendingAction.skillId
+    );
+    if (pendingSkill) {
+      setSkillPreview(`Tap an enemy to use ${pendingSkill.name}.`);
+    }
   }
   let skillHoldTimer = null;
   const clearSkillHold = () => {
@@ -3150,10 +3386,6 @@ function showPlayerTurnUI(actor) {
       setSkillPreview(btn.getAttribute("data-skill-desc"));
       return;
     }
-    if (btn.getAttribute("data-action") === "basic") {
-      onPlayerSkillChosen(actor, null);
-      return;
-    }
     const sid = btn.getAttribute("data-skill-id");
     const sk = activeSkills.find((x) => x.id === sid);
     onPlayerSkillChosen(actor, sk || null);
@@ -3171,6 +3403,9 @@ function onPlayerSkillChosen(actor, skill) {
 }
 
 function executePlayerChosenAction(actor, skill, targetId) {
+  if (!skill) {
+    return;
+  }
   hideTurnPanel();
   state.battleTargetEnemyId = targetId != null ? String(targetId) : null;
   const plan = planSingleAction(

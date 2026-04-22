@@ -21,7 +21,7 @@ export const HERO_DATA = [
       {
         name: "Lightning Bolt",
         damageMultiplier: 1.55,
-        cooldown: 2,
+        cooldown: 0,
         currentCooldown: 0,
       },
       {
@@ -52,7 +52,7 @@ export const HERO_DATA = [
       {
         name: "Moonlit Volley",
         damageMultiplier: 1.45,
-        cooldown: 2,
+        cooldown: 0,
         currentCooldown: 0,
       },
       {
@@ -83,7 +83,7 @@ export const HERO_DATA = [
       {
         name: "War Fervor",
         damageMultiplier: 1.4,
-        cooldown: 2,
+        cooldown: 0,
         currentCooldown: 0,
       },
       {
@@ -114,7 +114,7 @@ export const HERO_DATA = [
       {
         name: "Petrifying Glare",
         damageMultiplier: 1.35,
-        cooldown: 3,
+        cooldown: 0,
         currentCooldown: 0,
         stunChance: 0.8,
         stunDurationRounds: 1,
@@ -147,7 +147,7 @@ export const HERO_DATA = [
       {
         name: "Caduceus Strike",
         damageMultiplier: 1.3,
-        cooldown: 2,
+        cooldown: 0,
         currentCooldown: 0,
       },
       {
@@ -180,7 +180,7 @@ export const HERO_DATA = [
       {
         name: "Aegis Bash",
         damageMultiplier: 1.3,
-        cooldown: 2,
+        cooldown: 0,
         currentCooldown: 0,
       },
       {
@@ -211,7 +211,7 @@ export const HERO_DATA = [
       {
         name: "Nemean Crush",
         damageMultiplier: 1.55,
-        cooldown: 2,
+        cooldown: 0,
         currentCooldown: 0,
       },
       {
@@ -242,7 +242,7 @@ export const HERO_DATA = [
       {
         name: "Underworld Rend",
         damageMultiplier: 1.6,
-        cooldown: 2,
+        cooldown: 0,
         currentCooldown: 0,
       },
       {
@@ -274,7 +274,7 @@ export const HERO_DATA = [
       {
         name: "Heartseeker",
         damageMultiplier: 1.4,
-        cooldown: 2,
+        cooldown: 0,
         currentCooldown: 0,
       },
       {
@@ -329,6 +329,19 @@ export function heroToGameUnit(hero) {
       aoe: s.aoe,
       passive: s.passive,
       passiveStunChance: s.passiveStunChance,
+      defenseBreakMultiplier: s.defenseBreakMultiplier,
+      defenseBreakDurationRounds: s.defenseBreakDurationRounds,
+      ignoreDefensePercent: s.ignoreDefensePercent,
+      stripOrShredChance: s.stripOrShredChance,
+      stripDefenseBreakMultiplier: s.stripDefenseBreakMultiplier,
+      stripDefenseBreakRounds: s.stripDefenseBreakRounds,
+      grantShieldHpFraction: s.grantShieldHpFraction,
+      grantShieldRounds: s.grantShieldRounds,
+      aoeAllMeterSlowMult: s.aoeAllMeterSlowMult,
+      aoeAllMeterSlowRounds: s.aoeAllMeterSlowRounds,
+      onStunResistSlowMult: s.onStunResistSlowMult,
+      onStunResistSlowRounds: s.onStunResistSlowRounds,
+      leaderAlliesStunResist: s.leaderAlliesStunResist,
       cooldownRemaining: s.currentCooldown ?? 0,
     })),
   };

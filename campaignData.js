@@ -20,7 +20,7 @@ function romanSoldier(idx, scale) {
     def: Math.round(6 * s),
     spd: Math.round(20 * s),
     skills: [
-      basicSkill("Gladius Strike", 1.15, 2),
+      basicSkill("Gladius Strike", 1.15, 0),
       basicSkill("Shield Bash", 1.1, 3),
       basicSkill("Formation Jab", 1.2, 3),
     ],
@@ -40,7 +40,7 @@ function skeletonWarrior(idx, scale) {
     def: Math.round(5 * s),
     spd: Math.round(24 * s),
     skills: [
-      basicSkill("Rattle Cut", 1.15, 2),
+      basicSkill("Rattle Cut", 1.15, 0),
       basicSkill("Bone Flurry", 1.25, 3),
       basicSkill("Grave Stab", 1.2, 3),
     ],
@@ -60,7 +60,7 @@ function legionnaire(idx, scale) {
     def: Math.round(10 * s),
     spd: Math.round(18 * s),
     skills: [
-      basicSkill("Pilum Throw", 1.2, 2),
+      basicSkill("Pilum Throw", 1.2, 0),
       basicSkill("Testudo Rush", 1.15, 3),
       basicSkill("Centurion Swing", 1.35, 4),
     ],
@@ -80,7 +80,7 @@ function hellhound(idx, scale) {
     def: Math.round(12 * s),
     spd: Math.round(33 * s),
     skills: [
-      basicSkill("Infernal Bite", 1.35, 2),
+      basicSkill("Infernal Bite", 1.35, 0),
       basicSkill("Smoke Pounce", 1.5, 3),
       basicSkill("Hound's Wrath", 1.6, 4),
     ],
@@ -99,7 +99,7 @@ export const HERACLES_BOSS = {
   def: 22,
   spd: 28,
   skills: [
-    basicSkill("Nemean Crush", 1.55, 2),
+    basicSkill("Nemean Crush", 1.55, 0),
     basicSkill("Twelve Labors", 1.75, 4),
     basicSkill("Olympian Roar", 1.45, 3),
   ],
@@ -117,7 +117,7 @@ export const HADES_BOSS = {
   def: 30,
   spd: 34,
   skills: [
-    basicSkill("Underworld Rend", 1.65, 2),
+    basicSkill("Underworld Rend", 1.65, 0),
     basicSkill("Soul Chain", 1.85, 4),
     basicSkill("Stygian Crown", 1.55, 3),
   ],
