@@ -32,18 +32,6 @@
   box-sizing: border-box;
 }
 
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 html {
   height: 100%;
   width: 100%;
@@ -943,46 +931,6 @@ body:not(.hub-screen-active) .app {
   padding: 0.26rem 0.95rem 0.36rem;
 }
 
-.hub-resource-panel--mythic {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.3rem;
-  min-width: min(94vw, 20.5rem);
-  text-align: left;
-  padding: 0.32rem 0.55rem 0.4rem;
-}
-
-.hub-res-bar {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.4rem;
-  min-height: 2rem;
-  padding: 0.12rem 0.4rem 0.12rem 0.3rem;
-  border-radius: 0.3rem;
-  background: linear-gradient(180deg, rgba(20, 26, 38, 0.96) 0%, rgba(8, 11, 18, 0.98) 100%);
-  border: 1px solid rgba(195, 160, 75, 0.42);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-.hub-res-ico {
-  flex: 0 0 auto;
-  width: 1.9rem;
-  height: 1.9rem;
-  object-fit: contain;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
-}
-
-.hub-res-bar .topbar-gold,
-.hub-res-bar .topbar-scrolls {
-  margin: 0;
-  text-align: left;
-  font-size: 0.86rem;
-  line-height: 1.25;
-  flex: 1 1 auto;
-}
-
 .topbar-gold {
   margin: 0.02rem 0 0.08rem;
   font-size: 1.12rem;
@@ -1246,66 +1194,6 @@ body:not(.hub-screen-active) .app {
   max-width: min(22rem, 100%);
 }
 
-.hub-layout--mythic {
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: center;
-  gap: clamp(0.65rem, 2.2vw, 1.65rem);
-  max-width: 58rem;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.hub-nav--mythic-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 0.18rem;
-  width: 100%;
-  max-width: min(18rem, 46vw);
-  margin: 0;
-  flex-shrink: 0;
-}
-
-.hub-sb-btn {
-  position: relative;
-  display: block;
-  padding: 0;
-  min-height: 0;
-  border: none;
-  background: transparent;
-  box-shadow: none;
-  border-radius: 0.4rem;
-  cursor: pointer;
-  line-height: 0;
-  transition:
-    filter 0.16s,
-    transform 0.16s;
-}
-
-.hub-sb-btn:focus-visible {
-  outline: 2px solid #f0d78a;
-  outline-offset: 2px;
-}
-
-.hub-sb-img {
-  display: block;
-  width: 100%;
-  max-width: 16.75rem;
-  height: auto;
-}
-
-.hub-main--mythic {
-  flex: 1 1 auto;
-  min-width: 0;
-  width: 100%;
-  max-width: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0.35rem 0.25rem 0;
-}
-
 /* Reference layout: stacked rows — circular Pray, two split rows, minor row (matches AI mock). */
 .hub-nav--reference {
   display: flex;
@@ -1436,29 +1324,6 @@ body:not(.hub-screen-active) .app {
     inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
-.hub-btn.hub-sb-btn {
-  min-height: 0;
-  padding: 0;
-  font-size: 0;
-  letter-spacing: 0;
-  border: none;
-  border-radius: 0.4rem;
-  background: transparent;
-  color: inherit;
-  box-shadow: none;
-}
-
-.hub-btn.hub-sb-btn:hover {
-  box-shadow: none;
-  filter: brightness(1.06);
-  transform: translateX(1px);
-}
-
-.hub-btn.hub-sb-btn:active {
-  filter: brightness(0.96);
-  transform: translateY(0.5px);
-}
-
 .hub-btn-primary {
   background: linear-gradient(180deg, #fef9e8 0%, #f2e3c0 100%);
   border-color: rgba(150, 117, 40, 0.78);
@@ -1553,7 +1418,6 @@ body:not(.hub-screen-active) .app {
 
 #screen-hub.screen-active .hub-layout,
 #screen-hub.screen-active .hub-nav,
-#screen-hub.screen-active .hub-main--mythic,
 #screen-hub.screen-active .hub-footer,
 #screen-hub.screen-active .hub-tagline {
   position: relative;
@@ -1567,7 +1431,7 @@ body:not(.hub-screen-active) .app {
   max-width: 36rem;
 }
 
-#screen-hub.screen-active .hub-btn:not(.hub-sb-btn) {
+#screen-hub.screen-active .hub-btn {
   background: linear-gradient(180deg, rgba(255, 252, 242, 0.96) 0%, rgba(240, 230, 210, 0.96) 100%);
   box-shadow:
     0 4px 14px rgba(0, 0, 0, 0.26),
@@ -1642,14 +1506,6 @@ body:not(.hub-screen-active) .app {
     inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
-#screen-hub.screen-active .hub-resource-panel--mythic {
-  background: linear-gradient(180deg, rgba(18, 24, 36, 0.92) 0%, rgba(6, 9, 16, 0.94) 100%);
-  border-color: rgba(200, 165, 85, 0.55);
-  box-shadow:
-    0 8px 22px rgba(0, 0, 0, 0.42),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-}
-
 /* Touch phones: hub centered, HUD top-right. */
 @media (max-width: 950px) and (pointer: coarse) {
   body.hub-screen-active .hero-global {
@@ -1675,23 +1531,10 @@ body:not(.hub-screen-active) .app {
     margin-right: 0.12em;
   }
 
-  body.hub-screen-active .hub-res-bar .topbar-gold::before {
-    content: none;
-  }
-
-  body.hub-screen-active .hero-global:has(.hub-resource-panel--mythic) {
-    max-width: min(78vw, 19rem);
-  }
-
   body.hub-screen-active .hub-resource-panel {
     min-width: 0;
     margin-top: 0;
     padding: 0.18rem 0.48rem 0.24rem;
-  }
-
-  body.hub-screen-active .hub-resource-panel--mythic {
-    padding: 0.16rem 0.32rem 0.2rem;
-    gap: 0.22rem;
   }
 
   body.hub-screen-active .topbar-scrolls {
@@ -1702,29 +1545,7 @@ body:not(.hub-screen-active) .app {
 
   #screen-hub.screen-active {
     padding: 0.35rem 0.45rem 0.5rem;
-    overflow: auto;
-  }
-
-  .hub-layout--mythic {
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 0.4rem;
-  }
-
-  .hub-nav--mythic-sidebar {
-    max-width: min(14rem, 44vw);
-  }
-
-  .hub-sb-img {
-    max-width: min(14rem, 40vw);
-  }
-
-  .hub-main--mythic .hub-tagline {
-    font-size: 0.72rem;
-    line-height: 1.25;
-    padding: 0.2rem 0.4rem;
-    white-space: normal;
+    overflow: hidden;
   }
 
   .hub-layout {
