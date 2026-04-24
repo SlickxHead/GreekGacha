@@ -18,49 +18,102 @@
       <header class="hero hero-global">
         <h1 id="game-title">Greek Gacha</h1>
         <p id="game-subtitle" class="muted"></p>
-        <div class="hub-resource-panel">
-          <p id="topbar-gold" class="topbar-gold" aria-live="polite"></p>
-          <p id="topbar-scrolls" class="topbar-scrolls" aria-live="polite"></p>
+        <div class="hub-resource-panel hub-resource-panel--mythic" aria-label="Resources">
+          <div class="hub-res-bar">
+            <img class="hub-res-ico" src="assets/ui/hud/res-icon-gold.png" width="40" height="40" alt="" />
+            <p id="topbar-gold" class="topbar-gold" aria-live="polite"></p>
+          </div>
+          <div class="hub-res-bar">
+            <img class="hub-res-ico" src="assets/ui/hud/res-icon-gem.png" width="40" height="40" alt="" />
+            <p id="topbar-scrolls" class="topbar-scrolls" aria-live="polite"></p>
+          </div>
         </div>
       </header>
 
       <!-- Hub -->
       <section id="screen-hub" class="screen screen-active">
-        <div class="hub-layout">
-          <div class="hub-main">
-            <nav class="hub-nav hub-nav--reference" aria-label="Main menu">
-              <div class="hub-pray-wrap">
-                <button type="button" id="nav-pray" class="hub-btn hub-btn-primary hub-btn-pray">
-                  Pray
-                </button>
-                <span class="hub-pray-sub">Daily free</span>
-              </div>
-              <div class="hub-nav-row">
-                <button type="button" id="nav-shop" class="hub-btn hub-tab hub-btn-deco hub-btn-deco--tl">
-                  Shop
-                </button>
-                <button type="button" id="nav-box" class="hub-btn hub-tab hub-btn-deco hub-btn-deco--tr">
-                  Inventory
-                </button>
-              </div>
-              <div class="hub-nav-row">
-                <button type="button" id="nav-summon" class="hub-btn hub-tab">Summon</button>
-                <button type="button" id="nav-campaign" class="hub-btn hub-tab hub-btn-primary">
-                  Campaign
-                </button>
-              </div>
-              <div class="hub-nav-row hub-nav-row--minor">
-                <button type="button" id="nav-quests" class="hub-btn hub-btn-ghost hub-btn--minor hub-tab-minor">
-                  Quests
-                </button>
-                <button type="button" id="nav-settings" class="hub-btn hub-btn-ghost hub-btn--minor hub-tab-minor">
-                  Settings
-                </button>
-              </div>
-            </nav>
-            <div class="hub-footer">
-              <p class="hub-tagline">Begin with Perseus…</p>
-            </div>
+        <div class="hub-layout hub-layout--mythic">
+          <nav class="hub-nav hub-nav--mythic-sidebar" aria-label="Main menu">
+            <button type="button" id="nav-pray" class="hub-btn hub-sb-btn" title="Pray to the gods (daily)">
+              <img
+                class="hub-sb-img"
+                src="assets/ui/hud/nav-home.png"
+                width="275"
+                height="80"
+                alt=""
+                decoding="async"
+              />
+              <span class="visually-hidden">Pray to the gods</span>
+            </button>
+            <button type="button" id="nav-box" class="hub-btn hub-sb-btn" title="Character box and party">
+              <img
+                class="hub-sb-img"
+                src="assets/ui/hud/nav-heroes.png"
+                width="275"
+                height="80"
+                alt=""
+                decoding="async"
+              />
+              <span class="visually-hidden">Character box (heroes and party)</span>
+            </button>
+            <button type="button" id="nav-summon" class="hub-btn hub-sb-btn" title="Summon">
+              <img
+                class="hub-sb-img"
+                src="assets/ui/hud/nav-summon.png"
+                width="275"
+                height="80"
+                alt=""
+                decoding="async"
+              />
+              <span class="visually-hidden">Summon</span>
+            </button>
+            <button type="button" id="nav-campaign" class="hub-btn hub-sb-btn" title="Campaign">
+              <img
+                class="hub-sb-img"
+                src="assets/ui/hud/nav-battle.png"
+                width="275"
+                height="80"
+                alt=""
+                decoding="async"
+              />
+              <span class="visually-hidden">Campaign</span>
+            </button>
+            <button type="button" id="nav-quests" class="hub-btn hub-sb-btn" title="Quests">
+              <img
+                class="hub-sb-img"
+                src="assets/ui/hud/nav-quests.png"
+                width="275"
+                height="80"
+                alt=""
+                decoding="async"
+              />
+              <span class="visually-hidden">Quests</span>
+            </button>
+            <button type="button" id="nav-shop" class="hub-btn hub-sb-btn" title="Shop">
+              <img
+                class="hub-sb-img"
+                src="assets/ui/hud/nav-shop.png"
+                width="275"
+                height="80"
+                alt=""
+                decoding="async"
+              />
+              <span class="visually-hidden">Shop</span>
+            </button>
+            <button type="button" id="nav-settings" class="hub-btn hub-sb-btn" title="Settings">
+              <img
+                class="hub-sb-img"
+                src="assets/ui/hud/nav-alliance.png"
+                width="275"
+                height="80"
+                alt=""
+                decoding="async"
+              />
+              <span class="visually-hidden">Settings</span>
+            </button>
+          </nav>
+          <div class="hub-main--mythic">
+            <p class="hub-tagline">Begin with Perseus…</p>
           </div>
         </div>
       </section>
